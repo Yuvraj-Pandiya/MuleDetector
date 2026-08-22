@@ -1,0 +1,27 @@
+.sage-layout {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100vh;
+  background: var(--canvas);
+  color: var(--body);
+  overflow-x: hidden;
+}
+
+.sage-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  width: 100%;
+}
+
+.sage-content {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.sage-content.hero-mode {
+  padding: 0;
+}

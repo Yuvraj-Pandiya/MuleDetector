@@ -1,0 +1,364 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   Cinematic Hero Styles — Raycast-inspired Metallic & Depth Styling
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.cinematic-hero-wrapper {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--canvas, #07080a);
+  color: var(--ink, #f4f4f6);
+  font-family: var(--font-sans, system-ui, sans-serif);
+  overflow-x: hidden;
+}
+
+/* Background grid & subtle glow canvas */
+.cinematic-bg-grid {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(circle at 50% 30%, black 40%, transparent 80%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.cinematic-glow-orb {
+  position: absolute;
+  top: 15%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.06) 0%, rgba(255, 87, 87, 0.04) 40%, transparent 70%);
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Red hero stripe top banner per DESIGN.md */
+.cinematic-hero-stripe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--hero-stripe-start, #ff5757), var(--hero-stripe-end, #a1131a), transparent);
+  z-index: 10;
+}
+
+/* Main Container */
+.cinematic-hero-container {
+  position: relative;
+  z-index: 5;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 80px 24px 120px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* Brand Badge */
+.cinematic-brand-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: var(--radius-full, 9999px);
+  background: var(--surface-elevated, #101111);
+  border: 1px solid var(--hairline-strong, rgba(255, 255, 255, 0.16));
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  color: var(--ink, #f4f4f6);
+  margin-bottom: 28px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.cinematic-badge-pulse {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ff5757;
+  box-shadow: 0 0 8px #ff5757;
+  animation: badgePulse 2s infinite ease-in-out;
+}
+
+@keyframes badgePulse {
+  0%, 100% { opacity: 0.4; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.25); }
+}
+
+/* Scaled Typography */
+.cinematic-title-group {
+  margin-bottom: 40px;
+  perspective: 1000px;
+}
+
+.tagline-solid {
+  display: block;
+  font-size: clamp(2.5rem, 6vw, 5.5rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--ink, #f4f4f6);
+}
+
+.text-silver-matte {
+  display: block;
+  font-size: clamp(3rem, 7vw, 6.5rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  background: linear-gradient(180deg, #ffffff 0%, #dcdcdc 45%, #8a8a8e 85%, #5a5a5e 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  margin-top: 4px;
+}
+
+/* Parallax Tilt Card Container */
+.cinematic-tilt-card {
+  position: relative;
+  width: 100%;
+  max-width: 960px;
+  margin-top: 20px;
+  background: rgba(13, 13, 13, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--hairline-strong, rgba(255, 255, 255, 0.16));
+  border-radius: var(--radius-xl, 16px);
+  padding: 48px;
+  text-align: left;
+  box-shadow: 
+    0 30px 60px -12px rgba(0, 0, 0, 0.8),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  transform-style: preserve-3d;
+  transition: transform 0.15s ease-out, box-shadow 0.3s ease;
+}
+
+.cinematic-tilt-card:hover {
+  box-shadow: 
+    0 40px 80px -16px rgba(0, 0, 0, 0.9),
+    0 0 40px rgba(255, 255, 255, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.card-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--hairline, #242728);
+  padding-bottom: 16px;
+  margin-bottom: 24px;
+}
+
+.card-traffic-lights {
+  display: flex;
+  gap: 8px;
+}
+.traffic-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.dot-red { background: #ff5f56; }
+.dot-yellow { background: #ffbd2e; }
+.dot-green { background: #27c93f; }
+
+.card-status-tag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--mute, #9c9c9d);
+  font-family: var(--font-mono);
+}
+
+/* Card Content Layout */
+.card-content-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+}
+
+@media (min-width: 768px) {
+  .card-content-grid {
+    grid-template-columns: 1.6fr 1fr;
+  }
+}
+
+.card-heading {
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  font-weight: 600;
+  line-height: 1.25;
+  color: #ffffff;
+  margin-bottom: 16px;
+  letter-spacing: -0.01em;
+}
+
+.card-description {
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--body, #cdcdcd);
+}
+
+/* Metric Display Box */
+.metric-box {
+  background: var(--surface-card, #121212);
+  border: 1px solid var(--hairline, #242728);
+  border-radius: var(--radius-lg, 10px);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.metric-box::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+}
+
+.metric-value-num {
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 800;
+  font-family: var(--font-mono);
+  color: #ffffff;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  background: linear-gradient(180deg, #ffffff 0%, #a0a0a5 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.metric-label-text {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--mute, #9c9c9d);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 8px;
+}
+
+/* CTA Scene Section */
+.cinematic-cta-scene {
+  width: 100%;
+  max-width: 840px;
+  margin-top: 60px;
+  padding: 40px;
+  background: linear-gradient(180deg, rgba(16, 17, 17, 0.8) 0%, rgba(7, 8, 10, 0.95) 100%);
+  border: 1px solid var(--hairline-strong, rgba(255, 255, 255, 0.16));
+  border-radius: var(--radius-xl, 16px);
+  text-align: center;
+}
+
+.cta-heading {
+  font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 12px;
+  letter-spacing: -0.01em;
+}
+
+.cta-description {
+  font-size: 16px;
+  color: var(--body, #cdcdcd);
+  margin-bottom: 32px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.cta-actions-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.cinematic-btn-primary {
+  height: 48px;
+  padding: 0 24px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: var(--radius-md, 8px);
+  background: #ffffff;
+  color: #000000;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 16px rgba(255, 255, 255, 0.15);
+}
+
+.cinematic-btn-primary:hover {
+  background: #e8e8e8;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(255, 255, 255, 0.25);
+}
+
+.cinematic-btn-secondary {
+  height: 48px;
+  padding: 0 24px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: var(--radius-md, 8px);
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+  border: 1px solid var(--hairline-strong, rgba(255, 255, 255, 0.2));
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.2s ease;
+}
+
+.cinematic-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: #ffffff;
+  transform: translateY(-2px);
+}
+
+/* Store Badge Buttons */
+.store-badges-group {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  justify-content: center;
+}
+
+.store-badge-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  border-radius: var(--radius-md, 8px);
+  background: var(--surface-elevated, #101111);
+  border: 1px solid var(--hairline, #242728);
+  color: var(--ink, #f4f4f6);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.store-badge-btn:hover {
+  background: var(--surface-card, #121212);
+  border-color: var(--hairline-strong, rgba(255, 255, 255, 0.2));
+}

@@ -1,0 +1,233 @@
+.dash-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* KPI Row */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.kpi-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 20px;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+  text-align: left;
+  font-family: var(--font-sans);
+  font-feature-settings: "calt", "kern", "liga", "ss03";
+}
+
+.kpi-card:hover {
+  border-color: var(--hairline-strong);
+}
+
+.kpi-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.kpi-icon-primary { background: var(--primary-soft); color: var(--primary); }
+.kpi-icon-danger  { background: var(--danger-soft); color: var(--danger); }
+.kpi-icon-warning { background: var(--warning-soft); color: var(--warning); }
+.kpi-icon-accent  { background: var(--accent-soft); color: var(--accent); }
+
+.kpi-label {
+  font-size: 12px;
+  color: var(--mute);
+  display: block;
+}
+
+.kpi-value {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--ink);
+  margin: 2px 0;
+}
+
+.kpi-value.val-danger { color: var(--danger); }
+.kpi-value.val-warning { color: var(--warning); }
+
+.kpi-sub {
+  font-size: 11px;
+  color: var(--stone);
+  display: block;
+}
+
+.kpi-trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.kpi-trend.up { color: var(--success); }
+
+/* Charts Row */
+.charts-row {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 1200px) {
+  .charts-row { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 768px) {
+  .charts-row { grid-template-columns: 1fr; }
+}
+
+/* Dashboard Card */
+.dash-card {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+}
+
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.card-head h3 {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.card-sub {
+  font-size: 12px;
+  color: var(--stone);
+  margin-top: 1px;
+}
+
+.icon-link {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  color: var(--mute);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.icon-link:hover {
+  color: var(--primary);
+  border-color: var(--hairline-strong);
+}
+
+/* Donut */
+.donut-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.legend-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  width: 100%;
+  margin-top: 12px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legend-name { color: var(--mute); flex: 1; }
+.legend-val  { font-weight: 700; color: var(--ink); font-family: var(--font-mono); font-size: 12px; }
+
+/* Alert List */
+.alert-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.alert-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+  transition: border-color 0.15s ease;
+}
+
+.alert-row:hover {
+  border-color: var(--hairline-strong);
+}
+
+.alert-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.alert-head-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.alert-type {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.acct-tag {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--mute);
+  background: var(--surface-elevated);
+  padding: 1px 6px;
+  border-radius: var(--radius-xs);
+}
+
+.alert-msg {
+  font-size: 12px;
+  color: var(--stone);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.alert-time {
+  font-size: 11px;
+  color: var(--stone);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
