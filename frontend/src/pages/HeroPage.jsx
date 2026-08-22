@@ -1,15 +1,53 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShieldAlert, ArrowRight } from 'lucide-react';
+import { ShieldAlert, ArrowRight, ChevronDown } from 'lucide-react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { CinematicHero } from '@/components/ui/cinematic-landing-hero';
 import FeatureShaderCards from '@/components/ui/feature-shader-cards';
 
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+}
+
 export default function HeroPage() {
   const navigate = useNavigate();
+  const featureSectionRef = useRef(null);
 
   const handleGetInside = () => {
     navigate('/dashboard');
   };
+
+  useEffect(() => {
+    if (!featureSectionRef.current) return;
+
+    const ctx = gsap.context(() => {
+      // Scroll-triggered Fade-Up & Scale Reveal Animation for the Feature Section
+      gsap.fromTo(
+        featureSectionRef.current,
+        {
+          opacity: 0,
+          y: 60,
+          scale: 0.97,
+        },
+        {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          duration: 1.2,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: featureSectionRef.current,
+            start: 'top 85%',
+            end: 'top 30%',
+            scrub: 0.8,
+          },
+        }
+      );
+    });
+
+    return () => ctx.revert();
+  }, []);
 
   return (
     <div className="relative overflow-x-hidden w-full min-h-screen bg-neutral-950">
@@ -63,29 +101,25 @@ export default function HeroPage() {
         onSecondaryClick={() => navigate('/upload')}
       />
 
-      {/* 2. CINEMATIC FRAME TRANSITION DIVIDER: Smooth gradient blend & animated glowing beam divider */}
-      <div className="relative z-20 w-full bg-gradient-to-b from-[#050914] via-[#03060f] to-black flex flex-col items-center justify-center pt-8 pb-4 overflow-hidden pointer-events-none">
+      {/* 2. CINEMATIC SECTION TRANSITION DIVIDER */}
+      <div className="relative w-full z-30 pointer-events-none flex flex-col items-center justify-center -mt-8 mb-4">
+        {/* Soft Gradient Fade Overlay Mask connecting Hero & Features */}
+        <div className="absolute -top-24 left-0 right-0 h-36 bg-gradient-to-b from-transparent via-neutral-950/80 to-black" />
         
-        {/* Ambient Portal Glow Orbs */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] md:w-[900px] h-[120px] bg-gradient-to-b from-cyan-500/10 via-blue-500/5 to-transparent blur-[60px] rounded-full pointer-events-none" />
-
-        {/* Animated Laser Beam Line */}
-        <div className="relative w-full max-w-6xl mx-auto flex items-center justify-center px-6 my-2">
-          <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-cyan-400/40 to-transparent shadow-[0_0_12px_rgba(34,211,238,0.5)]" />
-          <div className="absolute left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_10px_#22d3ee] animate-ping" />
-          <div className="absolute left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_6px_#ffffff]" />
-        </div>
-
-        {/* Downward Scroll Indicator Pill */}
-        <div className="relative z-10 my-2 inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/5 border border-white/10 text-cyan-300 text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase backdrop-blur-md shadow-lg animate-bounce">
-          <span>↓</span>
-          <span>EXPLORE PLATFORM INTELLIGENCE</span>
-          <span>↓</span>
+        {/* Luminous Glowing Transition Line */}
+        <div className="relative w-full max-w-5xl h-[1px] bg-gradient-to-r from-transparent via-white/25 to-transparent shadow-[0_0_15px_rgba(255,255,255,0.2)]">
+          <div className="absolute left-1/2 -translate-x-1/2 -top-3 px-4 py-1 rounded-full bg-black/90 border border-white/15 backdrop-blur-xl flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-[0.25em] text-zinc-400 shadow-2xl">
+            <span>EXPLORE PLATFORM LAYERS</span>
+            <ChevronDown className="w-3 h-3 text-cyan-400 animate-bounce" />
+          </div>
         </div>
       </div>
 
-      {/* 3. NEW FEATURES SECTION: Placed smoothly below the transition divider */}
-      <div className="relative z-20 w-full bg-black flex justify-center items-center">
+      {/* 3. FEATURES SECTION WITH SCROLL FADE-UP ANIMATION */}
+      <div
+        ref={featureSectionRef}
+        className="relative z-20 w-full bg-black flex justify-center items-center transform will-change-transform"
+      >
         <FeatureShaderCards />
       </div>
     </div>

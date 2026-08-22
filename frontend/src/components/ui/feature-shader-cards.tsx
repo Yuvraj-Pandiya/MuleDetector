@@ -142,8 +142,6 @@ const features: FeatureCardData[] = [
 
 export default function FeatureShaderCards() {
   const [reduceMotion, setReduceMotion] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
-  const containerRef = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -153,34 +151,12 @@ export default function FeatureShaderCards() {
     return () => mediaQuery.removeEventListener("change", listener);
   }, []);
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-        }
-      },
-      { threshold: 0.1 }
-    );
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
-    }
-    return () => observer.disconnect();
-  }, []);
-
   return (
-    <section 
-      ref={containerRef}
-      className="relative w-full py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-black text-white overflow-hidden font-sans antialiased flex flex-col items-center justify-center"
-    >
+    <section className="relative w-full py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-black text-white overflow-hidden border-t border-white/10 font-sans antialiased flex flex-col items-center justify-center">
       {/* Background Radial Glow Matching Hero Monochromatic Theme */}
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] bg-white/5 rounded-full blur-[150px] pointer-events-none" aria-hidden="true" />
 
-      <div 
-        className={`w-full max-w-[1450px] mx-auto relative z-10 flex flex-col items-center text-center transition-all duration-1000 ease-out ${
-          isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-        }`}
-      >
+      <div className="w-full max-w-[1450px] mx-auto relative z-10 flex flex-col items-center text-center">
         
         {/* Section Header: Matching Hero Black & White / Silver-Matte Typography */}
         <div className="flex flex-col items-center text-center max-w-4xl mx-auto mb-12 lg:mb-14 space-y-4 w-full">
@@ -204,12 +180,10 @@ export default function FeatureShaderCards() {
 
         {/* 5-Card Layout: Centered Flex Wrapper */}
         <div className="flex flex-wrap justify-center items-stretch gap-6 lg:gap-8 w-full max-w-[1450px] mx-auto">
-          {features.map((feature, idx) => (
+          {features.map((feature) => (
             <div
               key={feature.id}
-              className={`w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-22px)] max-w-[450px] flex flex-col transition-all duration-700 delay-[${
-                idx * 100
-              }ms]`}
+              className="w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-22px)] max-w-[450px] flex flex-col"
             >
               <FeatureCard feature={feature} reduceMotion={reduceMotion} />
             </div>
