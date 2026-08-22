@@ -383,41 +383,103 @@ export function CinematicHero({
       <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none" style={{ perspective: "1500px" }}>
         <div
           ref={mainCardRef}
-          className="main-card premium-depth-card relative overflow-hidden gsap-reveal flex items-center justify-center pointer-events-auto w-[92vw] md:w-[82vw] lg:w-[78vw] h-[90vh] md:h-[82vh] lg:h-[78vh] rounded-[28px] md:rounded-[36px]"
+          className="main-card premium-depth-card relative overflow-hidden gsap-reveal flex items-center justify-center pointer-events-auto w-[96vw] md:w-[94vw] lg:w-[92vw] max-w-[1550px] h-[92vh] md:h-[86vh] lg:h-[82vh] rounded-[28px] md:rounded-[36px]"
         >
           <div className="card-sheen" aria-hidden="true" />
 
-          {/* DYNAMIC RESPONSIVE GRID: Flex-col on mobile to force order, Grid on desktop */}
-          <div className="relative w-full h-full max-w-5xl lg:max-w-6xl mx-auto px-4 lg:px-8 flex flex-col justify-evenly lg:grid lg:grid-cols-3 items-center lg:gap-6 z-10 py-4 lg:py-0">
+          {/* DYNAMIC RESPONSIVE 5-SECTION COMPOSITION */}
+          <div className="relative w-full h-full max-w-[1500px] mx-auto px-3 lg:px-6 flex flex-col justify-evenly lg:grid lg:grid-cols-12 items-center gap-3 lg:gap-4 z-10 py-3 lg:py-0">
             
-            {/* 1. TOP (Mobile) / RIGHT (Desktop): BRAND NAME */}
-            <div className="card-right-text gsap-reveal order-1 lg:order-3 flex justify-center lg:justify-end z-20 w-full lg:translate-x-[36px] lg:pl-4">
-              <h2 className="text-3xl md:text-4xl lg:text-5xl xl:text-[4.75rem] 2xl:text-[5.25rem] font-black uppercase tracking-tighter text-card-silver-matte leading-[0.88] text-center lg:text-left flex flex-col items-center lg:items-start">
-                {typeof brandName === 'string' ? (
-                  (brandName.toUpperCase() === 'MULESCOPE' || brandName.toUpperCase() === 'MULE SCOPE'
-                    ? ['MULE', 'SCOPE']
-                    : brandName.includes(' ')
-                    ? brandName.split(' ')
-                    : [brandName]
-                  ).map((word, idx) => (
-                    <span key={idx} className="block whitespace-nowrap">{word}</span>
-                  ))
-                ) : (
-                  brandName
-                )}
-              </h2>
+            {/* 1. LEFT TEXT DESCRIPTION (Desktop: cols 1-3 / order 1) */}
+            <div className="card-left-text gsap-reveal order-1 lg:col-span-3 flex flex-col justify-center text-center lg:text-left z-20 w-full px-2 lg:px-3">
+              <h3
+                className="text-white text-lg md:text-2xl lg:text-3xl font-bold mb-1.5 lg:mb-3 tracking-tight"
+                style={{ color: '#ffffff', WebkitTextFillColor: '#ffffff', textShadow: '0 2px 12px rgba(0,0,0,0.6)' }}
+              >
+                {cardHeading}
+              </h3>
+              <p className="hidden md:block text-blue-100/70 text-xs md:text-sm lg:text-sm font-normal leading-relaxed mx-auto lg:mx-0 max-w-sm lg:max-w-none">
+                {cardDescription}
+              </p>
             </div>
 
-            {/* 2. MIDDLE (Mobile) / CENTER (Desktop): IPHONE MOCKUP */}
-            <div className="mockup-scroll-wrapper order-2 lg:order-2 relative w-full h-[320px] lg:h-[500px] flex items-center justify-center z-10" style={{ perspective: "1000px" }}>
-              
-              {/* Inner wrapper for safe CSS scaling that doesn't conflict with GSAP */}
-              <div className="relative w-full h-full flex items-center justify-center transform scale-[0.55] md:scale-[0.72] lg:scale-[0.80]">
-                
-                {/* The iPhone Bezel */}
+            {/* 2. LEFT FEATURE CARDS STACK (Desktop: cols 4-5 / order 2) */}
+            <div className="order-2 lg:col-span-2 flex flex-col justify-center space-y-2.5 lg:space-y-3.5 z-20 w-full">
+              {/* Card 1: Explainable AI Scoring */}
+              <div className="floating-badge relative group flex items-center gap-1.5 lg:gap-2 w-full">
+                <div className="flex-1 floating-ui-badge rounded-xl p-2 lg:p-2.5 flex items-center gap-2.5 shadow-lg border border-white/10 backdrop-blur-md bg-neutral-900/60 hover:bg-neutral-800/80 transition-all duration-300">
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-b from-blue-500/20 to-blue-900/10 flex items-center justify-center border border-blue-400/30 shrink-0">
+                    <span className="text-xs lg:text-sm drop-shadow-md">⚡</span>
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-white text-[11px] lg:text-xs font-bold tracking-tight truncate">Explainable AI Scoring</p>
+                    <p className="text-blue-200/50 text-[9px] lg:text-[10px] font-medium truncate">SHAP human-readable reasoning</p>
+                  </div>
+                </div>
+                <div className="hidden lg:flex items-center text-blue-400/70 shrink-0 w-5 xl:w-7" aria-hidden="true">
+                  <div className="h-[1px] w-full bg-gradient-to-r from-blue-400/30 to-blue-400/80 border-t border-dashed border-blue-400/70" />
+                  <span className="text-[10px] -ml-1 text-blue-400 font-bold">►</span>
+                </div>
+              </div>
+
+              {/* Card 2: Risk-Ranked Accounts */}
+              <div className="floating-badge relative group flex items-center gap-1.5 lg:gap-2 w-full">
+                <div className="flex-1 floating-ui-badge rounded-xl p-2 lg:p-2.5 flex items-center gap-2.5 shadow-lg border border-white/10 backdrop-blur-md bg-neutral-900/60 hover:bg-neutral-800/80 transition-all duration-300">
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-b from-amber-500/20 to-amber-900/10 flex items-center justify-center border border-amber-400/30 shrink-0">
+                    <span className="text-xs lg:text-sm drop-shadow-md">📊</span>
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-white text-[11px] lg:text-xs font-bold tracking-tight truncate">Risk-Ranked Accounts</p>
+                    <p className="text-blue-200/50 text-[9px] lg:text-[10px] font-medium truncate">Sortable, filterable, color-coded tiers</p>
+                  </div>
+                </div>
+                <div className="hidden lg:flex items-center text-blue-400/70 shrink-0 w-5 xl:w-7" aria-hidden="true">
+                  <div className="h-[1px] w-full bg-gradient-to-r from-blue-400/30 to-blue-400/80 border-t border-dashed border-blue-400/70" />
+                  <span className="text-[10px] -ml-1 text-blue-400 font-bold">►</span>
+                </div>
+              </div>
+
+              {/* Card 3: Upload & Ingestion */}
+              <div className="floating-badge relative group flex items-center gap-1.5 lg:gap-2 w-full">
+                <div className="flex-1 floating-ui-badge rounded-xl p-2 lg:p-2.5 flex items-center gap-2.5 shadow-lg border border-white/10 backdrop-blur-md bg-neutral-900/60 hover:bg-neutral-800/80 transition-all duration-300">
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-b from-emerald-500/20 to-emerald-900/10 flex items-center justify-center border border-emerald-400/30 shrink-0">
+                    <span className="text-xs lg:text-sm drop-shadow-md">☁️</span>
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-white text-[11px] lg:text-xs font-bold tracking-tight truncate">Upload &amp; Ingestion</p>
+                    <p className="text-blue-200/50 text-[9px] lg:text-[10px] font-medium truncate">Drag-and-drop CSV, instant preview</p>
+                  </div>
+                </div>
+                <div className="hidden lg:flex items-center text-blue-400/70 shrink-0 w-5 xl:w-7" aria-hidden="true">
+                  <div className="h-[1px] w-full bg-gradient-to-r from-blue-400/30 to-blue-400/80 border-t border-dashed border-blue-400/70" />
+                  <span className="text-[10px] -ml-1 text-blue-400 font-bold">►</span>
+                </div>
+              </div>
+
+              {/* Card 4: Alerts & Case Management */}
+              <div className="floating-badge relative group flex items-center gap-1.5 lg:gap-2 w-full">
+                <div className="flex-1 floating-ui-badge rounded-xl p-2 lg:p-2.5 flex items-center gap-2.5 shadow-lg border border-white/10 backdrop-blur-md bg-neutral-900/60 hover:bg-neutral-800/80 transition-all duration-300">
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-b from-red-500/20 to-red-900/10 flex items-center justify-center border border-red-400/30 shrink-0">
+                    <span className="text-xs lg:text-sm drop-shadow-md">⚠️</span>
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-white text-[11px] lg:text-xs font-bold tracking-tight truncate">Alerts &amp; Case Management</p>
+                    <p className="text-blue-200/50 text-[9px] lg:text-[10px] font-medium truncate">Severity alerts &amp; analyst workflow</p>
+                  </div>
+                </div>
+                <div className="hidden lg:flex items-center text-blue-400/70 shrink-0 w-5 xl:w-7" aria-hidden="true">
+                  <div className="h-[1px] w-full bg-gradient-to-r from-blue-400/30 to-blue-400/80 border-t border-dashed border-blue-400/70" />
+                  <span className="text-[10px] -ml-1 text-blue-400 font-bold">►</span>
+                </div>
+              </div>
+            </div>
+
+            {/* 3. CENTER: CLEAN PHONE MOCKUP (Desktop: cols 6-7 / order 3) */}
+            <div className="mockup-scroll-wrapper order-3 lg:col-span-2 relative w-full h-[320px] lg:h-[480px] flex items-center justify-center z-10 my-2 lg:my-0" style={{ perspective: "1000px" }}>
+              <div className="relative w-full h-full flex items-center justify-center transform scale-[0.55] md:scale-[0.72] lg:scale-[0.82]">
                 <div
                   ref={mockupRef}
-                  className="relative w-[280px] h-[580px] rounded-[3rem] iphone-bezel flex flex-col will-change-transform transform-style-3d"
+                  className="relative w-[280px] h-[580px] rounded-[3rem] iphone-bezel flex flex-col will-change-transform transform-style-3d shadow-[0_25px_60px_rgba(0,0,0,0.9)]"
                 >
                   {/* Physical Hardware Buttons */}
                   <div className="absolute top-[120px] -left-[3px] w-[3px] h-[25px] hardware-btn rounded-l-md z-0" aria-hidden="true" />
@@ -463,8 +525,8 @@ export function CinematicHero({
                             </svg>
                           </div>
                           <div className="flex-1 min-w-0">
-                            <div className="text-[11px] font-semibold text-white tracking-tight truncate">Alerts & Case Management</div>
-                            <div className="text-[9px] text-neutral-400 truncate">Severity alerts & analyst workflow</div>
+                            <div className="text-[11px] font-semibold text-white tracking-tight truncate">Alerts &amp; Case Management</div>
+                            <div className="text-[9px] text-neutral-400 truncate">Severity alerts &amp; analyst workflow</div>
                           </div>
                         </div>
                         <div className="phone-widget widget-depth rounded-2xl p-3 flex items-center">
@@ -474,8 +536,8 @@ export function CinematicHero({
                             </svg>
                           </div>
                           <div className="flex-1 min-w-0">
-                            <div className="text-[11px] font-semibold text-white tracking-tight truncate">Model Metrics & Simulation</div>
-                            <div className="text-[9px] text-neutral-400 truncate">Precision, ROC-AUC & live streaming</div>
+                            <div className="text-[11px] font-semibold text-white tracking-tight truncate">Model Metrics &amp; Simulation</div>
+                            <div className="text-[9px] text-neutral-400 truncate">Precision, ROC-AUC &amp; live streaming</div>
                           </div>
                         </div>
                       </div>
@@ -484,89 +546,96 @@ export function CinematicHero({
                     </div>
                   </div>
                 </div>
-
-                {/* Floating Glass Badges */}
-                {/* 1. Upper Left: Explainable AI Scoring */}
-                <div className="floating-badge absolute flex top-1 lg:top-3 left-[-10px] lg:left-[-70px] floating-ui-badge rounded-lg lg:rounded-xl p-2 lg:p-3 items-center gap-2 lg:gap-3 z-30">
-                  <div className="w-7 h-7 lg:w-8.5 lg:h-8.5 rounded-full bg-gradient-to-b from-blue-500/20 to-blue-900/10 flex items-center justify-center border border-blue-400/30 shadow-inner flex-shrink-0">
-                    <span className="text-sm lg:text-base drop-shadow-lg" aria-hidden="true">⚡</span>
-                  </div>
-                  <div>
-                    <p className="text-white text-[11px] lg:text-xs font-bold tracking-tight">Explainable AI Scoring</p>
-                    <p className="text-blue-200/50 text-[9px] lg:text-[10px] font-medium">SHAP human-readable reasoning</p>
-                  </div>
-                </div>
-
-                {/* 2. Mid Left: Risk-Ranked Accounts */}
-                <div className="floating-badge absolute flex top-[110px] lg:top-[125px] left-[-10px] lg:left-[-75px] floating-ui-badge rounded-lg lg:rounded-xl p-2 lg:p-3 items-center gap-2 lg:gap-3 z-30">
-                  <div className="w-7 h-7 lg:w-8.5 lg:h-8.5 rounded-full bg-gradient-to-b from-amber-500/20 to-amber-900/10 flex items-center justify-center border border-amber-400/30 shadow-inner flex-shrink-0">
-                    <span className="text-sm lg:text-base drop-shadow-lg" aria-hidden="true">📊</span>
-                  </div>
-                  <div>
-                    <p className="text-white text-[11px] lg:text-xs font-bold tracking-tight">Risk-Ranked Accounts</p>
-                    <p className="text-blue-200/50 text-[9px] lg:text-[10px] font-medium">Sortable, filterable, color-coded risk tiers</p>
-                  </div>
-                </div>
-
-                {/* 3. Upper Right: Upload & Ingestion */}
-                <div className="floating-badge absolute flex top-1 lg:top-3 right-[-10px] lg:right-[-70px] floating-ui-badge rounded-lg lg:rounded-xl p-2 lg:p-3 items-center gap-2 lg:gap-3 z-30">
-                  <div className="w-7 h-7 lg:w-8.5 lg:h-8.5 rounded-full bg-gradient-to-b from-emerald-500/20 to-emerald-900/10 flex items-center justify-center border border-emerald-400/30 shadow-inner flex-shrink-0">
-                    <span className="text-sm lg:text-base drop-shadow-lg" aria-hidden="true">📤</span>
-                  </div>
-                  <div>
-                    <p className="text-white text-[11px] lg:text-xs font-bold tracking-tight">Upload &amp; Ingestion</p>
-                    <p className="text-blue-200/50 text-[9px] lg:text-[10px] font-medium">Drag-and-drop CSV, instant schema preview</p>
-                  </div>
-                </div>
-
-                {/* 4. Mid-Upper Right: Alerts & Case Management */}
-                <div className="floating-badge absolute flex top-[110px] lg:top-[125px] right-[-10px] lg:right-[-70px] floating-ui-badge rounded-lg lg:rounded-xl p-2 lg:p-3 items-center gap-2 lg:gap-3 z-30">
-                  <div className="w-7 h-7 lg:w-8.5 lg:h-8.5 rounded-full bg-gradient-to-b from-red-500/20 to-red-900/10 flex items-center justify-center border border-red-400/30 shadow-inner flex-shrink-0">
-                    <span className="text-sm lg:text-base drop-shadow-lg" aria-hidden="true">🔔</span>
-                  </div>
-                  <div>
-                    <p className="text-white text-[11px] lg:text-xs font-bold tracking-tight">Alerts &amp; Case Management</p>
-                    <p className="text-blue-200/50 text-[9px] lg:text-[10px] font-medium">Severity alerts &amp; analyst workflow</p>
-                  </div>
-                </div>
-
-                {/* 5. Mid-Lower Right: Transaction Network Graph */}
-                <div className="floating-badge absolute flex top-[225px] lg:top-[250px] right-[-10px] lg:right-[-70px] floating-ui-badge rounded-lg lg:rounded-xl p-2 lg:p-3 items-center gap-2 lg:gap-3 z-30">
-                  <div className="w-7 h-7 lg:w-8.5 lg:h-8.5 rounded-full bg-gradient-to-b from-indigo-500/20 to-indigo-900/10 flex items-center justify-center border border-indigo-400/30 shadow-inner flex-shrink-0">
-                    <span className="text-sm lg:text-base drop-shadow-lg" aria-hidden="true">🛡️</span>
-                  </div>
-                  <div>
-                    <p className="text-white text-[11px] lg:text-xs font-bold tracking-tight">Transaction Network Graph</p>
-                    <p className="text-blue-200/50 text-[9px] lg:text-[10px] font-medium">Force-directed mule ring engine</p>
-                  </div>
-                </div>
-
-                {/* 6. Bottom Right: Model Metrics & Simulation */}
-                <div className="floating-badge absolute flex bottom-1 lg:bottom-3 right-[-10px] lg:right-[-60px] floating-ui-badge rounded-lg lg:rounded-xl p-2 lg:p-3 items-center gap-2 lg:gap-3 z-30">
-                  <div className="w-7 h-7 lg:w-8.5 lg:h-8.5 rounded-full bg-gradient-to-b from-violet-500/20 to-violet-900/10 flex items-center justify-center border border-violet-400/30 shadow-inner flex-shrink-0">
-                    <span className="text-sm lg:text-base drop-shadow-lg" aria-hidden="true">📈</span>
-                  </div>
-                  <div>
-                    <p className="text-white text-[11px] lg:text-xs font-bold tracking-tight">Model Metrics &amp; Simulation</p>
-                    <p className="text-blue-200/50 text-[9px] lg:text-[10px] font-medium">Precision, ROC-AUC &amp; live streaming</p>
-                  </div>
-                </div>
-
               </div>
             </div>
 
-            {/* 3. BOTTOM (Mobile) / LEFT (Desktop): ACCOUNTABILITY TEXT */}
-            <div className="card-left-text gsap-reveal order-3 lg:order-1 flex flex-col justify-center text-center lg:text-left z-20 w-full lg:max-w-none px-4 lg:px-0">
-              <h3
-                className="text-white text-lg md:text-2xl lg:text-3xl font-bold mb-0 lg:mb-3 tracking-tight"
-                style={{ color: '#ffffff', WebkitTextFillColor: '#ffffff', textShadow: '0 2px 12px rgba(0,0,0,0.6)' }}
-              >
-                {cardHeading}
-              </h3>
-              {/* HIDDEN ON MOBILE (added hidden md:block) */}
-              <p className="hidden md:block text-blue-100/70 text-xs md:text-sm lg:text-base font-normal leading-relaxed mx-auto lg:mx-0 max-w-sm lg:max-w-none">
-                {cardDescription}
-              </p>
+            {/* 4. RIGHT FEATURE CARDS STACK (Desktop: cols 8-9 / order 4) */}
+            <div className="order-4 lg:col-span-2 flex flex-col justify-center space-y-2.5 lg:space-y-3.5 z-20 w-full">
+              {/* Card 1: Model Metrics & Simulation */}
+              <div className="floating-badge relative group flex items-center gap-1.5 lg:gap-2 w-full">
+                <div className="hidden lg:flex items-center text-blue-400/70 shrink-0 w-5 xl:w-7" aria-hidden="true">
+                  <span className="text-[10px] -mr-1 text-blue-400 font-bold">◄</span>
+                  <div className="h-[1px] w-full bg-gradient-to-r from-blue-400/80 to-blue-400/30 border-t border-dashed border-blue-400/70" />
+                </div>
+                <div className="flex-1 floating-ui-badge rounded-xl p-2 lg:p-2.5 flex items-center gap-2.5 shadow-lg border border-white/10 backdrop-blur-md bg-neutral-900/60 hover:bg-neutral-800/80 transition-all duration-300">
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-b from-indigo-500/20 to-indigo-900/10 flex items-center justify-center border border-indigo-400/30 shrink-0">
+                    <span className="text-xs lg:text-sm drop-shadow-md">✉️</span>
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-white text-[11px] lg:text-xs font-bold tracking-tight truncate">Model Metrics &amp; Simulation</p>
+                    <p className="text-blue-200/50 text-[9px] lg:text-[10px] font-medium truncate">Precision, Recall &amp; what-if modeling</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 2: Transaction Network Graph */}
+              <div className="floating-badge relative group flex items-center gap-1.5 lg:gap-2 w-full">
+                <div className="hidden lg:flex items-center text-blue-400/70 shrink-0 w-5 xl:w-7" aria-hidden="true">
+                  <span className="text-[10px] -mr-1 text-blue-400 font-bold">◄</span>
+                  <div className="h-[1px] w-full bg-gradient-to-r from-blue-400/80 to-blue-400/30 border-t border-dashed border-blue-400/70" />
+                </div>
+                <div className="flex-1 floating-ui-badge rounded-xl p-2 lg:p-2.5 flex items-center gap-2.5 shadow-lg border border-white/10 backdrop-blur-md bg-neutral-900/60 hover:bg-neutral-800/80 transition-all duration-300">
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-b from-cyan-500/20 to-cyan-900/10 flex items-center justify-center border border-cyan-400/30 shrink-0">
+                    <span className="text-xs lg:text-sm drop-shadow-md">🎯</span>
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-white text-[11px] lg:text-xs font-bold tracking-tight truncate">Transaction Network Graph</p>
+                    <p className="text-blue-200/50 text-[9px] lg:text-[10px] font-medium truncate">Force-directed mule ring engine</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 3: Model Metrics & Simulation */}
+              <div className="floating-badge relative group flex items-center gap-1.5 lg:gap-2 w-full">
+                <div className="hidden lg:flex items-center text-blue-400/70 shrink-0 w-5 xl:w-7" aria-hidden="true">
+                  <span className="text-[10px] -mr-1 text-blue-400 font-bold">◄</span>
+                  <div className="h-[1px] w-full bg-gradient-to-r from-blue-400/80 to-blue-400/30 border-t border-dashed border-blue-400/70" />
+                </div>
+                <div className="flex-1 floating-ui-badge rounded-xl p-2 lg:p-2.5 flex items-center gap-2.5 shadow-lg border border-white/10 backdrop-blur-md bg-neutral-900/60 hover:bg-neutral-800/80 transition-all duration-300">
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-b from-violet-500/20 to-violet-900/10 flex items-center justify-center border border-violet-400/30 shrink-0">
+                    <span className="text-xs lg:text-sm drop-shadow-md">📈</span>
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-white text-[11px] lg:text-xs font-bold tracking-tight truncate">Model Metrics &amp; Simulation</p>
+                    <p className="text-blue-200/50 text-[9px] lg:text-[10px] font-medium truncate">Precision, ROC-AUC &amp; live streaming</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 4: Alerts & Case Management */}
+              <div className="floating-badge relative group flex items-center gap-1.5 lg:gap-2 w-full">
+                <div className="hidden lg:flex items-center text-blue-400/70 shrink-0 w-5 xl:w-7" aria-hidden="true">
+                  <span className="text-[10px] -mr-1 text-blue-400 font-bold">◄</span>
+                  <div className="h-[1px] w-full bg-gradient-to-r from-blue-400/80 to-blue-400/30 border-t border-dashed border-blue-400/70" />
+                </div>
+                <div className="flex-1 floating-ui-badge rounded-xl p-2 lg:p-2.5 flex items-center gap-2.5 shadow-lg border border-white/10 backdrop-blur-md bg-neutral-900/60 hover:bg-neutral-800/80 transition-all duration-300">
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-b from-rose-500/20 to-rose-900/10 flex items-center justify-center border border-rose-400/30 shrink-0">
+                    <span className="text-xs lg:text-sm drop-shadow-md">🔔</span>
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-white text-[11px] lg:text-xs font-bold tracking-tight truncate">Alerts &amp; Case Management</p>
+                    <p className="text-blue-200/50 text-[9px] lg:text-[10px] font-medium truncate">Severe alerts &amp; analyst workflow</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 5. RIGHT BRANDING NAME (Desktop: cols 10-12 / order 5) */}
+            <div className="card-right-text gsap-reveal order-5 lg:col-span-3 flex justify-center lg:justify-end z-20 w-full px-2 lg:px-3">
+              <h2 className="text-3xl md:text-4xl lg:text-5xl xl:text-[4.25rem] 2xl:text-[4.75rem] font-black uppercase tracking-tighter text-card-silver-matte leading-[0.88] text-center lg:text-right flex flex-col items-center lg:items-end">
+                {typeof brandName === 'string' ? (
+                  (brandName.toUpperCase() === 'MULESCOPE' || brandName.toUpperCase() === 'MULE SCOPE'
+                    ? ['MULE', 'SCOPE']
+                    : brandName.includes(' ')
+                    ? brandName.split(' ')
+                    : [brandName]
+                  ).map((word, idx) => (
+                    <span key={idx} className="block whitespace-nowrap">{word}</span>
+                  ))
+                ) : (
+                  brandName
+                )}
+              </h2>
             </div>
 
           </div>
