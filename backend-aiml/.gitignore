@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+data/model.pkl
+data/metrics.json
+data/mock_features.csv
+data/transactions.csv
+*.log
+.env
+venv/
+.venv/
