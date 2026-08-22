@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ShieldAlert, ArrowRight } from 'lucide-react';
 import { CinematicHero } from '@/components/ui/cinematic-landing-hero';
 import FeatureShaderCards from '@/components/ui/feature-shader-cards';
+import SpecularButton from '@/components/ui/SpecularButton';
 
 export default function HeroPage() {
   const navigate = useNavigate();
@@ -29,18 +30,28 @@ export default function HeroPage() {
           </span>
         </div>
 
-        {/* Top-Right "GET INSIDE" CTA Gateway Button */}
-        <button
+        {/* Top-Right "GET INSIDE" Specular Shader CTA Button */}
+        <SpecularButton
           onClick={handleGetInside}
-          className="pointer-events-auto group relative inline-flex items-center justify-center px-5 py-2 md:px-6 md:py-2.5 rounded-full font-bold text-xs md:text-sm tracking-wider uppercase text-white bg-neutral-950/80 hover:bg-neutral-900 border border-white/20 hover:border-blue-400/60 backdrop-blur-xl shadow-xl transition-all duration-300 hover:scale-[1.03] hover:shadow-[0_0_25px_rgba(59,130,246,0.45)] active:scale-95 cursor-pointer"
-          title="Enter MuleScope Platform"
+          size="md"
+          radius={9999}
+          tint="#000000"
+          tintOpacity={0.9}
+          blur={12}
+          textColor="#ffffff"
+          lineColor="#ffffff"
+          baseColor="#737373"
+          intensity={2.2}
+          shineSize={25}
+          shineFade={50}
+          speed={0.5}
+          className="pointer-events-auto cursor-pointer shadow-2xl group"
         >
-          <span className="relative z-10 flex items-center gap-2">
+          <span className="flex items-center gap-2 text-xs md:text-sm font-extrabold tracking-wider uppercase text-white">
             GET INSIDE
-            <ArrowRight className="w-4 h-4 text-blue-400 transition-transform duration-300 group-hover:translate-x-1" />
+            <ArrowRight className="w-4 h-4 text-white transition-transform duration-300 group-hover:translate-x-1" />
           </span>
-          <span className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-600/25 to-indigo-600/25 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-        </button>
+        </SpecularButton>
       </header>
 
       {/* 1. Hero Viewport Section */}
