@@ -30,7 +30,7 @@ from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.routers import alerts, api_v1, dashboard, feature_selection, features, feedback, graph, health, predict, stream, train, upload
+from app.routers import alerts, api_v1, dashboard, feature_selection, features, feedback, graph, health, predict, stream, train, upload, sar
 
 logger = logging.getLogger("mule_detector")
 logging.basicConfig(
@@ -122,5 +122,6 @@ app.include_router(graph.router)
 app.include_router(feature_selection.router)
 app.include_router(feedback.router)
 app.include_router(stream.router)
+app.include_router(sar.router)
 app.include_router(api_v1.router)
 

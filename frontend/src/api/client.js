@@ -931,6 +931,17 @@ export async function getApiMonitoringDrift() {
   return data;
 }
 
+// ── SAR (Suspicious Activity Report) API Wrappers ────────────────
+export async function getApiSarForAccount(accountId) {
+  const { data } = await api.get(`/sar/account/${accountId}`);
+  return data;
+}
+
+export async function postApiSaveSar(payload) {
+  const { data } = await api.post('/sar', payload);
+  return data;
+}
+
 export default api;
 
 

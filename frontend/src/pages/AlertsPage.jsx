@@ -7,6 +7,7 @@ import {
   FileText, Send, X, ShieldCheck
 } from 'lucide-react';
 import { getAlerts, patchAlert, bulkPatchAlerts, submitFeedback, getFeedbackHistory } from '../api/client';
+import SarModal from '../components/ui/SarModal';
 import './AlertsPage.css';
 
 const ALL_STATUSES = [
@@ -44,6 +45,9 @@ export default function AlertsPage() {
   const [modalNote, setModalNote] = useState('');
   const [modalHistory, setModalHistory] = useState([]);
   const [submittingModal, setSubmittingModal] = useState(false);
+
+  // SAR Modal State
+  const [selectedSarAccountId, setSelectedSarAccountId] = useState(null);
 
   const navigate = useNavigate();
 
@@ -372,6 +376,14 @@ export default function AlertsPage() {
                     </button>
 
                     <button
+                      className="btn-info sm"
+                      style={{ width: '100%', justifyContent: 'center', display: 'flex', alignItems: 'center', gap: '4px', backgroundColor: 'rgba(99, 102, 241, 0.1)', color: '#818cf8', border: '1px solid rgba(99, 102, 241, 0.2)' }}
+                      onClick={() => setSelectedSarAccountId(alt.account_id)}
+                    >
+                      <FileText size={13} /> Generate SAR
+                    </button>
+
+                    <button
                       className="btn-primary sm"
                       style={{ width: '100%', justifyContent: 'center' }}
                       onClick={() => navigate(`/explain?id=${alt.account_id}`)}
@@ -501,6 +513,15 @@ export default function AlertsPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* SAR Modal */}
+      {selectedSarAccountId && (
+        <SarModal
+          accountId={selectedSarAccountId}
+          onClose={() => setSelectedSarAccountId(null)}
+          onSaveSuccess={() => loadAlerts()}
+        />
       )}
     </div>
   );
