@@ -30,7 +30,7 @@ from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.routers import alerts, api_v1, dashboard, feature_selection, features, feedback, graph, health, predict, stream, train, upload, sar
+from app.routers import alerts, api_v1, dashboard, feature_selection, features, feedback, graph, health, predict, retrain, sar, stream, train, upload
 
 logger = logging.getLogger("mule_detector")
 logging.basicConfig(
@@ -42,7 +42,7 @@ app = FastAPI(
     title="MuleDetector API",
     description=(
         "ML-powered money mule detection service.  "
-        "Train → Score → Explain → Alert → Dashboard."
+        "Train → Score → Explain → Alert → Dashboard → HITL Retraining."
     ),
     version="0.1.0",
     docs_url="/docs",
@@ -121,7 +121,9 @@ app.include_router(features.router)
 app.include_router(graph.router)
 app.include_router(feature_selection.router)
 app.include_router(feedback.router)
+app.include_router(retrain.router)
 app.include_router(stream.router)
 app.include_router(sar.router)
 app.include_router(api_v1.router)
+
 
