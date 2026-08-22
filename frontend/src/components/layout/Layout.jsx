@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Outlet, useLocation, Navigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Navbar from './Navbar';
-import { useAuth } from '../../context/AuthContext';
 import './Layout.css';
 
 const PAGE_TITLES = {
@@ -21,7 +20,6 @@ export default function Layout() {
   const [theme, setTheme] = useState(() => localStorage.getItem('sage-theme') || 'dark');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const location = useLocation();
-  const { isAuthenticated } = useAuth();
 
   React.useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -35,10 +33,7 @@ export default function Layout() {
   const currentTitle = PAGE_TITLES[location.pathname] || 'Risk Intelligence';
   const isHeroPage = location.pathname === '/';
 
-  // Redirect unauthenticated users to landing page for any non-hero route
-  if (!isAuthenticated && !isHeroPage) {
-    return <Navigate to="/" replace />;
-  }
+
 
   return (
     <div className="sage-layout">
