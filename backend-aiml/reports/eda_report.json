@@ -1,0 +1,256 @@
+{
+  "dataset_name": "PS_20174392719_1491204439457_log.csv",
+  "execution_time_seconds": 7.06,
+  "total_transactions_analyzed": 500000,
+  "date_range": {
+    "start": "2026-01-01 01:00:00",
+    "end": "2026-01-01 20:00:00",
+    "days_span": 0.79
+  },
+  "amount_statistics": {
+    "min": 0.1,
+    "max": 10000000.0,
+    "mean": 166393.68800188,
+    "median": 81375.6,
+    "std": 272584.07981083414,
+    "p25": 13350.315,
+    "p50": 81375.6,
+    "p75": 222644.1,
+    "p95": 543246.3004999999,
+    "p99": 1396246.900100002,
+    "skewness": 5.184763650696662
+  },
+  "label_distribution": {
+    "has_label": true,
+    "legitimate_count": 499767,
+    "mule_count": 233,
+    "mule_rate_pct": 0.0466,
+    "imbalance_ratio": 2144.92,
+    "recommended_scale_pos_weight": 2144.92
+  },
+  "amount_by_label": {
+    "mule": {
+      "mean": 832900.5062660943,
+      "median": 143032.0,
+      "max": 10000000.0,
+      "std": 1668774.8227509079,
+      "total_stolen_volume": 194065817.95999998
+    },
+    "legitimate": {
+      "mean": 166082.95102113587,
+      "median": 81357.1,
+      "max": 6419835.27,
+      "std": 269882.86289340263,
+      "total_volume": 83002778182.98001
+    }
+  },
+  "transaction_type_metrics": {
+    "CASH_IN": {
+      "count": 109319,
+      "total_volume": 19002520079.07,
+      "volume_pct": 22.84,
+      "mule_count": 0,
+      "mule_rate_pct": 0.0
+    },
+    "CASH_OUT": {
+      "count": 182316,
+      "total_volume": 34183065776.63,
+      "volume_pct": 41.09,
+      "mule_count": 121,
+      "mule_rate_pct": 0.0664
+    },
+    "DEBIT": {
+      "count": 3603,
+      "total_volume": 23443318.94,
+      "volume_pct": 0.03,
+      "mule_count": 0,
+      "mule_rate_pct": 0.0
+    },
+    "PAYMENT": {
+      "count": 164032,
+      "total_volume": 1906850505.17,
+      "volume_pct": 2.29,
+      "mule_count": 0,
+      "mule_rate_pct": 0.0
+    },
+    "TRANSFER": {
+      "count": 40730,
+      "total_volume": 28080964321.13,
+      "volume_pct": 33.75,
+      "mule_count": 112,
+      "mule_rate_pct": 0.275
+    }
+  },
+  "sender_activity": {
+    "unique_senders": 499953,
+    "mean_txns_per_sender": 1.0,
+    "max_txns_by_single_sender": 2,
+    "senders_with_gt_1_txn": 47
+  },
+  "receiver_activity": {
+    "unique_receivers": 214856,
+    "mean_txns_per_receiver": 2.33,
+    "max_txns_by_single_receiver": 91,
+    "receivers_with_gt_1_txn": 40794
+  },
+  "flow_behavior": {
+    "total_unique_entities": 714803,
+    "pure_senders": 499947,
+    "pure_receivers": 214850,
+    "pass_through_accounts": 6,
+    "pass_through_pct": 0.0
+  },
+  "top_counterparties": {
+    "top_5_senders": {
+      "C584808821": 2,
+      "C189326840": 2,
+      "C494623691": 2,
+      "C570148238": 2,
+      "C44568807": 2
+    },
+    "top_5_receivers": {
+      "C985934102": 91,
+      "C1286084959": 87,
+      "C248609774": 87,
+      "C665576141": 83,
+      "C2083562754": 82
+    }
+  },
+  "hourly_patterns": [
+    {
+      "hour": 1,
+      "txn_count": 2708,
+      "mule_count": 16,
+      "mule_rate_pct": 0.5908
+    },
+    {
+      "hour": 2,
+      "txn_count": 1014,
+      "mule_count": 8,
+      "mule_rate_pct": 0.789
+    },
+    {
+      "hour": 3,
+      "txn_count": 552,
+      "mule_count": 4,
+      "mule_rate_pct": 0.7246
+    },
+    {
+      "hour": 4,
+      "txn_count": 565,
+      "mule_count": 10,
+      "mule_rate_pct": 1.7699
+    },
+    {
+      "hour": 5,
+      "txn_count": 665,
+      "mule_count": 6,
+      "mule_rate_pct": 0.9023
+    },
+    {
+      "hour": 6,
+      "txn_count": 1660,
+      "mule_count": 22,
+      "mule_rate_pct": 1.3253
+    },
+    {
+      "hour": 7,
+      "txn_count": 6837,
+      "mule_count": 12,
+      "mule_rate_pct": 0.1755
+    },
+    {
+      "hour": 8,
+      "txn_count": 21097,
+      "mule_count": 12,
+      "mule_rate_pct": 0.0569
+    },
+    {
+      "hour": 9,
+      "txn_count": 37628,
+      "mule_count": 19,
+      "mule_rate_pct": 0.0505
+    },
+    {
+      "hour": 10,
+      "txn_count": 35991,
+      "mule_count": 11,
+      "mule_rate_pct": 0.0306
+    },
+    {
+      "hour": 11,
+      "txn_count": 37241,
+      "mule_count": 7,
+      "mule_rate_pct": 0.0188
+    },
+    {
+      "hour": 12,
+      "txn_count": 36153,
+      "mule_count": 14,
+      "mule_rate_pct": 0.0387
+    },
+    {
+      "hour": 13,
+      "txn_count": 37515,
+      "mule_count": 14,
+      "mule_rate_pct": 0.0373
+    },
+    {
+      "hour": 14,
+      "txn_count": 41485,
+      "mule_count": 12,
+      "mule_rate_pct": 0.0289
+    },
+    {
+      "hour": 15,
+      "txn_count": 44609,
+      "mule_count": 20,
+      "mule_rate_pct": 0.0448
+    },
+    {
+      "hour": 16,
+      "txn_count": 42471,
+      "mule_count": 10,
+      "mule_rate_pct": 0.0235
+    },
+    {
+      "hour": 17,
+      "txn_count": 43361,
+      "mule_count": 7,
+      "mule_rate_pct": 0.0161
+    },
+    {
+      "hour": 18,
+      "txn_count": 49579,
+      "mule_count": 16,
+      "mule_rate_pct": 0.0323
+    },
+    {
+      "hour": 19,
+      "txn_count": 51352,
+      "mule_count": 11,
+      "mule_rate_pct": 0.0214
+    },
+    {
+      "hour": 20,
+      "txn_count": 7517,
+      "mule_count": 2,
+      "mule_rate_pct": 0.0266
+    }
+  ],
+  "mule_behavioral_signals": [
+    "Rapid Pass-Through: Accounts acting as both sender and receiver within tight timeframes.",
+    "High Outbound Fan-Out: High ratio of outbound transactions to distinct counterparties.",
+    "Transaction Type Skew: High concentration of transfers and cash-outs relative to payments.",
+    "Outlier Transaction Amounts: Significant disparity between mule transfer size and normal average.",
+    "Odd-Hour Burst Activity: Night-time transaction spikes (11pm - 5am)."
+  ],
+  "charts_generated": [
+    "01_transaction_volume_over_time.png",
+    "02_amount_distribution_by_label.png",
+    "03_transaction_type_and_fraud_rate.png",
+    "04_temporal_hourly_patterns.png",
+    "05_sender_receiver_activity.png",
+    "06_class_imbalance_summary.png"
+  ]
+}
