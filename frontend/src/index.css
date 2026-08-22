@@ -109,52 +109,98 @@
 /* ── Light Mode Override ──────────────────────────────────────────── */
 [data-theme="light"] {
   --color-foreground: #0f172a;
-  --color-background: #f8fafc;
-  --color-muted-foreground: #64748b;
+  --color-background: #f1f5f9;
+  --color-muted-foreground: #475569;
 
   /* Surface Ladder */
-  --canvas: #f8fafc;
+  --canvas: #f1f5f9;
   --surface: #ffffff;
-  --surface-elevated: #f1f5f9;
+  --surface-elevated: #ffffff;
   --surface-card: #ffffff;
-  --surface-hover: rgba(15, 23, 42, 0.04);
+  --surface-hover: rgba(15, 23, 42, 0.05);
 
   /* Brand & Primary */
   --primary: #0f172a;
   --primary-pressed: #1e293b;
   --on-primary: #ffffff;
-  --primary-soft: rgba(15, 23, 42, 0.08);
+  --primary-soft: #e2e8f0;
 
   /* Text Hierarchy */
   --ink: #0f172a;
-  --body: #334155;
-  --charcoal: #1e293b;
-  --mute: #64748b;
-  --ash: #94a3b8;
-  --stone: #64748b;
+  --body: #1e293b;
+  --charcoal: #0f172a;
+  --mute: #475569;
+  --ash: #64748b;
+  --stone: #475569;
   --on-dark: #0f172a;
-  --on-dark-mute: rgba(15, 23, 42, 0.72);
+  --on-dark-mute: rgba(15, 23, 42, 0.85);
 
   /* Hairline Borders */
-  --hairline: #e2e8f0;
-  --hairline-soft: rgba(15, 23, 42, 0.08);
-  --hairline-strong: rgba(15, 23, 42, 0.18);
+  --hairline: #cbd5e1;
+  --hairline-soft: rgba(15, 23, 42, 0.15);
+  --hairline-strong: #94a3b8;
 
   /* Semantic Accents */
   --danger: #dc2626;
-  --danger-soft: rgba(220, 38, 38, 0.1);
+  --danger-soft: rgba(220, 38, 38, 0.12);
   --warning: #d97706;
-  --warning-soft: rgba(217, 119, 6, 0.1);
+  --warning-soft: rgba(217, 119, 6, 0.14);
   --success: #059669;
-  --success-soft: rgba(5, 150, 105, 0.1);
+  --success-soft: rgba(5, 150, 105, 0.14);
   --info: #2563eb;
-  --info-soft: rgba(37, 99, 235, 0.1);
+  --info-soft: rgba(37, 99, 235, 0.14);
   --accent: #0d9488;
-  --accent-soft: rgba(13, 148, 136, 0.1);
+  --accent-soft: rgba(13, 148, 136, 0.14);
 
   /* Gradient */
   --hero-stripe-start: #dc2626;
   --hero-stripe-end: #991b1b;
+
+  color-scheme: light;
+}
+
+/* Light Theme High-Contrast Overrides */
+[data-theme="light"] .text-zinc-400,
+[data-theme="light"] .text-zinc-500,
+[data-theme="light"] .text-slate-400 {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .text-zinc-300,
+[data-theme="light"] .text-zinc-200,
+[data-theme="light"] .text-slate-300 {
+  color: #1e293b !important;
+}
+
+[data-theme="light"] .text-white,
+[data-theme="light"] .text-zinc-100 {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .bg-zinc-950,
+[data-theme="light"] .bg-zinc-900,
+[data-theme="light"] .bg-black {
+  background-color: #ffffff !important;
+}
+
+[data-theme="light"] .bg-zinc-900\/90,
+[data-theme="light"] .bg-zinc-900\/80,
+[data-theme="light"] .bg-zinc-950\/90 {
+  background-color: #f1f5f9 !important;
+}
+
+[data-theme="light"] .border-zinc-800,
+[data-theme="light"] .border-zinc-700,
+[data-theme="light"] .border-zinc-800\/80 {
+  border-color: #cbd5e1 !important;
+}
+
+[data-theme="light"] select,
+[data-theme="light"] input[type="text"],
+[data-theme="light"] input[type="date"] {
+  color: #0f172a !important;
+  background-color: #ffffff !important;
+  border-color: #94a3b8 !important;
 }
 
 
