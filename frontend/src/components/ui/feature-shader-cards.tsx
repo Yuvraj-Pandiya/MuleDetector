@@ -263,7 +263,7 @@ function FeatureCard({ feature, reduceMotion }: { feature: FeatureCardData; redu
         </div>
 
         {/* Technical Chips */}
-        <div className="flex flex-wrap gap-1.5 mb-4">
+        <div className="flex flex-wrap gap-1.5">
           {feature.chips.map((chip, idx) => (
             <span
               key={idx}
@@ -272,14 +272,6 @@ function FeatureCard({ feature, reduceMotion }: { feature: FeatureCardData; redu
               {chip}
             </span>
           ))}
-        </div>
-
-        {/* Capability Specs Link */}
-        <div className="mt-auto pt-1 flex items-center text-[11px] font-extrabold uppercase tracking-widest text-zinc-300 group-hover:text-white transition-colors">
-          <span>CAPABILITY SPECS</span>
-          <svg className="w-3.5 h-3.5 ml-1 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-          </svg>
         </div>
 
       </div>
