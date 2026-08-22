@@ -20,10 +20,12 @@ backend/app/data/*.db
 backend/app/data/*.pkl
 backend/app/data/*.json
 backend/app/data/*.csv
+backend/app/data/*.png
 backend-aiml/data/*.db
 backend-aiml/data/*.pkl
 backend-aiml/data/*.json
 backend-aiml/data/*.csv
+package-lock.json
 
 # Environment variables
 .env
