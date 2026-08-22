@@ -56,8 +56,10 @@ export default function RealTimeDetectionPage() {
     if (!isStreaming) return;
 
     // Try WebSocket connection first
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${protocol}//${window.location.hostname}:8000/ws/stream`;
+    const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+    const wsProtocol = apiBase.startsWith('https') ? 'wss:' : 'ws:';
+    const wsHost = apiBase.replace(/^https?:\/\//, '');
+    const wsUrl = `${wsProtocol}//${wsHost.replace(/\/$/, '')}/ws/stream`;
 
     let fallbackTimer = null;
 
