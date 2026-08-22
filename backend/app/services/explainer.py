@@ -1,56 +1,52 @@
 """
 app/services/explainer.py
 ==========================
-Explainability for the MuleDetector model.
+SHAP Explainability Module for MuleDetector.
 
-Uses shap.TreeExplainer when the `shap` package is installed.
-Falls back to XGBoost feature importances when shap is unavailable,
-so the endpoint works even without the heavy shap/numba dependency.
+Uses shap.TreeExplainer when installed, or falls back to feature attributions.
 
-Public API
-----------
-explain_account(account_id, feature_df) -> dict
-    Returns:
-        {
-            "account_id": str,
-            "risk_score": float,
-            "risk_tier": str,
-            "shap_available": bool,
-            "top_shap_features": [
-                {"feature": str, "shap_value": float, "feature_value": float},
-                ...  # top 5
-            ],
-            "reason": str   # human-readable sentence
-        }
+For every flagged account, generates:
+  - account_id
+  - risk_score
+  - risk_tier
+  - top_positive_features
+  - top_negative_features
+  - feature_values
+  - SHAP_values
+  - human-readable explanation (derived dynamically from model SHAP outputs)
+
+Example explanation format:
+  "Risk is elevated primarily because of:
+  1. unusually high outgoing velocity
+  2. rapid fund forwarding
+  3. large number of counterparties
+  4. high network centrality
+  5. recent transaction volume spike"
 """
 
 from __future__ import annotations
 
 import logging
 import pathlib
-from typing import Any
+from typing import Any, Dict, List, Optional
 
 import joblib
 import numpy as np
 import pandas as pd
 
-# shap is an optional heavy dependency.  When unavailable the explainer
-# falls back to XGBoost feature importances and marks shap_available=False.
 try:
     import shap as _shap
     _SHAP_AVAILABLE = True
-except Exception:  # ImportError or any init-time failure (e.g. missing numba)
-    _shap = None  # type: ignore[assignment]
+except Exception:
+    _shap = None
     _SHAP_AVAILABLE = False
     logging.getLogger(__name__).warning(
-        "shap not available — explainer will use feature-importance fallback. "
-        "Install shap to enable SHAP-based explanations."
+        "shap not available — explainer will use feature-importance fallback."
     )
 
 from app.services.risk_scorer import (
     FEATURE_SCHEMA_COLUMNS,
     _select_features,
-    _tier,
     score_accounts,
 )
 
@@ -62,12 +58,8 @@ logger = logging.getLogger(__name__)
 _DATA_DIR = pathlib.Path(__file__).parent.parent / "data"
 MODEL_PATH = _DATA_DIR / "model.pkl"
 
-# Human-readable templates keyed on direction of SHAP contribution
-_POSITIVE_TEMPLATE = "elevated {feature} ({value:.4g}) pushes risk up"
-_NEGATIVE_TEMPLATE = "low {feature} ({value:.4g}) suppresses risk"
-
-# Feature → plain-English label for the reason string
-_FEATURE_LABELS: dict[str, str] = {
+# Feature → plain-English label
+_FEATURE_LABELS: Dict[str, str] = {
     "txn_count_1h": "transactions in the last hour",
     "txn_count_24h": "transactions in the last 24 h",
     "txn_count_7d": "transactions in the last 7 days",
@@ -91,81 +83,120 @@ _FEATURE_LABELS: dict[str, str] = {
     "odd_hour_txn_ratio": "odd-hour transaction ratio",
 }
 
+# Feature -> (elevated/positive phrase, suppressed/negative phrase)
+_FEATURE_EXPLANATION_PHRASES: Dict[str, tuple[str, str]] = {
+    "txn_count_1h": ("unusually high outgoing velocity", "low short-term transaction velocity"),
+    "txn_count_24h": ("recent transaction volume spike", "low 24-hour transaction frequency"),
+    "txn_count_7d": ("high weekly transaction activity", "low 7-day transaction count"),
+    "total_amount_out_24h": ("large 24-hour outbound transaction volume", "low outbound transfer volume"),
+    "total_amount_in_24h": ("large incoming deposit volume", "low inbound deposit volume"),
+    "avg_transaction_amount": ("abnormally high average transaction size", "small average transaction size"),
+    "max_transaction_amount": ("large peak single transaction amount", "small peak transaction size"),
+    "ratio_received_to_sent_24h": ("near-equal inbound-to-outbound pass-through ratio", "unbalanced pass-through ratio"),
+    "avg_time_to_forward_funds_minutes": ("rapid fund forwarding", "extended fund retention delay"),
+    "unique_counterparty_count": ("large number of counterparties", "few unique counterparties"),
+    "account_age_days": ("newly created account history", "established account history"),
+    "is_new_high_volume_flag": ("new account exhibiting high transaction volume", "stable account volume profile"),
+    "in_degree": ("high incoming transaction fan-in count", "low incoming counterparty count"),
+    "out_degree": ("high outgoing transaction fan-out count", "low outgoing counterparty count"),
+    "is_in_short_cycle": ("participation in rapid circular fund pass-through", "no circular fund pass-through"),
+    "betweenness_centrality": ("high network centrality", "low network centrality"),
+    "fan_in_ratio": ("high fan-in aggregation ratio", "low fan-in aggregation ratio"),
+    "fan_out_ratio": ("high fan-out distribution ratio", "low fan-out distribution ratio"),
+    "amount_zscore_avg": ("transaction amount significantly exceeding account baseline", "normal transaction amounts"),
+    "round_number_txn_ratio": ("high frequency of round-number transfers", "varied non-round transaction amounts"),
+    "odd_hour_txn_ratio": ("elevated proportion of off-hours transactions", "standard business-hour transactions"),
+}
+
 
 # ---------------------------------------------------------------------------
-# Internal helpers
+# Internal Helpers
 # ---------------------------------------------------------------------------
 
 def _load_model() -> Any:
     if not MODEL_PATH.exists():
         raise FileNotFoundError(
-            f"Trained model not found at '{MODEL_PATH}'. "
-            "Call POST /train first."
+            f"Trained model not found at '{MODEL_PATH}'. Call POST /train first."
         )
     return joblib.load(MODEL_PATH)
 
 
-def _build_reason(top_features: list[dict]) -> str:
-    """
-    Compose a human-readable sentence from the top SHAP features.
+def _get_feature_phrase(feature: str, shap_val: float, fval: float) -> str:
+    """Return plain-English contextual phrase derived from model SHAP attribution."""
+    if feature in _FEATURE_EXPLANATION_PHRASES:
+        high_p, low_p = _FEATURE_EXPLANATION_PHRASES[feature]
+        return high_p if shap_val >= 0 else low_p
+    label = _FEATURE_LABELS.get(feature, feature.replace("_", " "))
+    return f"elevated {label}" if shap_val >= 0 else f"suppressed {label}"
 
-    Example:
-        "Risk driven by: elevated fan-out ratio (0.82) pushes risk up;
-         low account age (45.0) pushes risk up; elevated odd-hour
-         transaction ratio (0.61) pushes risk up."
+
+def _build_dynamic_explanation(
+    top_positive: List[Dict[str, Any]],
+    top_negative: List[Dict[str, Any]],
+    risk_score: float,
+) -> str:
     """
-    parts: list[str] = []
-    for item in top_features[:3]:  # use top 3 for the prose
+    Build dynamic human-readable explanation derived from model SHAP outputs.
+
+    Example format:
+      "Risk is elevated primarily because of:
+      1. unusually high outgoing velocity
+      2. rapid fund forwarding
+      3. large number of counterparties
+      4. high network centrality
+      5. recent transaction volume spike"
+    """
+    if risk_score >= 30.0 or len(top_positive) > 0:
+        header = "Risk is elevated primarily because of:"
+        items_to_use = top_positive[:5] if top_positive else top_negative[:5]
+    else:
+        header = "Risk is low primarily because of:"
+        items_to_use = top_negative[:5] if top_negative else top_positive[:5]
+
+    if not items_to_use:
+        return f"{header}\n1. standard account activity baseline"
+
+    lines = [header]
+    for idx, item in enumerate(items_to_use, 1):
         feature = item["feature"]
-        value = item["feature_value"]
-        shap_val = item["shap_value"]
-        label = _FEATURE_LABELS.get(feature, feature.replace("_", " "))
+        sval = item["shap_value"]
+        fval = item["feature_value"]
+        phrase = _get_feature_phrase(feature, sval, fval)
+        lines.append(f"{idx}. {phrase}")
 
-        if shap_val >= 0:
-            parts.append(f"elevated {label} ({value:.4g}) pushes risk up")
-        else:
-            parts.append(f"low {label} ({value:.4g}) suppresses risk")
-
-    if not parts:
-        return "No dominant features identified."
-
-    joined = "; ".join(parts)
-    return f"Risk driven by: {joined}."
+    return "\n".join(lines)
 
 
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
 
-def explain_account(account_id: str, feature_df: pd.DataFrame) -> dict:
-    """Explain the risk score for a single account using SHAP & multi-model fusion.
+def explain_account(account_id: str, feature_df: pd.DataFrame) -> Dict[str, Any]:
+    """
+    Explain risk score for a single account using SHAP & multi-model fusion.
 
-    Parameters
-    ----------
-    account_id:
-        The account to explain — must exist in feature_df.
-    feature_df:
-        Full feature DataFrame (all accounts); must contain 'account_id'.
-
-    Returns
-    -------
-    dict
-        Comprehensive account-risk object containing header, risk_summary, behavior,
-        velocity, fund_flow, temporal_behavior, network, model_explanation,
-        timeline, alerts, and investigator notes.
+    Returns dictionary containing:
+      - account_id
+      - risk_score
+      - risk_tier
+      - top_positive_features
+      - top_negative_features
+      - feature_values
+      - SHAP_values
+      - explanation (human-readable string derived dynamically from SHAP outputs)
     """
     mask = feature_df["account_id"] == account_id
     if not mask.any():
         raise KeyError(f"account_id '{account_id}' not found in feature DataFrame.")
 
     row_df = feature_df[mask].iloc[0]
-    X_row = _select_features(feature_df[mask])
+    model = _load_model()
+    X_row = _select_features(feature_df[mask], model=model)
     feature_names = list(X_row.columns)
 
-    model = _load_model()
     model_type = type(model).__name__
 
-    # --- compute feature attribution scores ---
+    # --- Compute SHAP values ---
     used_shap = False
     sv_arr = np.zeros(len(feature_names))
     if _SHAP_AVAILABLE and model_type in ("XGBClassifier", "IsolationForest"):
@@ -196,17 +227,24 @@ def explain_account(account_id: str, feature_df: pd.DataFrame) -> dict:
 
     sv_arr = np.array(sv_arr).flatten()
 
-    # --- rank all features by absolute SHAP value ---
+    # --- Extract feature_values & SHAP_values dicts ---
+    feature_values_dict: Dict[str, float] = {}
+    shap_values_dict: Dict[str, float] = {}
+
+    all_shap_features: List[Dict[str, Any]] = []
+    positive_contributors: List[Dict[str, Any]] = []
+    negative_contributors: List[Dict[str, Any]] = []
+
     all_sorted_idx = np.argsort(np.abs(sv_arr))[::-1]
-    all_shap_features: list[dict] = []
-    top_shap: list[dict] = []
-    positive_contributors: list[dict] = []
-    negative_contributors: list[dict] = []
 
     for rank, i in enumerate(all_sorted_idx, 1):
         fname = feature_names[i]
         fval = float(X_row.iloc[0, i])
         sval = float(sv_arr[i])
+
+        feature_values_dict[fname] = round(fval, 4)
+        shap_values_dict[fname] = round(sval, 4)
+
         item = {
             "importance_rank": rank,
             "feature": fname,
@@ -218,21 +256,19 @@ def explain_account(account_id: str, feature_df: pd.DataFrame) -> dict:
             "direction": "positive" if sval >= 0 else "negative",
         }
         all_shap_features.append(item)
-        if rank <= 6:
-            top_shap.append(item)
         if sval > 0:
             positive_contributors.append(item)
         elif sval < 0:
             negative_contributors.append(item)
 
-    # Sort positive by largest positive, negative by largest negative magnitude
-    positive_contributors.sort(key=lambda x: x["shap_value"], reverse=True)
-    negative_contributors.sort(key=lambda x: x["shap_value"])
+    top_positive_features = sorted(positive_contributors, key=lambda x: x["shap_value"], reverse=True)
+    top_negative_features = sorted(negative_contributors, key=lambda x: x["shap_value"])
 
-    # --- score via risk_scorer ---
+    top_shap = all_shap_features[:6]
+
+    # --- Score via risk_scorer ---
     scored_df = score_accounts(feature_df[mask])
     scored_row = scored_df.iloc[0]
-
 
     risk_score = float(scored_row["risk_score"])
     risk_tier = str(scored_row["risk_tier"])
@@ -241,7 +277,10 @@ def explain_account(account_id: str, feature_df: pd.DataFrame) -> dict:
     network_risk_score = float(scored_row["network_risk_score"])
     investigation_status = str(scored_row["investigation_status"])
 
-    # 1. HEADER
+    # --- Dynamic Human-Readable Explanation ---
+    explanation_str = _build_dynamic_explanation(top_positive_features, top_negative_features, risk_score)
+
+    # UI Dashboard Objects
     header = {
         "account_id": account_id,
         "risk_score": risk_score,
@@ -250,7 +289,6 @@ def explain_account(account_id: str, feature_df: pd.DataFrame) -> dict:
         "investigation_status": investigation_status,
     }
 
-    # 2. RISK SUMMARY
     risk_summary = {
         "supervised_ml_probability": round(mule_prob * 100, 1),
         "anomaly_score": round(anomaly_score * 100, 1),
@@ -258,7 +296,6 @@ def explain_account(account_id: str, feature_df: pd.DataFrame) -> dict:
         "final_fused_risk_score": risk_score,
     }
 
-    # 3. BEHAVIOR
     txn_24h = int(row_df.get("txn_count_24h", 12))
     in_deg = int(row_df.get("in_degree", 5))
     out_deg = int(row_df.get("out_degree", 7))
@@ -280,7 +317,6 @@ def explain_account(account_id: str, feature_df: pd.DataFrame) -> dict:
         "account_age": acct_age,
     }
 
-    # 4. VELOCITY
     velocity = {
         "txn_count_5m": int(row_df.get("txn_count_1h", 3) / 4),
         "txn_count_15m": int(row_df.get("txn_count_1h", 3) / 2),
@@ -292,17 +328,13 @@ def explain_account(account_id: str, feature_df: pd.DataFrame) -> dict:
         ),
     }
 
-    # 5. FUND FLOW ANALYSIS
     avg_fwd = float(row_df.get("avg_time_to_forward_funds_minutes", 24.5))
     ret_amt = max(0.0, amt_in - amt_out)
     fwd_ratio = min(100.0, round((amt_out / max(amt_in, 1.0)) * 100, 1))
 
-    # Generate matched pass-through chains from backend timeline events
     import datetime
     base_time = datetime.datetime.now(datetime.timezone.utc)
     flow_chains = []
-
-    # Build flow chains based on raw transactions or synthesized pairs
     chain_count = min(3, max(1, int(row_df.get("txn_count_1h", 2))))
     for c_idx in range(chain_count):
         in_amt = round(avg_amt * (1.0 + c_idx * 0.15), 2)
@@ -355,8 +387,6 @@ def explain_account(account_id: str, feature_df: pd.DataFrame) -> dict:
         "flow_chains": flow_chains,
     }
 
-
-    # 6. TEMPORAL BEHAVIOR
     temporal_behavior = {
         "recent_volume_vs_historical": f"${amt_out:,.2f} (24h) vs ${amt_out * 0.12:,.2f} (30d avg)",
         "recent_amount_vs_historical": f"${avg_amt:,.2f} avg vs ${avg_amt * 0.25:,.2f} historical avg",
@@ -366,11 +396,9 @@ def explain_account(account_id: str, feature_df: pd.DataFrame) -> dict:
         ),
     }
 
-    # 7. NETWORK
     betweenness = float(row_df.get("betweenness_centrality", 0.12))
     fan_in = float(row_df.get("fan_in_ratio", 1.2))
     fan_out = float(row_df.get("fan_out_ratio", 4.8))
-    is_cycle = int(row_df.get("is_in_short_cycle", 0))
 
     network = {
         "incoming_connections": in_deg,
@@ -383,23 +411,16 @@ def explain_account(account_id: str, feature_df: pd.DataFrame) -> dict:
         ] if risk_score > 60 else [],
     }
 
-    # 8. MODEL EXPLANATION
-    reason = _build_reason(top_shap)
     model_explanation = {
         "top_shap_features": top_shap,
         "all_shap_features": all_shap_features,
-        "positive_contributors": positive_contributors,
-        "negative_contributors": negative_contributors,
-        "reason": reason,
+        "positive_contributors": top_positive_features,
+        "negative_contributors": top_negative_features,
+        "reason": explanation_str,
+        "explanation": explanation_str,
     }
 
-
-    # 9. TIMELINE
-    import datetime
-    base_time = datetime.datetime.now(datetime.timezone.utc)
     raw_txns = []
-
-    # Check if raw transactions file exists to slice real transactions
     tx_file = _DATA_DIR / "transactions.csv"
     if tx_file.exists():
         try:
@@ -408,16 +429,15 @@ def explain_account(account_id: str, feature_df: pd.DataFrame) -> dict:
             matched = tx_df[(tx_df["sender_account_id"] == account_id) | (tx_df["receiver_account_id"] == account_id)].copy()
             if not matched.empty:
                 matched.sort_values(by="timestamp", ascending=False, inplace=True)
-                for i, (_, row) in enumerate(matched.head(15).iterrows()):
-                    is_outgoing = (row.get("sender_account_id") == account_id)
+                for i, (_, r) in enumerate(matched.head(15).iterrows()):
+                    is_outgoing = (r.get("sender_account_id") == account_id)
                     direction = "OUTGOING" if is_outgoing else "INCOMING"
-                    counterparty = str(row.get("receiver_account_id" if is_outgoing else "sender_account_id"))
-                    amount_val = float(row.get("amount", 1000.0))
-                    tx_type = str(row.get("transaction_type", "TRANSFER")).upper()
-                    ts = row.get("timestamp")
+                    counterparty = str(r.get("receiver_account_id" if is_outgoing else "sender_account_id"))
+                    amount_val = float(r.get("amount", 1000.0))
+                    tx_type = str(r.get("transaction_type", "TRANSFER")).upper()
+                    ts = r.get("timestamp")
                     ts_str = ts.isoformat() if hasattr(ts, "isoformat") else str(ts)
 
-                    # Compute backend contextual indicators
                     is_rapid = float(row_df.get("avg_time_to_forward_funds_minutes", 24.5)) < 15.0 and is_outgoing
                     is_abnormal = amount_val > (avg_amt * 2.2)
                     is_velocity = (i < 4) and (row_df.get("txn_count_1h", 0) > 3)
@@ -432,7 +452,7 @@ def explain_account(account_id: str, feature_df: pd.DataFrame) -> dict:
 
                     raw_txns.append(
                         {
-                            "transaction_id": str(row.get("transaction_id", f"TXN-{account_id}-{i+101}")),
+                            "transaction_id": str(r.get("transaction_id", f"TXN-{account_id}-{i+101}")),
                             "timestamp": ts_str,
                             "direction": direction,
                             "counterparty": counterparty,
@@ -451,7 +471,6 @@ def explain_account(account_id: str, feature_df: pd.DataFrame) -> dict:
             logger.warning("Could not slice raw transactions for %s: %s", account_id, exc)
 
     if not raw_txns:
-        # Fallback synthetic timeline generated from features
         for i in range(min(txn_24h, 8)):
             is_outgoing = (i % 2 == 0)
             direction = "OUTGOING" if is_outgoing else "INCOMING"
@@ -488,8 +507,6 @@ def explain_account(account_id: str, feature_df: pd.DataFrame) -> dict:
 
     timeline = raw_txns
 
-
-    # 10. ALERTS & HISTORY
     related_alerts = []
     try:
         from app.services.alert_generator import get_alerts
@@ -518,17 +535,25 @@ def explain_account(account_id: str, feature_df: pd.DataFrame) -> dict:
             }
         ]
 
-    # 11. NOTES
     investigator_notes = [
         {
-            "id": f"NOTE-01",
+            "id": "NOTE-01",
             "author": "Compliance Officer",
             "timestamp": (base_time - datetime.timedelta(hours=1)).isoformat(),
-            "text": "Initial automated alert generated. High velocity outbound transfers split across 7 distinct counterparties within 30 minutes.",
+            "text": "Initial automated alert generated. High velocity outbound transfers split across distinct counterparties within peak audit window.",
         }
     ] if risk_score > 70 else []
 
     return {
+        "account_id": account_id,
+        "risk_score": risk_score,
+        "risk_tier": risk_tier,
+        "top_positive_features": top_positive_features,
+        "top_negative_features": top_negative_features,
+        "feature_values": feature_values_dict,
+        "SHAP_values": shap_values_dict,
+        "explanation": explanation_str,
+        "reason": explanation_str,
         "header": header,
         "risk_summary": risk_summary,
         "behavior": behavior,
@@ -540,11 +565,42 @@ def explain_account(account_id: str, feature_df: pd.DataFrame) -> dict:
         "timeline": timeline,
         "alerts": related_alerts,
         "notes": investigator_notes,
-        # Backward compatibility properties
-        "account_id": account_id,
-        "risk_score": risk_score,
-        "risk_tier": risk_tier,
         "top_shap_features": top_shap,
-        "reason": reason,
     }
 
+
+def explain_flagged_accounts(
+    feature_df: pd.DataFrame,
+    min_risk_score: float = 30.0,
+) -> List[Dict[str, Any]]:
+    """
+    Return detailed SHAP explanations for all flagged accounts in feature_df.
+
+    Parameters
+    ----------
+    feature_df : pd.DataFrame
+        Account feature DataFrame.
+    min_risk_score : float
+        Minimum risk score cutoff for flagged accounts (default: 30.0).
+
+    Returns
+    -------
+    List[Dict[str, Any]]
+        List of account explanation dictionaries.
+    """
+    if "account_id" not in feature_df.columns:
+        raise ValueError("feature_df must contain an 'account_id' column.")
+
+    scored_df = score_accounts(feature_df)
+    flagged = scored_df[scored_df["risk_score"] >= min_risk_score]
+
+    flagged_ids = flagged["account_id"].tolist()
+    explanations = []
+    for acct_id in flagged_ids:
+        try:
+            exp = explain_account(acct_id, feature_df)
+            explanations.append(exp)
+        except Exception as exc:
+            logger.warning("Error generating explanation for flagged account %s: %s", acct_id, exc)
+
+    return explanations
