@@ -207,7 +207,7 @@ function FeatureCard({ feature, reduceMotion }: { feature: FeatureCardData; redu
   const [hasWebGLError, setHasWebGLError] = useState(false);
 
   return (
-    <div className="relative group w-full h-full min-h-[380px] flex flex-col rounded-xl overflow-hidden border border-zinc-800/80 bg-zinc-950/90 backdrop-blur-xl hover:border-zinc-700 transition-all duration-300 hover:shadow-[0_8px_25px_rgba(0,0,0,0.8)]">
+    <div className="relative group w-full h-full flex flex-col rounded-xl overflow-hidden border border-zinc-800/80 bg-zinc-950/90 backdrop-blur-xl hover:border-zinc-700 transition-all duration-300 hover:shadow-[0_8px_25px_rgba(0,0,0,0.8)]">
       
       {/* Background Animated WebGL Shader */}
       {!reduceMotion && !hasWebGLError && (
@@ -235,55 +235,51 @@ function FeatureCard({ feature, reduceMotion }: { feature: FeatureCardData; redu
       <div className="absolute inset-0 bg-gradient-to-b from-zinc-950/60 via-black/80 to-black/95 pointer-events-none" />
 
       {/* Card Content Container */}
-      <div className="relative z-10 p-6 flex flex-col justify-between flex-1 h-full">
+      <div className="relative z-10 p-5 lg:p-6 flex flex-col flex-1 h-full text-left">
         
-        <div className="flex flex-col text-left">
-          {/* Eyebrow & Icon Row */}
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-300 bg-zinc-900/90 px-3 py-1 rounded-full border border-zinc-800">
-              {feature.eyebrow}
-            </span>
-            <div className="w-8 h-8 rounded-lg bg-zinc-900/80 border border-zinc-800 flex items-center justify-center text-zinc-300 shrink-0">
-              {feature.icon}
-            </div>
+        {/* Eyebrow & Icon Row */}
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-300 bg-zinc-900/90 px-3 py-1 rounded-full border border-zinc-800">
+            {feature.eyebrow}
+          </span>
+          <div className="w-8 h-8 rounded-lg bg-zinc-900/80 border border-zinc-800 flex items-center justify-center text-zinc-300 shrink-0">
+            {feature.icon}
           </div>
-
-          {/* Feature Title */}
-          <h3 className="text-lg lg:text-xl font-bold tracking-tight text-white mb-2 group-hover:text-zinc-100 transition-colors leading-snug">
-            {feature.title}
-          </h3>
-
-          {/* Feature Description */}
-          <p className="text-xs lg:text-sm text-zinc-400 font-normal leading-relaxed mb-1">
-            {feature.description}
-          </p>
         </div>
 
+        {/* Feature Title */}
+        <h3 className="text-lg font-bold tracking-tight text-white mb-1.5 group-hover:text-zinc-100 transition-colors leading-snug">
+          {feature.title}
+        </h3>
+
+        {/* Feature Description */}
+        <p className="text-xs lg:text-sm text-zinc-400 font-normal leading-relaxed mb-3">
+          {feature.description}
+        </p>
+
         {/* Feature Specific Visual Graphic Badge Section */}
-        <div className="my-3.5 w-full">
+        <div className="mb-3.5 w-full">
           <FeatureVisualGraphic featureId={feature.id} />
         </div>
 
-        {/* Technical Chips & Link */}
-        <div className="mt-auto text-left">
-          <div className="flex flex-wrap gap-1.5 mb-4">
-            {feature.chips.map((chip, idx) => (
-              <span
-                key={idx}
-                className="text-[11px] font-medium tracking-wide px-2.5 py-0.5 rounded-full bg-zinc-900/90 border border-zinc-800 text-zinc-300"
-              >
-                {chip}
-              </span>
-            ))}
-          </div>
+        {/* Technical Chips */}
+        <div className="flex flex-wrap gap-1.5 mb-4">
+          {feature.chips.map((chip, idx) => (
+            <span
+              key={idx}
+              className="text-[11px] font-medium tracking-wide px-2.5 py-0.5 rounded-full bg-zinc-900/90 border border-zinc-800 text-zinc-300"
+            >
+              {chip}
+            </span>
+          ))}
+        </div>
 
-          {/* Capability Specs Link */}
-          <div className="flex items-center text-[11px] font-extrabold uppercase tracking-widest text-zinc-300 group-hover:text-white transition-colors">
-            <span>CAPABILITY SPECS</span>
-            <svg className="w-3.5 h-3.5 ml-1 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-            </svg>
-          </div>
+        {/* Capability Specs Link */}
+        <div className="mt-auto pt-1 flex items-center text-[11px] font-extrabold uppercase tracking-widest text-zinc-300 group-hover:text-white transition-colors">
+          <span>CAPABILITY SPECS</span>
+          <svg className="w-3.5 h-3.5 ml-1 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+          </svg>
         </div>
 
       </div>
