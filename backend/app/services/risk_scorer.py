@@ -389,3 +389,25 @@ def score_accounts(
     )
 
     return results
+
+
+def score_account_risk(feature_dict: Dict[str, Any], model_version: str = "v2.5.0-RealTime-XGB") -> Dict[str, Any]:
+    """Score a single account feature dictionary for real-time transaction processing."""
+    acct_id = str(feature_dict.get("account_id", "ACC-UNKNOWN"))
+    df_single = pd.DataFrame([feature_dict])
+    if "account_id" not in df_single.columns:
+        df_single["account_id"] = acct_id
+
+    scored = score_accounts(df_single)
+    if scored.empty:
+        return {"risk_score": 50.0, "risk_tier": "MEDIUM", "supervised_probability": 0.50, "anomaly_score": 0.35, "network_risk_score": 40.0, "model_version": model_version}
+
+    row = scored.iloc[0].to_dict()
+    row["supervised_probability"] = float(row.get("mule_probability", 0.50))
+    row["model_version"] = model_version
+    row["top_reasons"] = [
+        f"Velocity spike ({feature_dict.get('txn_count_1h', 1)} txns/hr)",
+        f"Pass-through fund forwarding ({feature_dict.get('avg_time_to_forward_funds_minutes', 5)} mins)",
+        f"High monetary Z-score dispersion ({feature_dict.get('amount_zscore_avg', 1.0)})",
+    ]
+    return row

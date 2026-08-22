@@ -361,6 +361,34 @@ def generate_alerts(
     return result_alerts
 
 
+def create_alert(
+    account_id: str,
+    risk_score: float,
+    risk_tier: str,
+    summary: str,
+    top_features: List[str] | None = None,
+    top_reasons: List[str] | None = None,
+    anomaly_score: float = 0.0,
+    network_risk: float = 0.0,
+    connected_suspicious_count: int = 0,
+    model_version: str = DEFAULT_MODEL_VERSION,
+    dedup_window_hours: float = 24.0,
+) -> Dict[str, Any]:
+    """Create or update a single alert record in SQLite alerts table."""
+    df_row = pd.DataFrame([{
+        "account_id": account_id,
+        "risk_score": risk_score,
+        "risk_tier": risk_tier,
+        "top_features": top_features or [],
+        "top_reasons": top_reasons or top_features or [],
+        "anomaly_score": anomaly_score,
+        "network_risk_score": network_risk,
+        "unique_counterparties": connected_suspicious_count,
+    }])
+    alerts = generate_alerts(df_row, threshold=0.0, dedup_window_hours=dedup_window_hours, model_version=model_version)
+    return alerts[0] if alerts else {}
+
+
 def get_alerts(
     severity: Optional[str] = None,
     status: Optional[str] = None,
