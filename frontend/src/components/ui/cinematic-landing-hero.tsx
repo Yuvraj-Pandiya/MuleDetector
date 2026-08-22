@@ -404,7 +404,7 @@ export function CinematicHero({
             </div>
 
             {/* 2. LEFT FEATURE CARDS STACK (Desktop: cols 4-5 / order 2) */}
-            <div className="order-2 lg:col-span-2 flex flex-col justify-center space-y-4 lg:space-y-5 xl:space-y-6 z-20 w-full">
+            <div className="order-2 lg:col-span-2 flex flex-col justify-between h-[420px] md:h-[500px] lg:h-[560px] py-2 lg:py-4 z-20 w-full">
               {/* Card 1: Explainable AI Scoring */}
               <div className="floating-badge relative group flex items-center gap-1.5 lg:gap-2 w-full">
                 <div className="flex-1 floating-ui-badge rounded-xl p-2.5 lg:p-3 flex items-center gap-2.5 shadow-lg border border-white/10 backdrop-blur-md bg-neutral-900/60 hover:bg-neutral-800/80 transition-all duration-300">
@@ -571,7 +571,7 @@ export function CinematicHero({
             </div>
 
             {/* 4. RIGHT FEATURE CARDS STACK (Desktop: cols 8-9 / order 4) */}
-            <div className="order-4 lg:col-span-2 flex flex-col justify-center space-y-4 lg:space-y-5 xl:space-y-6 z-20 w-full">
+            <div className="order-4 lg:col-span-2 flex flex-col justify-between h-[420px] md:h-[500px] lg:h-[560px] py-2 lg:py-4 z-20 w-full">
               {/* Card 1: Model Metrics & Simulation */}
               <div className="floating-badge relative group flex items-center gap-1.5 lg:gap-2 w-full">
                 <div className="hidden lg:flex items-center text-blue-400/70 shrink-0 w-5 xl:w-7" aria-hidden="true">
