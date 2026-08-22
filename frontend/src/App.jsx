@@ -10,6 +10,7 @@ import ExplainabilityPage from './pages/ExplainabilityPage';
 import GraphPage from './pages/GraphPage';
 import AlertsPage from './pages/AlertsPage';
 import ModelMetricsPage from './pages/ModelMetricsPage';
+import FeatureIntelligencePage from './pages/FeatureIntelligencePage';
 import SimulationPage from './pages/SimulationPage';
 
 export default function App() {
@@ -22,6 +23,7 @@ export default function App() {
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/upload" element={<UploadPage />} />
             <Route path="/accounts" element={<AccountsPage />} />
+            <Route path="/features" element={<FeatureIntelligencePage />} />
             <Route path="/explain" element={<ExplainabilityPage />} />
             <Route path="/graph" element={<GraphPage />} />
             <Route path="/alerts" element={<AlertsPage />} />
@@ -33,3 +35,4 @@ export default function App() {
     </AuthProvider>
   );
 }
+
