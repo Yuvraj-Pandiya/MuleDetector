@@ -376,7 +376,7 @@ def explain_account(account_id: str, feature_df: pd.DataFrame) -> Dict[str, Any]
                 },
                 "time_difference_minutes": delay_mins,
                 "time_difference_label": f"{delay_mins} minutes",
-                "is_rapid_forwarding": is_rapid,
+                "is_rapid_forwarding": bool(is_rapid),
                 "rapid_forwarding_reason": f"Backend Analysis: Funds forwarded within rapid threshold ({delay_mins}m delay)",
             }
         )
@@ -439,7 +439,7 @@ def explain_account(account_id: str, feature_df: pd.DataFrame) -> Dict[str, Any]
             if not matched.empty:
                 matched.sort_values(by="timestamp", ascending=False, inplace=True)
                 for i, (_, r) in enumerate(matched.head(15).iterrows()):
-                    is_outgoing = (r.get("sender_account_id") == account_id)
+                    is_outgoing = bool(r.get("sender_account_id") == account_id)
                     direction = "OUTGOING" if is_outgoing else "INCOMING"
                     counterparty = str(r.get("receiver_account_id" if is_outgoing else "sender_account_id"))
                     amount_val = float(r.get("amount", 1000.0))
@@ -447,9 +447,9 @@ def explain_account(account_id: str, feature_df: pd.DataFrame) -> Dict[str, Any]
                     ts = r.get("timestamp")
                     ts_str = ts.isoformat() if hasattr(ts, "isoformat") else str(ts)
 
-                    is_rapid = float(row_df.get("avg_time_to_forward_funds_minutes", 24.5)) < 15.0 and is_outgoing
-                    is_abnormal = amount_val > (avg_amt * 2.2)
-                    is_velocity = (i < 4) and (row_df.get("txn_count_1h", 0) > 3)
+                    is_rapid = bool(float(row_df.get("avg_time_to_forward_funds_minutes", 24.5)) < 15.0 and is_outgoing)
+                    is_abnormal = bool(amount_val > (avg_amt * 2.2))
+                    is_velocity = bool((i < 4) and (row_df.get("txn_count_1h", 0) > 3))
 
                     indicator_labels = []
                     if is_rapid:
@@ -469,9 +469,9 @@ def explain_account(account_id: str, feature_df: pd.DataFrame) -> Dict[str, Any]
                             "transaction_type": tx_type,
                             "running_activity_context": f"Activity #{i+1} in audit window • Position: Cumulative {direction.title()} ${amount_val:,.2f}",
                             "contextual_indicators": {
-                                "rapid_forwarding": is_rapid,
-                                "abnormal_amount": is_abnormal,
-                                "velocity_spike": is_velocity,
+                                "rapid_forwarding": bool(is_rapid),
+                                "abnormal_amount": bool(is_abnormal),
+                                "velocity_spike": bool(is_velocity),
                                 "indicator_labels": indicator_labels,
                             },
                         }
@@ -484,9 +484,9 @@ def explain_account(account_id: str, feature_df: pd.DataFrame) -> Dict[str, Any]
             is_outgoing = (i % 2 == 0)
             direction = "OUTGOING" if is_outgoing else "INCOMING"
             amt_val = round(avg_amt * (0.7 + (i % 4) * 0.4), 2)
-            is_rapid = (i <= 2) and (avg_fwd < 20.0) and is_outgoing
-            is_abnormal = amt_val > (avg_amt * 1.8)
-            is_velocity = (i <= 3) and (row_df.get("txn_count_1h", 0) > 2)
+            is_rapid = bool((i <= 2) and (avg_fwd < 20.0) and is_outgoing)
+            is_abnormal = bool(amt_val > (avg_amt * 1.8))
+            is_velocity = bool((i <= 3) and (row_df.get("txn_count_1h", 0) > 2))
 
             indicator_labels = []
             if is_rapid:
@@ -506,9 +506,9 @@ def explain_account(account_id: str, feature_df: pd.DataFrame) -> Dict[str, Any]
                     "transaction_type": "CASH_OUT" if is_outgoing else "PAYMENT",
                     "running_activity_context": f"Activity #{i+1} in audit window • Sequence Position #{i+1}",
                     "contextual_indicators": {
-                        "rapid_forwarding": is_rapid,
-                        "abnormal_amount": is_abnormal,
-                        "velocity_spike": is_velocity,
+                        "rapid_forwarding": bool(is_rapid),
+                        "abnormal_amount": bool(is_abnormal),
+                        "velocity_spike": bool(is_velocity),
                         "indicator_labels": indicator_labels,
                     },
                 }
