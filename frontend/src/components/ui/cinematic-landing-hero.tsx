@@ -6,6 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { cn } from "@/lib/utils";
 import SideRays from "./SideRays";
 import SpecularButton from "./SpecularButton";
+import FeatureShaderCards from "./feature-shader-cards";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -704,6 +705,9 @@ export function CinematicHero({
           </div>
         </div>
       </div>
+
+      {/* 6. NEW FEATURES SECTION: "Intelligence Built for the Hunt" */}
+      <FeatureShaderCards />
     </div>
   );
 }
