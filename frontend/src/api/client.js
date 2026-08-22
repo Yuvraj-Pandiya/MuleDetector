@@ -819,11 +819,120 @@ export async function getModelMonitoring() {
     };
   }
 
-  const { data } = await api.get('/train/monitoring');
+  try {
+    const { data } = await api.get('/api/monitoring/drift');
+    return data;
+  } catch (e) {
+    const { data } = await api.get('/train/monitoring');
+    return data;
+  }
+}
+
+// ── Canonical /api/... API Wrappers ──────────────────────────────
+export async function getApiDashboardSummary() {
+  if (MOCK) return getDashboardSummary();
+  const { data } = await api.get('/api/dashboard/summary');
+  return data;
+}
+
+export async function getApiAccounts(params = {}) {
+  if (MOCK) return getRiskScores(params);
+  const { data } = await api.get('/api/accounts', { params });
+  return data;
+}
+
+export async function getApiAccountDetails(accountId) {
+  if (MOCK) return getAccountDetails(accountId);
+  const { data } = await api.get(`/api/accounts/${accountId}`);
+  return data;
+}
+
+export async function getApiAccountTransactions(accountId, params = {}) {
+  if (MOCK) return getAccountTransactions(accountId, params);
+  const { data } = await api.get(`/api/accounts/${accountId}/transactions`, { params });
+  return data;
+}
+
+export async function getApiAccountFundFlow(accountId) {
+  if (MOCK) return getAccountFundFlow(accountId);
+  const { data } = await api.get(`/api/accounts/${accountId}/fund-flow`);
+  return data;
+}
+
+export async function getApiAccountNetwork(accountId, maxHops = 2) {
+  if (MOCK) return getGraphData(accountId);
+  const { data } = await api.get(`/api/accounts/${accountId}/network`, { params: { max_hops: maxHops } });
+  return data;
+}
+
+export async function getApiAccountExplanation(accountId) {
+  if (MOCK) return getExplanation(accountId);
+  const { data } = await api.get(`/api/accounts/${accountId}/explanation`);
+  return data;
+}
+
+export async function getApiAlerts(params = {}) {
+  if (MOCK) return getAlerts(params);
+  const { data } = await api.get('/api/alerts', { params });
+  return data;
+}
+
+export async function getApiAlertDetails(alertId) {
+  if (MOCK) return getAlertDetails(alertId);
+  const { data } = await api.get(`/api/alerts/${alertId}`);
+  return data;
+}
+
+export async function postApiAlertDecision(alertId, payload) {
+  if (MOCK) return submitAlertDecision({ alert_id: alertId, ...payload });
+  const { data } = await api.post(`/api/alerts/${alertId}/decision`, payload);
+  return data;
+}
+
+export async function postApiAccountNotes(accountId, payload) {
+  if (MOCK) return submitInvestigatorNote({ account_id: accountId, ...payload });
+  const { data } = await api.post(`/api/accounts/${accountId}/notes`, payload);
+  return data;
+}
+
+export async function getApiModels() {
+  if (MOCK) return getModelPerformance();
+  const { data } = await api.get('/api/models');
+  return data;
+}
+
+export async function getApiModelVersionMetrics(version = 'v2.4') {
+  if (MOCK) return getModelPerformance();
+  const { data } = await api.get(`/api/models/${version}/metrics`);
+  return data;
+}
+
+export async function getApiModelVersionFeatures(version = 'v2.4') {
+  if (MOCK) return getFeatureIntelligence();
+  const { data } = await api.get(`/api/models/${version}/features`);
+  return data;
+}
+
+export async function getApiAnomalies(params = {}) {
+  if (MOCK) return getAnomalySummary(params);
+  const { data } = await api.get('/api/anomalies', { params });
+  return data;
+}
+
+export async function getApiNetworkAccount(accountId) {
+  if (MOCK) return getGraphData(accountId);
+  const { data } = await api.get(`/api/network/${accountId}`);
+  return data;
+}
+
+export async function getApiMonitoringDrift() {
+  if (MOCK) return getModelMonitoring();
+  const { data } = await api.get('/api/monitoring/drift');
   return data;
 }
 
 export default api;
+
 
 
 
