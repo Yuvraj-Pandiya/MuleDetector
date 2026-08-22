@@ -235,10 +235,10 @@ function FeatureCard({ feature, reduceMotion }: { feature: FeatureCardData; redu
       <div className="absolute inset-0 bg-gradient-to-b from-zinc-950/60 via-black/80 to-black/95 pointer-events-none" />
 
       {/* Card Content Container */}
-      <div className="relative z-10 p-5 lg:p-6 flex flex-col flex-1 h-full text-left">
+      <div className="relative z-10 p-6 lg:p-7 flex flex-col flex-1 h-full text-left">
         
         {/* Eyebrow & Icon Row */}
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between mb-3.5">
           <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-300 bg-zinc-900/90 px-3 py-1 rounded-full border border-zinc-800">
             {feature.eyebrow}
           </span>
@@ -248,17 +248,17 @@ function FeatureCard({ feature, reduceMotion }: { feature: FeatureCardData; redu
         </div>
 
         {/* Feature Title */}
-        <h3 className="text-lg font-bold tracking-tight text-white mb-1.5 group-hover:text-zinc-100 transition-colors leading-snug">
+        <h3 className="text-lg font-bold tracking-tight text-white mb-2 group-hover:text-zinc-100 transition-colors leading-snug">
           {feature.title}
         </h3>
 
         {/* Feature Description */}
-        <p className="text-xs lg:text-sm text-zinc-400 font-normal leading-relaxed mb-3">
+        <p className="text-xs lg:text-sm text-zinc-400 font-normal leading-relaxed mb-4">
           {feature.description}
         </p>
 
         {/* Feature Specific Visual Graphic Badge Section */}
-        <div className="mb-3.5 w-full">
+        <div className="mb-4 w-full">
           <FeatureVisualGraphic featureId={feature.id} />
         </div>
 
@@ -291,13 +291,13 @@ function FeatureVisualGraphic({ featureId }: { featureId: string }) {
   switch (featureId) {
     case "dual-ai":
       return (
-        <div className="w-full bg-black/90 border border-zinc-800 rounded-lg p-3 flex flex-col gap-2">
-          <div className="flex items-center justify-between text-xs">
-            <span className="flex items-center gap-2 font-bold text-zinc-200">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
-              XGBoost + Isolation Forest
+        <div className="w-full bg-black/90 border border-zinc-800 rounded-lg p-3.5 px-4 flex flex-col gap-2.5 overflow-hidden">
+          <div className="flex items-center justify-between text-xs gap-2">
+            <span className="flex items-center gap-2 font-bold text-zinc-200 truncate">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)] shrink-0" />
+              <span className="truncate">XGBoost + Isolation Forest</span>
             </span>
-            <span className="text-[11px] font-mono text-zinc-400 bg-zinc-900 px-2 py-0.5 rounded border border-zinc-800">
+            <span className="text-[10px] font-mono text-zinc-400 bg-zinc-900 px-2 py-0.5 rounded border border-zinc-800 shrink-0">
               99.4% ROC-AUC
             </span>
           </div>
@@ -305,29 +305,29 @@ function FeatureVisualGraphic({ featureId }: { featureId: string }) {
             <div className="flex-1 bg-zinc-900 rounded-full h-1.5 overflow-hidden border border-zinc-800">
               <div className="bg-gradient-to-r from-zinc-400 to-white h-full w-[94%]" />
             </div>
-            <span className="text-[11px] font-mono text-zinc-400">14ms</span>
+            <span className="text-[10px] font-mono text-zinc-400 shrink-0">14ms</span>
           </div>
         </div>
       );
 
     case "graph-topology":
       return (
-        <div className="w-full bg-black/90 border border-zinc-800 rounded-lg p-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+        <div className="w-full bg-black/90 border border-zinc-800 rounded-lg p-3.5 px-4 flex items-center justify-between gap-2 overflow-hidden">
+          <div className="flex items-center gap-3 truncate">
             {/* SVG Network Topology Node Diagram matching reference image */}
-            <svg className="w-12 h-8 text-zinc-300" viewBox="0 0 48 36" fill="none">
+            <svg className="w-11 h-7 text-zinc-300 shrink-0" viewBox="0 0 48 36" fill="none">
               <circle cx="10" cy="18" r="4" fill="#E4E4E7" />
               <circle cx="24" cy="8" r="5" fill="#FFFFFF" />
               <circle cx="24" cy="28" r="4" fill="#A1A1AA" />
               <circle cx="38" cy="18" r="4.5" fill="#E4E4E7" />
               <path d="M14 16L20 10M14 20L20 26M28 10L34 16M28 26L34 20" stroke="#71717A" strokeWidth="1.5" strokeDasharray="2 2" />
             </svg>
-            <div className="flex flex-col text-left">
-              <span className="text-xs font-bold text-zinc-200">Mule Ring Density</span>
-              <span className="text-[11px] text-zinc-400 font-mono">diag(A² + A³ + A⁴)</span>
+            <div className="flex flex-col text-left truncate">
+              <span className="text-xs font-bold text-zinc-200 truncate">Mule Ring Density</span>
+              <span className="text-[10px] text-zinc-400 font-mono truncate">diag(A² + A³ + A⁴)</span>
             </div>
           </div>
-          <span className="text-[10px] font-mono uppercase bg-zinc-900 px-2 py-1 rounded text-zinc-300 border border-zinc-800 font-bold">
+          <span className="text-[10px] font-mono uppercase bg-zinc-900 px-2 py-1 rounded text-zinc-300 border border-zinc-800 font-bold shrink-0">
             PAGERANK
           </span>
         </div>
@@ -335,18 +335,18 @@ function FeatureVisualGraphic({ featureId }: { featureId: string }) {
 
     case "zero-leakage":
       return (
-        <div className="w-full bg-black/90 border border-zinc-800 rounded-lg p-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+        <div className="w-full bg-black/90 border border-zinc-800 rounded-lg p-3.5 px-4 flex items-center justify-between gap-2 overflow-hidden">
+          <div className="flex items-center gap-3 truncate">
             {/* Waveform / Sparkline SVG matching reference image */}
-            <svg className="w-14 h-7 text-zinc-200" viewBox="0 0 64 32" fill="none">
+            <svg className="w-12 h-6 text-zinc-200 shrink-0" viewBox="0 0 64 32" fill="none">
               <path d="M0 20 L12 20 L18 8 L24 24 L30 14 L36 22 L44 10 L52 20 L64 20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-            <div className="flex flex-col text-left">
-              <span className="text-xs font-bold text-zinc-200">74 Signals Stream</span>
-              <span className="text-[11px] text-zinc-400 font-mono">Zero Temporal Leak</span>
+            <div className="flex flex-col text-left truncate">
+              <span className="text-xs font-bold text-zinc-200 truncate">74 Signals Stream</span>
+              <span className="text-[10px] text-zinc-400 font-mono truncate">Zero Temporal Leak</span>
             </div>
           </div>
-          <span className="text-[10px] font-mono bg-zinc-900 text-zinc-300 px-2 py-0.5 rounded border border-zinc-800 font-bold">
+          <span className="text-[10px] font-mono bg-zinc-900 text-zinc-300 px-2 py-0.5 rounded border border-zinc-800 font-bold shrink-0">
             5m–7d
           </span>
         </div>
@@ -354,31 +354,31 @@ function FeatureVisualGraphic({ featureId }: { featureId: string }) {
 
     case "explainable-ai":
       return (
-        <div className="w-full bg-black/90 border border-zinc-800 rounded-lg p-3 flex flex-col gap-2">
-          <div className="flex justify-between items-center text-[11px] font-mono text-zinc-300">
-            <span>Amount Velocity</span>
-            <span className="font-bold text-white">+48% SHAP</span>
+        <div className="w-full bg-black/90 border border-zinc-800 rounded-lg p-3.5 px-4 flex flex-col gap-2 overflow-hidden">
+          <div className="flex justify-between items-center text-[10px] font-mono text-zinc-300">
+            <span className="truncate">Amount Velocity</span>
+            <span className="font-bold text-white shrink-0">+48% SHAP</span>
           </div>
           <div className="w-full bg-zinc-900 rounded-full h-1.5 overflow-hidden border border-zinc-800">
             <div className="bg-gradient-to-r from-zinc-400 to-white h-full w-[82%]" />
           </div>
-          <div className="flex justify-between items-center text-[11px] font-mono text-zinc-400">
-            <span>Off-Hours Spike</span>
-            <span className="font-bold text-zinc-300">+32% SHAP</span>
+          <div className="flex justify-between items-center text-[10px] font-mono text-zinc-400">
+            <span className="truncate">Off-Hours Spike</span>
+            <span className="font-bold text-zinc-300 shrink-0">+32% SHAP</span>
           </div>
         </div>
       );
 
     case "real-time":
       return (
-        <div className="w-full bg-black/90 border border-zinc-800 rounded-lg p-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
-            <span className="text-xs font-bold text-zinc-200">WebSocket Ticker</span>
+        <div className="w-full bg-black/90 border border-zinc-800 rounded-lg p-3.5 px-4 flex items-center justify-between gap-2 overflow-hidden">
+          <div className="flex items-center gap-2 truncate">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)] shrink-0" />
+            <span className="text-xs font-bold text-zinc-200 truncate">WebSocket Ticker</span>
           </div>
-          <div className="flex items-center gap-1.5 font-mono text-[11px] text-zinc-300 bg-zinc-900 px-2 py-0.5 rounded-md border border-zinc-800">
+          <div className="flex items-center gap-1.5 font-mono text-[10px] text-zinc-300 bg-zinc-900 px-2 py-0.5 rounded-md border border-zinc-800 shrink-0">
             <span>&lt; 45ms</span>
-            <span className="text-emerald-400 bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-800/50 text-[10px] font-bold">Live</span>
+            <span className="text-emerald-400 bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-800/50 text-[9px] font-bold">Live</span>
           </div>
         </div>
       );
