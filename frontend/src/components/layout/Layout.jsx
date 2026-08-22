@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Outlet, useLocation, Navigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
-import Navbar from './Navbar';
 import './Layout.css';
 
 const PAGE_TITLES = {
@@ -33,8 +32,6 @@ export default function Layout() {
   const currentTitle = PAGE_TITLES[location.pathname] || 'Risk Intelligence';
   const isHeroPage = location.pathname === '/';
 
-
-
   return (
     <div className={`sage-layout ${isHeroPage ? 'hero-layout' : ''}`}>
       {!isHeroPage && (
@@ -46,13 +43,6 @@ export default function Layout() {
         />
       )}
       <div className="sage-main">
-        {!isHeroPage && (
-          <Navbar
-            title={currentTitle}
-            theme={theme}
-            onToggleTheme={toggleTheme}
-          />
-        )}
         <main className={`sage-content ${isHeroPage ? 'hero-mode' : ''}`}>
           <Outlet context={{ theme, toggleTheme }} />
         </main>
