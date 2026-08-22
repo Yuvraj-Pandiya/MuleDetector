@@ -58,9 +58,10 @@
 }
 
 .dot.target   { background: #14B8A6; }
-.dot.flagged  { background: #EF4444; }
-.dot.external { background: #F59E0B; }
-.dot.normal   { background: #3B82F6; }
+.dot.critical { background: #EF4444; }
+.dot.high     { background: #F97316; }
+.dot.medium   { background: #F59E0B; }
+.dot.low      { background: #10B981; }
 
 .acct-select {
   background: var(--canvas);
@@ -72,6 +73,154 @@
   font-family: var(--font-mono);
   outline: none;
 }
+
+/* Graph Filter Toolbar */
+.graph-filter-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+  padding: 10px 16px;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-sm);
+  padding: 4px 10px;
+}
+
+.search-box input {
+  background: transparent;
+  border: none;
+  color: var(--ink);
+  font-size: 12px;
+  font-family: var(--font-mono);
+  outline: none;
+  width: 160px;
+}
+
+.search-icon {
+  color: var(--stone);
+}
+
+.filter-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--mute);
+}
+
+.filter-item select, .filter-item input {
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  color: var(--ink);
+  padding: 4px 8px;
+  border-radius: var(--radius-xs);
+  font-size: 12px;
+  font-family: var(--font-mono);
+  outline: none;
+}
+
+.num-input {
+  width: 90px;
+}
+
+.date-input {
+  width: 120px;
+}
+
+.edge-inspector-box {
+  background: var(--canvas);
+  border: 1px solid var(--primary);
+  border-radius: var(--radius-md);
+  padding: 12px;
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+  color: var(--stone);
+  cursor: pointer;
+}
+
+.inspect-metrics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.m-box {
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-xs);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.m-lbl {
+  font-size: 10px;
+  color: var(--stone);
+}
+
+.m-val {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.topology-summary {
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+}
+
+.topology-summary h4 {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--stone);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  letter-spacing: 0.04em;
+}
+
+.short-paths-box {
+  border-top: 1px solid var(--hairline);
+  padding-top: 8px;
+}
+
+.t-label {
+  font-size: 11px;
+  color: var(--stone);
+  font-weight: 600;
+}
+
+.paths-list {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.path-item {
+  color: var(--warning);
+  background: rgba(245, 158, 11, 0.1);
+  padding: 3px 6px;
+  border-radius: 4px;
+}
+
 
 .graph-container-grid {
   flex: 1;

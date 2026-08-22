@@ -165,71 +165,78 @@ export async function getDashboardSummary() {
 export async function getRiskScores(params = {}) {
   if (MOCK) {
     let accounts = [...mockAccounts];
-    if (params.tier) accounts = accounts.filter((a) => a.risk_tier === params.tier);
-    if (params.sort === 'score_desc') accounts.sort((a, b) => b.risk_score - a.risk_score);
-    if (params.sort === 'score_asc') accounts.sort((a, b) => a.risk_score - b.risk_score);
+    if (params.tier) accounts = accounts.filter((a) => a.risk_tier.toLowerCase() === params.tier.toLowerCase());
     if (params.search) {
       const q = params.search.toLowerCase();
       accounts = accounts.filter((a) => a.id.toLowerCase().includes(q) || a.name.toLowerCase().includes(q));
     }
-    return accounts;
+    return {
+      accounts,
+      total: accounts.length,
+      page: params.page || 1,
+      page_size: params.page_size || 10,
+      total_pages: Math.ceil(accounts.length / (params.page_size || 10))
+    };
   }
+
   const { data } = await api.get('/predict/risk-scores', { params });
   const rawList = data.accounts || (Array.isArray(data) ? data : []);
 
-  let accounts = rawList.map((acc, i) => {
+  const accounts = rawList.map((acc, i) => {
     const rawScore = acc.risk_score ?? 0;
-    const scoreVal = rawScore <= 1.0 ? Math.round(rawScore * 1000) / 10 : Math.round(rawScore * 10) / 10;
+    const scoreVal = typeof rawScore === 'number' && rawScore <= 1.0 ? Math.round(rawScore * 1000) / 10 : Math.round(rawScore * 10) / 10;
     const rawTier = (acc.risk_tier || '').toLowerCase();
-    const tier = rawTier === 'high' && scoreVal > 85 ? 'critical' : (rawTier || (scoreVal > 70 ? 'high' : scoreVal > 30 ? 'medium' : 'low'));
+    const tier = rawTier || (scoreVal > 85 ? 'critical' : scoreVal > 70 ? 'high' : scoreVal > 30 ? 'medium' : 'low');
 
     return {
-      id: acc.account_id || acc.id || `ACC-${i}`,
-      name: NAMES[i % NAMES.length],
+      account_id: acc.account_id || acc.id || `ACC-${i}`,
       risk_score: scoreVal,
       risk_tier: tier,
-      txn_count: acc.txn_count_24h ?? acc.txn_count ?? acc.txn_count_7d ?? 0,
-      total_volume: Math.round((acc.total_amount_out_24h ?? acc.total_volume ?? 0) * 100) / 100,
-      avg_txn_size: Math.round((acc.avg_transaction_amount ?? acc.avg_txn_size ?? 0) * 100) / 100,
-      fan_in: acc.in_degree ?? acc.fan_in ?? 0,
-      fan_out: acc.out_degree ?? acc.fan_out ?? 0,
-      flagged: scoreVal > 70,
+      mule_probability: acc.mule_probability ?? (scoreVal / 100),
+      anomaly_score: acc.anomaly_score ?? 0.1,
+      network_risk_score: acc.network_risk_score ?? (acc.in_degree ? acc.in_degree * 5 : 15),
+      transaction_count: acc.transaction_count ?? acc.txn_count_24h ?? acc.txn_count ?? 0,
+      incoming_amount: acc.incoming_amount ?? acc.total_amount_in_24h ?? 0,
+      outgoing_amount: acc.outgoing_amount ?? acc.total_amount_out_24h ?? acc.total_volume ?? 0,
+      unique_counterparties: acc.unique_counterparties ?? acc.unique_counterparty_count ?? 0,
+      account_age: acc.account_age ?? acc.account_age_days ?? 0,
+      last_activity: acc.last_activity || new Date().toISOString(),
+      alert_count: acc.alert_count ?? 0,
+      investigation_status: acc.investigation_status || 'NONE',
     };
   });
 
-  if (params.tier) accounts = accounts.filter((a) => a.risk_tier === params.tier.toLowerCase());
-  if (params.sort === 'score_desc') accounts.sort((a, b) => b.risk_score - a.risk_score);
-  if (params.sort === 'score_asc') accounts.sort((a, b) => a.risk_score - b.risk_score);
-  if (params.search) {
-    const q = params.search.toLowerCase();
-    accounts = accounts.filter((a) => a.id.toLowerCase().includes(q) || a.name.toLowerCase().includes(q));
-  }
-
-  return accounts;
+  return {
+    accounts,
+    total: data.total ?? accounts.length,
+    page: data.page ?? params.page ?? 1,
+    page_size: data.page_size ?? params.page_size ?? 10,
+    total_pages: data.total_pages ?? Math.max(1, Math.ceil((data.total ?? accounts.length) / (data.page_size ?? 10))),
+  };
 }
+
 
 export async function getExplanation(id) {
   if (MOCK) return mockExplain(id);
   const { data } = await api.get(`/predict/explain/${id}`);
-  const scoreVal = typeof data.risk_score === 'number' && data.risk_score <= 1.0
-    ? Math.round(data.risk_score * 1000) / 10
-    : (data.risk_score || 0);
-
-  const rawFeatures = data.top_shap_features || data.features || [];
-
-  return {
-    account_id: data.account_id,
-    risk_score: scoreVal,
-    risk_tier: (data.risk_tier || (scoreVal > 70 ? 'high' : 'medium')).toLowerCase(),
-    reason: data.reason || 'Account flagged based on automated risk feature analysis.',
-    features: rawFeatures.map(f => ({
-      name: (f.feature || f.name || '').replace(/_/g, ' '),
-      value: f.feature_value ?? f.value ?? 0,
-      impact: f.shap_value ?? f.impact ?? 0.1,
-      direction: (f.shap_value ?? f.impact ?? 0) >= 0 ? 'positive' : 'negative'
-    }))
-  };
+  return data;
 }
+
+export async function getGlobalFeatureImportance() {
+  if (MOCK) {
+    return [
+      { importance_rank: 1, feature: 'avg_time_to_forward_funds_minutes', feature_name: 'Rapid Fund Forwarding Latency', importance: 0.24 },
+      { importance_rank: 2, feature: 'txn_count_1h', feature_name: 'Transaction Velocity (1h)', importance: 0.19 },
+      { importance_rank: 3, feature: 'unique_counterparty_count', feature_name: 'Unique Counterparties Count', importance: 0.14 },
+      { importance_rank: 4, feature: 'fan_out_ratio', feature_name: 'Fan-Out Fan-In Topology Risk', importance: 0.11 },
+      { importance_rank: 5, feature: 'amount_zscore_avg', feature_name: 'Behavioral Volume Spike Z-Score', importance: 0.08 },
+    ];
+  }
+  const { data } = await api.get('/features/importance');
+  return data.features || (Array.isArray(data) ? data : []);
+}
+
+
 
 export async function getAlerts() {
   if (MOCK) return [...mockAlerts];
@@ -286,14 +293,15 @@ export async function getModelMetrics() {
   }
 }
 
-export async function getTransactionGraph(id) {
+export async function getTransactionGraph(id, params = {}) {
   if (MOCK) return mockGraph(id);
   try {
-    const { data } = await api.get(`/graph/${id}`);
+    const { data } = await api.get(`/graph/${id}`, { params });
     return data;
   } catch (e) {
     return mockGraph(id);
   }
 }
+
 
 export default api;

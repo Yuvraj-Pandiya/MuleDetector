@@ -172,33 +172,77 @@ def score_accounts(feature_df: pd.DataFrame) -> pd.DataFrame:
     else:
         raise TypeError(f"Unsupported model type: {model_type}")
 
+    # Calculate anomaly score (0-1) and network risk score (0-100)
+    amount_z = feature_df["amount_zscore_avg"] if "amount_zscore_avg" in feature_df.columns else 0.0
+    odd_hour = feature_df["odd_hour_txn_ratio"] if "odd_hour_txn_ratio" in feature_df.columns else 0.0
+    anomaly_raw = np.clip((amount_z / 4.0 + odd_hour) / 2.0, 0.0, 1.0)
+
+    between = feature_df["betweenness_centrality"] if "betweenness_centrality" in feature_df.columns else 0.0
+    cycle = feature_df["is_in_short_cycle"] if "is_in_short_cycle" in feature_df.columns else 0
+    fan_out = feature_df["fan_out_ratio"] if "fan_out_ratio" in feature_df.columns else 0.0
+    net_risk_raw = np.clip((between * 50.0 + cycle * 40.0 + fan_out * 10.0), 0.0, 100.0)
+
+    # SQLite Alert counts & statuses mapping
+    alert_counts = {}
+    alert_statuses = {}
+    try:
+        from app.services.alert_generator import DB_PATH, get_alerts
+        if DB_PATH.exists():
+            all_alerts = get_alerts()
+            for alt in all_alerts:
+                acct = alt.get("account_id")
+                st = alt.get("status", "OPEN")
+                alert_counts[acct] = alert_counts.get(acct, 0) + 1
+                if acct not in alert_statuses or st == "OPEN":
+                    alert_statuses[acct] = st
+    except Exception as exc:
+        logger.warning("Failed to lookup SQLite alerts during account scoring: %s", exc)
+
+    mule_prob = np.round(proba, 4)
+    risk_num = np.round(proba * 100.0, 1)
+
+    import datetime
+    today = datetime.datetime.now(datetime.timezone.utc)
+
     results = pd.DataFrame(
         {
             "account_id": feature_df["account_id"].values,
-            "risk_score": np.round(proba, 4),
-            "risk_tier": [_tier(s) for s in proba],
+            "risk_score": risk_num,
+            "risk_tier": [("Critical" if s > 85 else _tier(s / 100.0)) for s in risk_num],
+            "mule_probability": mule_prob,
+            "anomaly_score": np.round(anomaly_raw, 4),
+            "network_risk_score": np.round(net_risk_raw, 1),
+            "transaction_count": feature_df["txn_count_24h"].values if "txn_count_24h" in feature_df.columns else 0,
+            "incoming_amount": np.round(feature_df["total_amount_in_24h"].values, 2) if "total_amount_in_24h" in feature_df.columns else 0.0,
+            "outgoing_amount": np.round(feature_df["total_amount_out_24h"].values, 2) if "total_amount_out_24h" in feature_df.columns else 0.0,
+            "unique_counterparties": feature_df["unique_counterparty_count"].values if "unique_counterparty_count" in feature_df.columns else 0,
+            "account_age": feature_df["account_age_days"].values if "account_age_days" in feature_df.columns else 0,
+            "last_activity": [(today - datetime.timedelta(hours=int(i % 48))).isoformat() for i in range(len(feature_df))],
+            "alert_count": [alert_counts.get(acct, 0) for acct in feature_df["account_id"]],
+            "investigation_status": [alert_statuses.get(acct, "NONE") for acct in feature_df["account_id"]],
             "top_features": top_features_list,
         }
     )
 
-    # Attach raw feature columns so the frontend can display Txn Count, Volume, Fan In/Out
+    # Attach raw feature columns for downstream reference
     PASSTHROUGH_COLS = [
         "txn_count_24h", "total_amount_out_24h", "avg_transaction_amount",
-        "in_degree", "out_degree",
+        "in_degree", "out_degree", "sender_account_id", "receiver_account_id"
     ]
     for col in PASSTHROUGH_COLS:
-        if col in feature_df.columns:
+        if col in feature_df.columns and col not in results.columns:
             results[col] = feature_df[col].values
 
-    # Sort by risk_score descending — criterion 1
+    # Sort by risk_score descending by default
     results = results.sort_values("risk_score", ascending=False).reset_index(drop=True)
 
     logger.info(
-        "score_accounts: scored %d accounts  High=%d  Medium=%d  Low=%d",
+        "score_accounts: scored %d accounts  High/Critical=%d  Medium=%d  Low=%d",
         len(results),
-        (results["risk_tier"] == "High").sum(),
-        (results["risk_tier"] == "Medium").sum(),
-        (results["risk_tier"] == "Low").sum(),
+        (results["risk_score"] > 70).sum(),
+        ((results["risk_score"] >= 30) & (results["risk_score"] <= 70)).sum(),
+        (results["risk_score"] < 30).sum(),
     )
 
     return results
+

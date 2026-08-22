@@ -114,3 +114,48 @@ def get_features() -> JSONResponse:
             "records": records,
         }
     )
+
+
+@router.get(
+    "/importance",
+    summary="Get global feature importance from backend model",
+    response_description="Ranked list of model features with global importance weights.",
+)
+def get_global_feature_importance() -> dict[str, Any]:
+    """
+    Returns global feature importances computed by the trained model.
+    """
+    from app.services.explainer import _FEATURE_LABELS, _load_model
+    try:
+        model = _load_model()
+        if hasattr(model, "feature_importances_"):
+            importances = model.feature_importances_
+        else:
+            importances = [0.1] * 21
+
+        from app.services.risk_scorer import FEATURE_SCHEMA_COLUMNS
+        feature_names = FEATURE_SCHEMA_COLUMNS[:len(importances)]
+
+        import numpy as np
+        sorted_idx = np.argsort(importances)[::-1]
+
+        result = []
+        for rank, idx in enumerate(sorted_idx, 1):
+            fname = feature_names[idx] if idx < len(feature_names) else f"feature_{idx}"
+            label = _FEATURE_LABELS.get(fname, fname.replace("_", " "))
+            result.append(
+                {
+                    "importance_rank": rank,
+                    "feature": fname,
+                    "feature_name": label,
+                    "importance": round(float(importances[idx]), 4),
+                }
+            )
+
+        return {
+            "count": len(result),
+            "features": result,
+        }
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Global importance query failed: {exc}") from exc
+
