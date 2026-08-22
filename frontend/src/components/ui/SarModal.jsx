@@ -284,15 +284,6 @@ export default function SarModal({ accountId, onClose, onSaveSuccess }) {
                 <Save size={16} />
                 Save Draft
               </button>
-
-              <button 
-                className="btn-success" 
-                onClick={() => handleSave('SUBMITTED')}
-                disabled={saving || loading || sarData.status === 'SUBMITTED'}
-              >
-                <CheckCircle size={16} />
-                {sarData.status === 'SUBMITTED' ? 'Submitted' : 'Submit to FinCEN'}
-              </button>
             </>
           )}
         </div>
