@@ -152,43 +152,41 @@ export default function FeatureShaderCards() {
   }, []);
 
   return (
-    <section className="relative w-full py-16 lg:py-24 px-4 sm:px-6 lg:px-8 bg-[#070b16] text-white overflow-hidden border-t border-white/10 font-sans antialiased">
+    <section className="relative w-full py-16 lg:py-24 px-4 sm:px-6 lg:px-8 bg-[#070b16] text-white overflow-hidden border-t border-white/10 font-sans antialiased flex flex-col items-center justify-center">
       {/* Radial Background Light Filter Matching Hero Theme */}
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] bg-cyan-500/10 rounded-full blur-[150px] pointer-events-none" aria-hidden="true" />
 
-      <div className="max-w-[1450px] mx-auto relative z-10">
+      <div className="w-full max-w-[1450px] mx-auto relative z-10 flex flex-col items-center text-center">
         
-        {/* Section Header: Matching Hero Eyebrow & Silver-Matte Typography */}
-        <div className="text-center mb-14 lg:mb-18 space-y-3.5">
+        {/* Section Header: Centered Alignment */}
+        <div className="flex flex-col items-center text-center max-w-4xl mx-auto mb-14 lg:mb-18 space-y-4 w-full">
           
           {/* Eyebrow Badge */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-cyan-500/10 border border-cyan-400/25 text-cyan-400 text-xs lg:text-[13px] font-extrabold uppercase tracking-[0.35em] shadow-lg backdrop-blur-md">
+          <div className="inline-flex items-center justify-center gap-2 px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-400/25 text-cyan-400 text-xs lg:text-[13px] font-extrabold uppercase tracking-[0.35em] shadow-lg backdrop-blur-md">
             <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
             MULESCOPE INTELLIGENCE
           </div>
 
           {/* Heading */}
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-black uppercase tracking-tight text-white drop-shadow-md leading-[1.1]">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-black uppercase tracking-tight text-white drop-shadow-md leading-[1.1] text-center w-full">
             Built to Detect What <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-400">Others Miss</span>
           </h2>
 
           {/* Subtitle / Description */}
-          <p className="text-sm md:text-base lg:text-lg text-blue-100/70 max-w-3xl mx-auto font-normal leading-relaxed">
+          <p className="text-sm md:text-base lg:text-lg text-blue-100/70 max-w-3xl mx-auto font-normal leading-relaxed text-center">
             Five intelligence layers combine machine learning, transaction topology, behavioral signals, explainability, and real-time telemetry to expose coordinated mule activity.
           </p>
         </div>
 
-        {/* Row 1: Top 3 Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 mb-6 lg:mb-8">
-          {features.slice(0, 3).map((feature) => (
-            <FeatureCard key={feature.id} feature={feature} reduceMotion={reduceMotion} />
-          ))}
-        </div>
-
-        {/* Row 2: Bottom 2 Cards (Centered) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 max-w-4xl mx-auto">
-          {features.slice(3, 5).map((feature) => (
-            <FeatureCard key={feature.id} feature={feature} reduceMotion={reduceMotion} />
+        {/* 5-Card Layout: Centered Flex Wrapper */}
+        <div className="flex flex-wrap justify-center items-stretch gap-6 lg:gap-8 w-full max-w-[1450px] mx-auto">
+          {features.map((feature) => (
+            <div
+              key={feature.id}
+              className="w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-22px)] max-w-[440px] flex flex-col"
+            >
+              <FeatureCard feature={feature} reduceMotion={reduceMotion} />
+            </div>
           ))}
         </div>
 
@@ -201,7 +199,7 @@ function FeatureCard({ feature, reduceMotion }: { feature: FeatureCardData; redu
   const [hasWebGLError, setHasWebGLError] = useState(false);
 
   return (
-    <div className="relative group h-full min-h-[350px] flex flex-col rounded-2xl overflow-hidden border border-white/10 bg-gradient-to-b from-neutral-900/80 via-neutral-950/90 to-neutral-950/95 backdrop-blur-xl hover:border-cyan-400/50 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_12px_35px_rgba(56,189,248,0.18)]">
+    <div className="relative group w-full h-full min-h-[350px] flex flex-col rounded-2xl overflow-hidden border border-white/10 bg-gradient-to-b from-neutral-900/80 via-neutral-950/90 to-neutral-950/95 backdrop-blur-xl hover:border-cyan-400/50 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_12px_35px_rgba(56,189,248,0.18)]">
       
       {/* Background Animated WebGL Shader */}
       {!reduceMotion && !hasWebGLError && (
@@ -231,7 +229,7 @@ function FeatureCard({ feature, reduceMotion }: { feature: FeatureCardData; redu
       {/* Card Content Container */}
       <div className="relative z-10 p-6 lg:p-7 flex flex-col justify-between flex-1 h-full">
         
-        <div>
+        <div className="flex flex-col text-left">
           {/* Eyebrow & Icon Row */}
           <div className="flex items-center justify-between mb-4">
             <span className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-cyan-400 bg-cyan-500/10 px-3 py-1 rounded-full border border-cyan-400/20">
@@ -254,7 +252,7 @@ function FeatureCard({ feature, reduceMotion }: { feature: FeatureCardData; redu
         </div>
 
         {/* Technical Chips & Link */}
-        <div className="mt-auto pt-2">
+        <div className="mt-auto pt-2 text-left">
           <div className="flex flex-wrap gap-1.5 mb-5">
             {feature.chips.map((chip, idx) => (
               <span
