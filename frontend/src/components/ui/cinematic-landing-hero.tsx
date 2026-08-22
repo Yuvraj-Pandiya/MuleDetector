@@ -481,105 +481,105 @@ export function CinematicHero({
                     </div>
 
                     {/* App Interface: 4 Clear Levels Matching All 8 Features */}
-                    <div className="relative w-full h-full pt-8 px-3.5 pb-6 flex flex-col justify-between">
+                    <div className="relative w-full h-full pt-8 px-3.5 pb-5 flex flex-col justify-between">
                       
                       {/* LEVEL 1 (TOP): Header + 2 Feature Target Badges */}
                       <div className="space-y-1.5">
-                        <div className="phone-widget flex justify-between items-center px-1">
-                          <div className="flex flex-col">
-                            <span className="text-[8px] text-neutral-400 uppercase tracking-widest font-bold">Live Telemetry</span>
-                            <span className="text-base font-extrabold tracking-tight text-white drop-shadow-md">Risk Engine</span>
+                        <div className="phone-widget flex justify-between items-center px-2 py-1.5 rounded-xl bg-white/5 border border-white/10 backdrop-blur-md">
+                          <div className="flex flex-col text-left">
+                            <span className="text-[7px] text-cyan-400 uppercase tracking-widest font-extrabold">LIVE TELEMETRY</span>
+                            <span className="text-sm font-extrabold tracking-tight text-white drop-shadow-md">Risk Engine</span>
                           </div>
-                          <div className="w-7 h-7 rounded-full bg-white/5 text-neutral-200 flex items-center justify-center font-bold text-[10px] border border-white/10 shadow-lg">GNN</div>
+                          <div className="px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 font-extrabold text-[9px] border border-cyan-400/30 shadow-sm">GNN</div>
                         </div>
 
                         {/* Level 1 Target Badges: Explainable AI & Model Metrics */}
                         <div className="flex items-center gap-1.5">
-                          <div className="flex-1 rounded-lg p-1.5 bg-blue-500/10 border border-blue-400/30 flex items-center gap-1.5">
+                          <div className="flex-1 rounded-lg p-1.5 bg-blue-500/15 border border-blue-400/30 flex items-center gap-1.5">
                             <span className="text-[10px]">⚡</span>
-                            <div className="min-w-0">
-                              <div className="text-[8px] font-bold text-white truncate">SHAP AI</div>
-                              <div className="text-[7px] text-blue-200/60 truncate">Feature Reason</div>
+                            <div className="min-w-0 text-left">
+                              <div className="text-[8px] font-extrabold text-white truncate">SHAP AI</div>
+                              <div className="text-[7px] text-blue-200/70 truncate">Feature Reason</div>
                             </div>
                           </div>
-                          <div className="flex-1 rounded-lg p-1.5 bg-indigo-500/10 border border-indigo-400/30 flex items-center gap-1.5">
+                          <div className="flex-1 rounded-lg p-1.5 bg-indigo-500/15 border border-indigo-400/30 flex items-center gap-1.5">
                             <span className="text-[10px]">✉️</span>
-                            <div className="min-w-0">
-                              <div className="text-[8px] font-bold text-white truncate">Simulation</div>
-                              <div className="text-[7px] text-indigo-200/60 truncate">What-If Model</div>
+                            <div className="min-w-0 text-left">
+                              <div className="text-[8px] font-extrabold text-white truncate">Metrics &amp; Sim</div>
+                              <div className="text-[7px] text-indigo-200/70 truncate">What-If Model</div>
                             </div>
                           </div>
                         </div>
                       </div>
 
                       {/* LEVEL 2 (MIDDLE GAUGE): Ring Gauge + Side Target Badges */}
-                      <div className="phone-widget relative w-36 h-36 mx-auto flex items-center justify-center drop-shadow-[0_15px_25px_rgba(0,0,0,0.8)] my-1">
+                      <div className="phone-widget relative w-32 h-32 mx-auto flex items-center justify-center drop-shadow-[0_15px_25px_rgba(0,0,0,0.8)] my-0.5">
                         <svg className="absolute inset-0 w-full h-full" viewBox="0 0 160 160" aria-hidden="true">
-                          <circle cx="80" cy="80" r="58" fill="none" stroke="rgba(255,255,255,0.03)" strokeWidth="10" />
+                          <circle cx="80" cy="80" r="58" fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="10" />
                           <circle className="progress-ring" cx="80" cy="80" r="58" fill="none" stroke="#3B82F6" strokeWidth="10" strokeDasharray="364" strokeDashoffset="85" strokeLinecap="round" />
                           <path id="textArc" d="M 32,96 A 52,52 0 0,0 128,96" fill="none" />
-                          <text className="fill-blue-200/50 text-[7px] font-bold tracking-[0.14em] uppercase">
+                          <text className="fill-blue-200/60 text-[7px] font-bold tracking-[0.14em] uppercase">
                             <textPath href="#textArc" startOffset="50%" textAnchor="middle">
                               ACCOUNT MONITORED
                             </textPath>
                           </text>
                         </svg>
                         <div className="text-center z-10 flex flex-col items-center pt-0.5">
-                          <span className="counter-val text-3xl font-black tracking-tighter text-white">0</span>
-                          <span className="text-[8px] text-blue-200/60 uppercase tracking-[0.12em] font-bold mt-0.5">{metricLabel}</span>
+                          <span className="counter-val text-2xl font-black tracking-tighter text-white">1247</span>
+                          <span className="text-[7px] text-blue-200/70 uppercase tracking-[0.12em] font-bold mt-0.5">RISK SCORE</span>
                         </div>
 
                         {/* Level 2 Target Side Badges */}
-                        <div className="absolute -left-2 bottom-1 rounded-md px-1.5 py-0.5 bg-amber-500/20 border border-amber-400/40 text-[7px] font-bold text-amber-200 flex items-center gap-1 shadow-md">
+                        <div className="absolute -left-1 bottom-1 rounded-md px-1.5 py-0.5 bg-amber-500/20 border border-amber-400/40 text-[7px] font-bold text-amber-200 flex items-center gap-1 shadow-md">
                           <span>📊</span> Tiers
                         </div>
-                        <div className="absolute -right-2 bottom-1 rounded-md px-1.5 py-0.5 bg-cyan-500/20 border border-cyan-400/40 text-[7px] font-bold text-cyan-200 flex items-center gap-1 shadow-md">
-                          🎯 Rings <span></span>
+                        <div className="absolute -right-1 bottom-1 rounded-md px-1.5 py-0.5 bg-cyan-500/20 border border-cyan-400/40 text-[7px] font-bold text-cyan-200 flex items-center gap-1 shadow-md">
+                          <span>🎯</span> Rings
                         </div>
                       </div>
 
-                      {/* LEVEL 3 (LOWER MIDDLE): Ingestion & Streaming Telemetry Cards */}
+                      {/* LEVEL 3 (LOWER MIDDLE): Ingestion & Zero-Day Anomaly Scorer Cards */}
                       <div className="grid grid-cols-2 gap-1.5">
-                        <div className="phone-widget widget-depth rounded-lg p-1.5 flex items-center bg-emerald-500/10 border border-emerald-400/30">
+                        <div className="phone-widget widget-depth rounded-lg p-1.5 flex items-center bg-emerald-500/15 border border-emerald-400/30">
                           <div className="w-6 h-6 rounded bg-emerald-500/20 flex items-center justify-center mr-1.5 border border-emerald-400/30 shrink-0">
                             <span className="text-[9px]">☁️</span>
                           </div>
-                          <div className="min-w-0">
-                            <div className="text-[8px] font-bold text-white truncate">CSV Ingest</div>
-                            <div className="text-[7px] text-emerald-200/60 truncate">Drag &amp; Drop</div>
+                          <div className="min-w-0 text-left">
+                            <div className="text-[8px] font-extrabold text-white truncate">CSV Ingest</div>
+                            <div className="text-[7px] text-emerald-200/70 truncate">Drag &amp; Drop</div>
                           </div>
                         </div>
 
-                        <div className="phone-widget widget-depth rounded-lg p-1.5 flex items-center bg-violet-500/10 border border-violet-400/30">
+                        <div className="phone-widget widget-depth rounded-lg p-1.5 flex items-center bg-violet-500/15 border border-violet-400/30">
                           <div className="w-6 h-6 rounded bg-violet-500/20 flex items-center justify-center mr-1.5 border border-violet-400/30 shrink-0">
-                            <span className="text-[9px]">📈</span>
+                            <span className="text-[9px]">🔬</span>
                           </div>
-                          <div className="min-w-0">
-                            <div className="text-[8px] font-bold text-white truncate">Streaming</div>
-                            <div className="text-[7px] text-violet-200/60 truncate">ROC-AUC Live</div>
+                          <div className="min-w-0 text-left">
+                            <div className="text-[8px] font-extrabold text-white truncate">Zero-Day AI</div>
+                            <div className="text-[7px] text-violet-200/70 truncate">Isolation Forest</div>
                           </div>
                         </div>
                       </div>
 
-                      {/* LEVEL 4 (BOTTOM): Alert & Workflow Cards */}
+                      {/* LEVEL 4 (BOTTOM): 74 Signals & Case Alerts Cards */}
                       <div className="grid grid-cols-2 gap-1.5">
-                        <div className="phone-widget widget-depth rounded-lg p-1.5 flex items-center bg-red-500/10 border border-red-400/30">
-                          <div className="w-6 h-6 rounded bg-red-500/20 flex items-center justify-center mr-1.5 border border-red-400/30 shrink-0">
-                            <span className="text-[9px]">⚠️</span>
+                        <div className="phone-widget widget-depth rounded-lg p-1.5 flex items-center bg-rose-500/15 border border-rose-400/30">
+                          <div className="w-6 h-6 rounded bg-rose-500/20 flex items-center justify-center mr-1.5 border border-rose-400/30 shrink-0">
+                            <span className="text-[9px]">⚡</span>
                           </div>
-                          <div className="min-w-0">
-                            <div className="text-[8px] font-bold text-white truncate">Severity Alerts</div>
-                            <div className="text-[7px] text-red-200/60 truncate">High Priority</div>
+                          <div className="min-w-0 text-left">
+                            <div className="text-[8px] font-extrabold text-white truncate">74 Signals</div>
+                            <div className="text-[7px] text-rose-200/70 truncate">Zero Leakage</div>
                           </div>
                         </div>
 
-                        <div className="phone-widget widget-depth rounded-lg p-1.5 flex items-center bg-rose-500/10 border border-rose-400/30">
-                          <div className="w-6 h-6 rounded bg-rose-500/20 flex items-center justify-center mr-1.5 border border-rose-400/30 shrink-0">
-                            <span className="text-[9px]">🔔</span>
+                        <div className="phone-widget widget-depth rounded-lg p-1.5 flex items-center bg-red-500/15 border border-red-400/30">
+                          <div className="w-6 h-6 rounded bg-red-500/20 flex items-center justify-center mr-1.5 border border-red-400/30 shrink-0">
+                            <span className="text-[9px]">⚠️</span>
                           </div>
-                          <div className="min-w-0">
-                            <div className="text-[8px] font-bold text-white truncate">Workflow</div>
-                            <div className="text-[7px] text-rose-200/60 truncate">Analyst Action</div>
+                          <div className="min-w-0 text-left">
+                            <div className="text-[8px] font-extrabold text-white truncate">Case Alerts</div>
+                            <div className="text-[7px] text-red-200/70 truncate">Analyst Action</div>
                           </div>
                         </div>
                       </div>
@@ -629,7 +629,7 @@ export function CinematicHero({
                 </div>
               </div>
 
-              {/* Card 3: Model Metrics & Simulation */}
+              {/* Card 3: Zero-Day Anomaly Engine */}
               <div className="floating-badge relative group flex items-center gap-1.5 lg:gap-2 w-full">
                 <div className="hidden lg:flex items-center text-blue-400/80 shrink-0 w-6 xl:w-8" aria-hidden="true">
                   <span className="text-[11px] -mr-1 text-cyan-400 font-bold drop-shadow-[0_0_5px_rgba(56,189,248,0.8)]">◄</span>
@@ -637,11 +637,11 @@ export function CinematicHero({
                 </div>
                 <div className="flex-1 floating-ui-badge rounded-xl p-2.5 lg:p-3 flex items-center gap-2.5 shadow-lg border border-white/10 backdrop-blur-md bg-neutral-900/60 hover:bg-neutral-800/80 transition-all duration-300">
                   <div className="w-7 h-7 rounded-full bg-gradient-to-b from-violet-500/20 to-violet-900/10 flex items-center justify-center border border-violet-400/30 shrink-0">
-                    <span className="text-xs lg:text-sm drop-shadow-md">📈</span>
+                    <span className="text-xs lg:text-sm drop-shadow-md">🔬</span>
                   </div>
                   <div className="min-w-0">
-                    <p className="text-white text-[11px] lg:text-xs font-bold tracking-tight truncate">Model Metrics &amp; Simulation</p>
-                    <p className="text-blue-200/50 text-[9px] lg:text-[10px] font-medium truncate">Precision, ROC-AUC &amp; live streaming</p>
+                    <p className="text-white text-[11px] lg:text-xs font-bold tracking-tight truncate">Zero-Day Anomaly Scorer</p>
+                    <p className="text-blue-200/50 text-[9px] lg:text-[10px] font-medium truncate">Unsupervised Isolation Forest algorithm</p>
                   </div>
                 </div>
               </div>
