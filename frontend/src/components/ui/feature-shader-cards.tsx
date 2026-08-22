@@ -403,3 +403,5 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode; onError
     return this.props.children;
   }
 }
+
+export default FeatureShaderCards;
