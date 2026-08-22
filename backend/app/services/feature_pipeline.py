@@ -104,13 +104,14 @@ def build_feature_matrix(
     t_start = time.perf_counter()
 
     # ------------------------------------------------------------------
-    # 1. Ingest & validate
+    # 1. Ingest, preprocess & validate
     # ------------------------------------------------------------------
-    print("[pipeline] Loading transactions ...")
-    df = load_transactions(csv_path)
+    print("[pipeline] Loading & preprocessing transactions ...")
+    from app.services.preprocessing_pipeline import preprocess_transactions
+    df, stats, rejected_df = preprocess_transactions(csv_path)
     has_label = "is_mule_pattern" in df.columns
     print(
-        f"[pipeline] {len(df):,} rows | "
+        f"[pipeline] Cleaned {len(df):,} rows (rejected {len(rejected_df):,}) | "
         f"{df['sender_account_id'].nunique():,} unique senders | "
         f"label present: {has_label}"
     )
