@@ -7,6 +7,7 @@ import './Sidebar.css';
 const navItems = [
   { label: 'Home', href: '/' },
   { label: 'Dashboard', href: '/dashboard' },
+  { label: 'Real-Time', href: '/stream' },
   { label: 'Upload', href: '/upload' },
   { label: 'Accounts', href: '/accounts' },
   { label: 'Anomaly', href: '/anomaly' },
