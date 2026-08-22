@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import datetime
 import logging
 import pathlib
-from typing import Any, List, Literal, Dict
+from typing import Any, List, Optional
 
 import pandas as pd
 from fastapi import APIRouter, HTTPException, Query
@@ -23,23 +25,24 @@ _TRANSACTIONS_CSV = _DATA_DIR / "transactions.csv"
 
 
 class AlertStatusUpdate(BaseModel):
-    status: Literal["OPEN", "UNDER_INVESTIGATION", "CONFIRMED_MULE", "FALSE_POSITIVE", "DISMISSED"]
+    status: str
 
     @field_validator("status")
     @classmethod
     def status_must_be_valid(cls, v: str) -> str:
-        if v not in VALID_STATUSES:
+        v_upper = v.upper()
+        if v_upper not in VALID_STATUSES:
             raise ValueError(f"status must be one of {sorted(VALID_STATUSES)}")
-        return v
+        return v_upper
 
 
 class BulkAlertStatusUpdate(BaseModel):
     alert_ids: List[str]
-    status: Literal["OPEN", "UNDER_INVESTIGATION", "CONFIRMED_MULE", "FALSE_POSITIVE", "DISMISSED"]
+    status: str
 
 
-@router.post("/generate", summary="Score accounts and generate alerts")
-def trigger_alert_generation(threshold: float = Query(default=60.0, ge=0.0, le=100.0)) -> dict:
+@router.post("/generate", summary="Score accounts and generate prioritized risk-based alerts")
+def trigger_alert_generation(threshold: float = Query(default=30.0, ge=0.0, le=100.0)) -> dict:
     tx_file = _TRANSACTIONS_CSV if _TRANSACTIONS_CSV.exists() else None
     if not tx_file:
         return {"generated": 0, "alerts": []}
@@ -49,43 +52,45 @@ def trigger_alert_generation(threshold: float = Query(default=60.0, ge=0.0, le=1
         from app.services.risk_scorer import score_accounts
         df_feat = build_feature_matrix(tx_file)
         scored = score_accounts(df_feat)
-        alerts = generate_alerts(scored, threshold=threshold / 100.0)
+        alerts = generate_alerts(scored, threshold=threshold)
         return {"generated": len(alerts), "threshold": threshold, "alerts": alerts}
     except Exception as exc:
         logger.exception("Alert generation failed: %s", exc)
         return {"generated": 0, "alerts": []}
 
 
-@router.get("", summary="List backend-generated alerts with pagination and filtering")
+@router.get("", summary="List backend-generated alerts with pagination and prioritized queue sorting")
 def list_alerts(
     page: int = Query(1, ge=1),
     page_size: int = Query(10, ge=1, le=100),
-    risk_tier: str | None = Query(None, description="CRITICAL, HIGH, MEDIUM, LOW"),
-    severity: str | None = Query(None, description="CRITICAL, HIGH"),
-    status: str | None = Query(None, description="OPEN, UNDER_INVESTIGATION, CONFIRMED_MULE, FALSE_POSITIVE, DISMISSED"),
-    min_score: float | None = Query(None, ge=0.0, le=100.0),
-    max_score: float | None = Query(None, ge=0.0, le=100.0),
-    search: str | None = Query(None, description="Search by account ID or alert ID"),
-    start_date: str | None = Query(None),
-    end_date: str | None = Query(None),
-    sort_by: str | None = Query("risk_desc", description="risk_desc, risk_asc, newest, oldest"),
+    risk_tier: Optional[str] = Query(None, description="CRITICAL, HIGH, MEDIUM, LOW"),
+    severity: Optional[str] = Query(None, description="CRITICAL, HIGH, MEDIUM, LOW"),
+    status: Optional[str] = Query(None, description="OPEN, UNDER_INVESTIGATION, CONFIRMED_MULE, FALSE_POSITIVE, DISMISSED"),
+    min_score: Optional[float] = Query(None, ge=0.0, le=100.0),
+    max_score: Optional[float] = Query(None, ge=0.0, le=100.0),
+    search: Optional[str] = Query(None, description="Search by account ID or alert ID"),
+    start_date: Optional[str] = Query(None),
+    end_date: Optional[str] = Query(None),
+    sort_by: Optional[str] = Query("prioritized", description="prioritized, risk_desc, risk_asc, newest, oldest"),
 ) -> dict:
     """
-    Return persisted alerts with full model attributions, top reasons, and pagination.
+    Return persisted alerts sorted by prioritized analyst queue criteria:
+      1. risk_score DESC
+      2. severity DESC (CRITICAL > HIGH > MEDIUM > LOW)
+      3. network_risk DESC
+      4. connected_suspicious_count DESC
     """
-    # Fetch base alerts list from DB or scorer
-    all_alerts = get_alerts()
+    all_alerts = get_alerts(severity=severity, status=status, risk_tier=risk_tier, sort_by=sort_by or "prioritized")
 
     if not all_alerts:
-        # Fallback generated alerts if DB empty
+        # Fallback sample alerts if DB empty
         base_time = datetime.datetime.now(datetime.timezone.utc)
         sample_accounts = [
-            ("ACC-001001", 94.2, "CRITICAL", 0.94, 0.88, 91.5, ["Rapid fund forwarding (<15m)", "High 1h transaction velocity spike", "Fan-out ratio > 4.5"]),
-            ("ACC-001019", 88.5, "CRITICAL", 0.88, 0.82, 85.0, ["High velocity transaction burst", "Short cycle topology link", "Pass-through retention ratio < 5%"]),
-            ("ACC-001012", 78.4, "HIGH", 0.78, 0.65, 72.0, ["Abnormal transaction amount > 2.5x", "New account activation surge", "Multiple unique counterparties"]),
-            ("ACC-001045", 72.1, "HIGH", 0.72, 0.58, 68.4, ["Rapid pass-through forwarding", "High out-degree network ratio", "Off-hours transaction activity"]),
-            ("ACC-001088", 45.0, "MEDIUM", 0.45, 0.32, 41.0, ["Moderate amount anomaly", "Counterparty risk exposure", "Slight volume surge"]),
-            ("ACC-001024", 22.0, "LOW", 0.22, 0.12, 18.0, ["Baseline transaction velocity", "Normal retention ratio", "Verified counterparty history"]),
+            ("ACC-001001", 94.2, "CRITICAL", 0.94, 0.88, 91.5, ["unusually high outgoing velocity", "rapid fund forwarding", "large number of counterparties"]),
+            ("ACC-001019", 88.5, "CRITICAL", 0.88, 0.82, 85.0, ["high velocity transaction burst", "participation in rapid circular fund pass-through"]),
+            ("ACC-001012", 78.4, "HIGH", 0.78, 0.65, 72.0, ["abnormally high average transaction size", "large number of counterparties"]),
+            ("ACC-001045", 72.1, "HIGH", 0.72, 0.58, 68.4, ["rapid fund forwarding", "high fan-out distribution ratio"]),
+            ("ACC-001088", 45.0, "MEDIUM", 0.45, 0.32, 41.0, ["moderate amount anomaly", "counterparty risk exposure"]),
         ]
         all_alerts = []
         for idx, (acct, score, tier, prob, anom, net_r, reasons) in enumerate(sample_accounts):
@@ -99,16 +104,18 @@ def list_alerts(
                     "mule_probability": prob,
                     "anomaly_score": anom,
                     "network_risk": net_r,
+                    "connected_suspicious_count": 5 if score >= 85 else 2,
                     "top_reasons": reasons,
+                    "top_features": reasons,
                     "summary": f"Account {acct} triggered model alert with risk score {score:.1f}. Signals: {', '.join(reasons[:2])}.",
-                    "model_version": "v2.4-PaySim-XGB",
+                    "model_version": "v2.5.0-XGBoost",
                     "status": "OPEN" if idx < 3 else ("UNDER_INVESTIGATION" if idx == 3 else "CONFIRMED_MULE"),
                     "created_at": (base_time - datetime.timedelta(hours=idx * 4 + 1)).isoformat(),
                     "updated_at": base_time.isoformat(),
                 }
             )
 
-    # Standardize alert fields
+    # Standardize alert records
     formatted: List[dict] = []
     for a in all_alerts:
         score = float(a.get("risk_score", 0.0))
@@ -117,17 +124,13 @@ def list_alerts(
 
         tier = str(a.get("risk_tier", "")).upper()
         if not tier:
-            tier = "CRITICAL" if score >= 85 else ("HIGH" if score >= 70 else ("MEDIUM" if score >= 40 else "LOW"))
+            tier = "CRITICAL" if score >= 85 else ("HIGH" if score >= 70 else ("MEDIUM" if score >= 30 else "LOW"))
 
         sev = str(a.get("severity", "")).upper()
         if not sev:
-            sev = "CRITICAL" if score >= 85 else "HIGH"
+            sev = "CRITICAL" if score >= 85 else ("HIGH" if score >= 70 else "MEDIUM")
 
-        reasons = a.get("top_reasons") or a.get("top_features") or [
-            "High 1h transaction velocity spike",
-            "Rapid fund forwarding (<15m)",
-            "Anomalous transaction amount",
-        ]
+        reasons = a.get("top_reasons") or a.get("top_features") or ["unusually high outgoing velocity", "rapid fund forwarding"]
 
         formatted.append(
             {
@@ -139,9 +142,10 @@ def list_alerts(
                 "mule_probability": float(a.get("mule_probability", round(score / 100.0, 4))),
                 "anomaly_score": float(a.get("anomaly_score", round(score / 100.0 * 0.85, 4))),
                 "network_risk": float(a.get("network_risk", round(min(100.0, score * 1.02), 1))),
+                "connected_suspicious_count": int(a.get("connected_suspicious_count", 0)),
                 "top_reasons": reasons,
                 "summary": str(a.get("summary", f"Model alert for {a.get('account_id')}")),
-                "model_version": str(a.get("model_version", "v2.4-PaySim-XGB")),
+                "model_version": str(a.get("model_version", "v2.5.0-XGBoost")),
                 "created_at": str(a.get("created_at", datetime.datetime.now(datetime.timezone.utc).isoformat())),
                 "updated_at": str(a.get("updated_at", datetime.datetime.now(datetime.timezone.utc).isoformat())),
                 "status": str(a.get("status", "OPEN")).upper(),
@@ -176,8 +180,20 @@ def list_alerts(
     if end_date:
         res = [a for a in res if a["created_at"] <= end_date]
 
-    # Sorting
-    if sort_by == "risk_desc":
+    # Prioritized Sorting
+    if sort_by == "prioritized":
+        sev_rank = {"CRITICAL": 4, "HIGH": 3, "MEDIUM": 2, "LOW": 1}
+        res.sort(
+            key=lambda x: (
+                x["risk_score"],
+                sev_rank.get(x["severity"], 1),
+                x["network_risk"],
+                x["connected_suspicious_count"],
+                x["created_at"],
+            ),
+            reverse=True,
+        )
+    elif sort_by == "risk_desc":
         res.sort(key=lambda x: x["risk_score"], reverse=True)
     elif sort_by == "risk_asc":
         res.sort(key=lambda x: x["risk_score"])
@@ -206,13 +222,11 @@ def patch_alert(alert_id: str, body: AlertStatusUpdate) -> dict:
     try:
         updated = update_alert_status(alert_id, body.status)
         return updated
+    except KeyError:
+        raise HTTPException(status_code=404, detail=f"Alert '{alert_id}' not found.")
     except Exception as exc:
         logger.exception("patch_alert failed: %s", exc)
-        return {
-            "alert_id": alert_id,
-            "status": body.status,
-            "updated_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
-        }
+        raise HTTPException(status_code=500, detail=str(exc))
 
 
 @router.post("/bulk-status", summary="Bulk update alert statuses")
@@ -230,4 +244,3 @@ def bulk_patch_alerts(body: BulkAlertStatusUpdate) -> dict:
         "status": body.status,
         "alert_ids": body.alert_ids,
     }
-

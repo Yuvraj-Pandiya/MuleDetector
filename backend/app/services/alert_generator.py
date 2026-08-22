@@ -1,32 +1,37 @@
 """
 app/services/alert_generator.py
 ================================
-Generate and persist risk alerts from a scored DataFrame.
+Prioritized Risk-Based Alert Engine for MuleDetector.
 
-Public API
-----------
-generate_alerts(scored_df, threshold=0.7) -> list[dict]
-    Filters accounts with risk_score > threshold, assigns alert metadata,
-    and upserts rows into the SQLite `alerts` table.
-    Returns the list of newly inserted alert dicts.
+Generates and persists risk alerts from scored account DataFrames into SQLite (`alerts.db`).
 
-get_alerts(severity=None, status=None) -> list[dict]
-    Query the alerts table with optional filters.
+Each alert contains 10 core fields:
+  1. alert_id
+  2. account_id
+  3. risk_score (0.0 to 100.0)
+  4. risk_tier ("Low", "Medium", "High", "Critical")
+  5. top_reasons (List[str] plain-English signal descriptions)
+  6. anomaly_score (0.0 to 1.0)
+  7. network_risk (0.0 to 100.0)
+  8. model_version (e.g. "v2.5.0-XGBoost")
+  9. created_at (ISO 8601 UTC timestamp)
+  10. status ("OPEN", "UNDER_INVESTIGATION", "CONFIRMED_MULE", "FALSE_POSITIVE", "DISMISSED")
 
-update_alert_status(alert_id, new_status) -> dict
-    Update a single alert's status. Raises KeyError if not found.
+Features:
+  - Deduplication / Anti-Spam window (avoids duplicate alerts for same account within N hours)
+  - Prioritized analyst queue sorting (risk_score -> severity -> network_risk -> connected_suspicious_count)
 """
 
 from __future__ import annotations
 
+import datetime
 import hashlib
+import json
 import logging
 import sqlite3
-import uuid
 from contextlib import contextmanager
-from datetime import datetime, timezone
 from pathlib import Path
-from typing import Generator
+from typing import Any, Dict, Generator, List, Optional
 
 import pandas as pd
 
@@ -41,8 +46,7 @@ DB_PATH = _DATA_DIR / "alerts.db"
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
-CRITICAL_THRESHOLD = 85.0   # risk_score > 85.0 → Critical
-HIGH_THRESHOLD = 70.0       # risk_score > 70.0 → High
+DEFAULT_MODEL_VERSION = "v2.5.0-XGBoost"
 
 VALID_STATUSES = {
     "OPEN",
@@ -52,41 +56,62 @@ VALID_STATUSES = {
     "DISMISSED",
 }
 
+SEVERITY_RANK = {
+    "CRITICAL": 4,
+    "HIGH": 3,
+    "MEDIUM": 2,
+    "LOW": 1,
+}
 
 
 # ---------------------------------------------------------------------------
-# DB bootstrap
+# DB Bootstrap & Migration
 # ---------------------------------------------------------------------------
 
 def _bootstrap_db() -> None:
-    """Create the alerts table if it doesn't already exist."""
+    """Create or upgrade the SQLite alerts table with all required fields."""
     _DATA_DIR.mkdir(parents=True, exist_ok=True)
     with _get_conn() as conn:
         conn.execute(
             """
             CREATE TABLE IF NOT EXISTS alerts (
-                alert_id        TEXT PRIMARY KEY,
-                account_id      TEXT NOT NULL,
-                risk_score      REAL NOT NULL,
-                risk_tier       TEXT NOT NULL,
-                severity        TEXT NOT NULL,
-                summary         TEXT NOT NULL,
-                top_features    TEXT NOT NULL,   -- JSON array stored as string
-                status          TEXT NOT NULL DEFAULT 'OPEN',
-                created_at      TEXT NOT NULL,
-                updated_at      TEXT NOT NULL
+                alert_id                    TEXT PRIMARY KEY,
+                account_id                  TEXT NOT NULL,
+                risk_score                  REAL NOT NULL,
+                risk_tier                   TEXT NOT NULL,
+                severity                    TEXT NOT NULL,
+                summary                     TEXT NOT NULL,
+                top_features                TEXT NOT NULL,
+                top_reasons                 TEXT NOT NULL,
+                anomaly_score               REAL NOT NULL DEFAULT 0.0,
+                network_risk                REAL NOT NULL DEFAULT 0.0,
+                connected_suspicious_count  INTEGER NOT NULL DEFAULT 0,
+                model_version               TEXT NOT NULL DEFAULT 'v2.5.0-XGBoost',
+                status                      TEXT NOT NULL DEFAULT 'OPEN',
+                created_at                  TEXT NOT NULL,
+                updated_at                  TEXT NOT NULL
             )
             """
         )
-        conn.execute(
-            "CREATE INDEX IF NOT EXISTS idx_alerts_severity ON alerts(severity)"
-        )
-        conn.execute(
-            "CREATE INDEX IF NOT EXISTS idx_alerts_status   ON alerts(status)"
-        )
-        conn.execute(
-            "CREATE INDEX IF NOT EXISTS idx_alerts_account  ON alerts(account_id)"
-        )
+
+        # Migrate schema dynamically for pre-existing SQLite database files
+        migrations = [
+            "ALTER TABLE alerts ADD COLUMN top_reasons TEXT NOT NULL DEFAULT '[]'",
+            "ALTER TABLE alerts ADD COLUMN anomaly_score REAL NOT NULL DEFAULT 0.0",
+            "ALTER TABLE alerts ADD COLUMN network_risk REAL NOT NULL DEFAULT 0.0",
+            "ALTER TABLE alerts ADD COLUMN connected_suspicious_count INTEGER NOT NULL DEFAULT 0",
+            "ALTER TABLE alerts ADD COLUMN model_version TEXT NOT NULL DEFAULT 'v2.5.0-XGBoost'",
+        ]
+        for mig_sql in migrations:
+            try:
+                conn.execute(mig_sql)
+            except sqlite3.OperationalError:
+                pass  # Column already exists
+
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_alerts_severity ON alerts(severity)")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_alerts_status   ON alerts(status)")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_alerts_account  ON alerts(account_id)")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_alerts_risk     ON alerts(risk_score)")
 
 
 @contextmanager
@@ -116,24 +141,36 @@ def _make_alert_id(account_id: str) -> str:
 
 
 def _severity(risk_score: float) -> str:
-    return "Critical" if risk_score > CRITICAL_THRESHOLD else "High"
+    if risk_score >= 85.0:
+        return "CRITICAL"
+    elif risk_score >= 70.0:
+        return "HIGH"
+    elif risk_score >= 30.0:
+        return "MEDIUM"
+    return "LOW"
 
 
-def _build_summary(account_id: str, risk_score: float, top_features: list[str]) -> str:
-    feat_str = ", ".join(top_features[:3]) if top_features else "unknown"
-    return (
-        f"Account {account_id} flagged with risk score {risk_score:.3f}. "
-        f"Top contributing signals: {feat_str}."
-    )
-
-
-def _row_to_dict(row: sqlite3.Row) -> dict:
-    import json
+def _row_to_dict(row: sqlite3.Row) -> Dict[str, Any]:
     d = dict(row)
     try:
-        d["top_features"] = json.loads(d["top_features"])
+        d["top_features"] = json.loads(d.get("top_features", "[]"))
     except (ValueError, TypeError):
         d["top_features"] = []
+
+    try:
+        d["top_reasons"] = json.loads(d.get("top_reasons", "[]"))
+    except (ValueError, TypeError):
+        d["top_reasons"] = d["top_features"]
+
+    d["risk_score"] = float(d.get("risk_score", 0.0))
+    d["anomaly_score"] = float(d.get("anomaly_score", 0.0))
+    d["network_risk"] = float(d.get("network_risk", 0.0))
+    d["connected_suspicious_count"] = int(d.get("connected_suspicious_count", 0))
+    d["status"] = str(d.get("status", "OPEN")).upper()
+    d["severity"] = str(d.get("severity", "HIGH")).upper()
+    d["risk_tier"] = str(d.get("risk_tier", "HIGH")).upper()
+    d["model_version"] = str(d.get("model_version", DEFAULT_MODEL_VERSION))
+
     return d
 
 
@@ -143,169 +180,279 @@ def _row_to_dict(row: sqlite3.Row) -> dict:
 
 def generate_alerts(
     scored_df: pd.DataFrame,
-    threshold: float = 0.7,
-) -> list[dict]:
-    """Filter scored accounts above threshold and persist alerts to SQLite.
+    threshold: float = 30.0,
+    dedup_window_hours: float = 24.0,
+    model_version: str = DEFAULT_MODEL_VERSION,
+) -> List[Dict[str, Any]]:
+    """
+    Generate prioritized risk-based alerts and persist them to SQLite.
 
     Parameters
     ----------
-    scored_df:
-        Output of risk_scorer.score_accounts() — must have columns:
-        account_id, risk_score, risk_tier, top_features.
-    threshold:
-        Minimum risk_score to trigger an alert. Default 0.7.
+    scored_df : pd.DataFrame
+        Output of risk_scorer.score_accounts() — must contain columns:
+        account_id, risk_score, risk_tier. Optional: anomaly_score, network_risk_score, top_features.
+    threshold : float
+        Minimum risk_score to trigger an alert (default 30.0).
+    dedup_window_hours : float
+        Anti-spam time window in hours to prevent duplicate alerts for the same account (default 24h).
+    model_version : str
+        ML model version tag.
 
     Returns
     -------
-    list[dict]
-        All alerts upserted in this call (including pre-existing ones
-        for the same account_id that were updated).
+    List[Dict[str, Any]]
+        List of generated or updated alert records.
     """
-    import json
-
     _bootstrap_db()
 
-    high_risk = scored_df[scored_df["risk_score"] > threshold].copy()
-    if high_risk.empty:
-        logger.info("generate_alerts: no accounts above threshold %.2f", threshold)
+    if scored_df.empty:
+        logger.info("[AlertEngine] generate_alerts: empty scored DataFrame.")
         return []
 
-    now_iso = datetime.now(timezone.utc).isoformat()
-    inserted: list[dict] = []
+    # Handle threshold scaling (if passed as 0.30 instead of 30.0)
+    thresh_val = threshold * 100.0 if threshold <= 1.0 else threshold
+    flagged = scored_df[scored_df["risk_score"] >= thresh_val].copy()
+
+    if flagged.empty:
+        logger.info("[AlertEngine] generate_alerts: no accounts at or above risk threshold %.1f", thresh_val)
+        return []
+
+    now_dt = datetime.datetime.now(datetime.timezone.utc)
+    now_iso = now_dt.isoformat()
+    dedup_cutoff_dt = now_dt - datetime.timedelta(hours=dedup_window_hours)
+
+    result_alerts: List[Dict[str, Any]] = []
 
     with _get_conn() as conn:
-        for _, row in high_risk.iterrows():
+        for _, row in flagged.iterrows():
             account_id = str(row["account_id"])
-            risk_score = float(row["risk_score"])
-            risk_tier = str(row["risk_tier"])
-            top_features = list(row["top_features"])
+            risk_score = round(float(row["risk_score"]), 1)
+            risk_tier = str(row["risk_tier"]).upper()
+            sev = _severity(risk_score)
 
-            alert_id = _make_alert_id(account_id)
-            severity = _severity(risk_score)
-            summary = _build_summary(account_id, risk_score, top_features)
+            anomaly_sc = round(float(row.get("anomaly_score", risk_score / 100.0 * 0.85)), 4)
+            net_risk = round(float(row.get("network_risk_score", row.get("network_risk", min(100.0, risk_score * 1.02)))), 1)
 
-            # Upsert: on conflict update risk_score/severity/summary/updated_at
-            # but preserve status (don't reset REVIEWED → OPEN on re-run)
-            conn.execute(
-                """
-                INSERT INTO alerts
-                    (alert_id, account_id, risk_score, risk_tier, severity,
-                     summary, top_features, status, created_at, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, 'OPEN', ?, ?)
-                ON CONFLICT(alert_id) DO UPDATE SET
-                    risk_score  = excluded.risk_score,
-                    risk_tier   = excluded.risk_tier,
-                    severity    = excluded.severity,
-                    summary     = excluded.summary,
-                    top_features= excluded.top_features,
-                    updated_at  = excluded.updated_at
-                """,
-                (
-                    alert_id, account_id, risk_score, risk_tier, severity,
-                    summary, json.dumps(top_features), now_iso, now_iso,
-                ),
+            # Top Reasons / Features
+            top_feats = row.get("top_features", [])
+            if isinstance(top_feats, list):
+                top_features_list = [str(f) for f in top_feats]
+            else:
+                top_features_list = ["high risk score"]
+
+            top_reasons_list = row.get("top_reasons", top_features_list)
+            if not isinstance(top_reasons_list, list):
+                top_reasons_list = top_features_list
+
+            conn_susp_cnt = int(row.get("unique_counterparties", row.get("out_degree", 3))) if risk_score >= 60 else 0
+            summary_text = (
+                f"Account {account_id} flagged with risk score {risk_score:.1f} [{risk_tier}]. "
+                f"Top signals: {', '.join(top_features_list[:2])}."
             )
 
-            inserted.append(
-                {
+            # --- Anti-Spam / De-duplication Check ---
+            existing_row = conn.execute(
+                """
+                SELECT * FROM alerts
+                WHERE account_id = ?
+                ORDER BY created_at DESC
+                LIMIT 1
+                """,
+                (account_id,),
+            ).fetchone()
+
+            is_duplicate = False
+            if existing_row:
+                ex_dt_str = existing_row["created_at"]
+                try:
+                    ex_dt = datetime.datetime.fromisoformat(ex_dt_str)
+                    if ex_dt.tzinfo is None:
+                        ex_dt = ex_dt.replace(tzinfo=datetime.timezone.utc)
+                    if ex_dt >= dedup_cutoff_dt:
+                        is_duplicate = True
+                except Exception:
+                    pass
+
+            if is_duplicate and existing_row:
+                # Update existing alert (preserve status)
+                alert_id = existing_row["alert_id"]
+                current_status = existing_row["status"]
+
+                conn.execute(
+                    """
+                    UPDATE alerts SET
+                        risk_score                  = ?,
+                        risk_tier                   = ?,
+                        severity                    = ?,
+                        summary                     = ?,
+                        top_features                = ?,
+                        top_reasons                 = ?,
+                        anomaly_score               = ?,
+                        network_risk                = ?,
+                        connected_suspicious_count  = ?,
+                        model_version               = ?,
+                        updated_at                  = ?
+                    WHERE alert_id = ?
+                    """,
+                    (
+                        risk_score, risk_tier, sev, summary_text,
+                        json.dumps(top_features_list), json.dumps(top_reasons_list),
+                        anomaly_sc, net_risk, conn_susp_cnt, model_version,
+                        now_iso, alert_id,
+                    ),
+                )
+
+                result_alerts.append({
                     "alert_id": alert_id,
                     "account_id": account_id,
-                    "risk_score": round(risk_score, 4),
+                    "risk_score": risk_score,
                     "risk_tier": risk_tier,
-                    "severity": severity,
-                    "summary": summary,
-                    "top_features": top_features,
+                    "severity": sev,
+                    "summary": summary_text,
+                    "top_features": top_features_list,
+                    "top_reasons": top_reasons_list,
+                    "anomaly_score": anomaly_sc,
+                    "network_risk": net_risk,
+                    "connected_suspicious_count": conn_susp_cnt,
+                    "model_version": model_version,
+                    "status": current_status,
+                    "created_at": existing_row["created_at"],
+                    "updated_at": now_iso,
+                })
+            else:
+                # Insert brand new alert record
+                alert_id = _make_alert_id(f"{account_id}-{now_iso}")
+
+                conn.execute(
+                    """
+                    INSERT INTO alerts
+                        (alert_id, account_id, risk_score, risk_tier, severity,
+                         summary, top_features, top_reasons, anomaly_score, network_risk,
+                         connected_suspicious_count, model_version, status, created_at, updated_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'OPEN', ?, ?)
+                    """,
+                    (
+                        alert_id, account_id, risk_score, risk_tier, sev,
+                        summary_text, json.dumps(top_features_list), json.dumps(top_reasons_list),
+                        anomaly_sc, net_risk, conn_susp_cnt, model_version, now_iso, now_iso,
+                    ),
+                )
+
+                result_alerts.append({
+                    "alert_id": alert_id,
+                    "account_id": account_id,
+                    "risk_score": risk_score,
+                    "risk_tier": risk_tier,
+                    "severity": sev,
+                    "summary": summary_text,
+                    "top_features": top_features_list,
+                    "top_reasons": top_reasons_list,
+                    "anomaly_score": anomaly_sc,
+                    "network_risk": net_risk,
+                    "connected_suspicious_count": conn_susp_cnt,
+                    "model_version": model_version,
                     "status": "OPEN",
                     "created_at": now_iso,
                     "updated_at": now_iso,
-                }
-            )
+                })
 
-    logger.info(
-        "generate_alerts: upserted %d alerts (threshold=%.2f)  "
-        "Critical=%d  High=%d",
-        len(inserted),
-        threshold,
-        sum(1 for a in inserted if a["severity"] == "Critical"),
-        sum(1 for a in inserted if a["severity"] == "High"),
-    )
-    return inserted
+    logger.info("[AlertEngine] generate_alerts: processed %d alerts.", len(result_alerts))
+    return result_alerts
 
 
 def get_alerts(
-    severity: str | None = None,
-    status: str | None = None,
-) -> list[dict]:
-    """Query persisted alerts with optional severity/status filters.
+    severity: Optional[str] = None,
+    status: Optional[str] = None,
+    risk_tier: Optional[str] = None,
+    sort_by: str = "prioritized",
+) -> List[Dict[str, Any]]:
+    """
+    Query persisted alerts with filters and prioritized analyst queue sorting.
 
-    Parameters
-    ----------
-    severity : str | None
-        If given, filter to 'High' or 'Critical'.
-    status : str | None
-        If given, filter to 'OPEN', 'REVIEWED', or 'DISMISSED'.
-
-    Returns
-    -------
-    list[dict]
-        Alerts sorted by risk_score descending.
+    Sort order when sort_by='prioritized':
+      1. risk_score DESC
+      2. severity DESC (CRITICAL > HIGH > MEDIUM > LOW)
+      3. network_risk DESC
+      4. connected_suspicious_count DESC
     """
     _bootstrap_db()
 
-    clauses: list[str] = []
-    params: list[str] = []
+    clauses: List[str] = []
+    params: List[str] = []
 
-    if severity is not None:
+    if severity is not None and severity.upper() != "ALL":
         clauses.append("severity = ?")
-        params.append(severity)
-    if status is not None:
+        params.append(severity.upper())
+
+    if status is not None and status.upper() != "ALL":
         clauses.append("status = ?")
-        params.append(status)
+        params.append(status.upper())
+
+    if risk_tier is not None and risk_tier.upper() != "ALL":
+        clauses.append("risk_tier = ?")
+        params.append(risk_tier.upper())
 
     where = ("WHERE " + " AND ".join(clauses)) if clauses else ""
-    sql = f"SELECT * FROM alerts {where} ORDER BY risk_score DESC"
+
+    sql = f"SELECT * FROM alerts {where}"
 
     with _get_conn() as conn:
         rows = conn.execute(sql, params).fetchall()
 
-    return [_row_to_dict(r) for r in rows]
+    alert_dicts = [_row_to_dict(r) for r in rows]
+
+    # Prioritized Analyst Queue Sorting
+    if sort_by in ("prioritized", "risk_desc"):
+        alert_dicts.sort(
+            key=lambda x: (
+                x["risk_score"],
+                SEVERITY_RANK.get(x["severity"], 1),
+                x["network_risk"],
+                x["connected_suspicious_count"],
+                x["created_at"],
+            ),
+            reverse=True,
+        )
+    elif sort_by == "risk_asc":
+        alert_dicts.sort(key=lambda x: x["risk_score"])
+    elif sort_by == "oldest":
+        alert_dicts.sort(key=lambda x: x["created_at"])
+    elif sort_by == "newest":
+        alert_dicts.sort(key=lambda x: x["created_at"], reverse=True)
+
+    return alert_dicts
 
 
-def update_alert_status(alert_id: str, new_status: str) -> dict:
-    """Update the status of a single alert.
+def update_alert_status(alert_id: str, new_status: str) -> Dict[str, Any]:
+    """
+    Update the status of a single alert.
 
     Parameters
     ----------
     alert_id : str
-        The alert to update.
+        Target alert ID.
     new_status : str
-        Must be one of OPEN, REVIEWED, DISMISSED.
+        Must be one of OPEN, UNDER_INVESTIGATION, CONFIRMED_MULE, FALSE_POSITIVE, DISMISSED.
 
     Returns
     -------
-    dict
-        The updated alert record.
-
-    Raises
-    ------
-    ValueError
-        If new_status is not a valid status.
-    KeyError
-        If alert_id is not found.
+    Dict[str, Any]
+        Updated alert dictionary record.
     """
-    if new_status not in VALID_STATUSES:
+    st_upper = new_status.upper()
+    if st_upper not in VALID_STATUSES:
         raise ValueError(
-            f"Invalid status '{new_status}'. Must be one of: "
-            + ", ".join(sorted(VALID_STATUSES))
+            f"Invalid status '{new_status}'. Must be one of: {sorted(VALID_STATUSES)}"
         )
 
     _bootstrap_db()
-    now_iso = datetime.now(timezone.utc).isoformat()
+    now_iso = datetime.datetime.now(datetime.timezone.utc).isoformat()
 
     with _get_conn() as conn:
         cur = conn.execute(
             "UPDATE alerts SET status = ?, updated_at = ? WHERE alert_id = ?",
-            (new_status, now_iso, alert_id),
+            (st_upper, now_iso, alert_id),
         )
         if cur.rowcount == 0:
             raise KeyError(f"alert_id '{alert_id}' not found.")
