@@ -129,9 +129,21 @@ def load_transactions(
 
     # Read header first to detect schema
     header_df = pd.read_csv(csv_path, nrows=2)
-    
+    headers = header_df.columns.tolist()
+
+    # Check if headers can be auto-mapped by universal schema normalizer layer
     if schema_mapping is None:
-        schema_mapping = detect_schema_mapping(header_df.columns.tolist())
+        try:
+            from app.services.schema import map_columns, normalize_dataset, profile_csv
+            prof = profile_csv(csv_path, sample_rows=200)
+            map_res = map_columns(prof["column_profiles"])
+            if not map_res.missing_required:
+                clean_df, _ = normalize_dataset(csv_path, map_res.mapped_dict)
+                return clean_df
+        except Exception as exc:
+            logger.debug("Schema normalizer fallback bypassed: %s", exc)
+
+        schema_mapping = detect_schema_mapping(headers)
 
     logger.info("Ingesting '%s' using schema mapping '%s'", csv_path.name, schema_mapping.name)
 

@@ -229,20 +229,23 @@ def get_model_monitoring(
     warning_threshold: float = Query(0.10, ge=0.0, le=1.0),
     critical_threshold: float = Query(0.25, ge=0.0, le=1.0),
 ) -> dict:
-    """
-    Return dynamic backend model monitoring metrics including:
-    - Current model version
-    - Feature drift status & severity
-    - Population Stability Index (PSI) per feature
-    - Class-rate shift between training baseline & recent validated feedback
-    - Prediction probability distribution comparison
-    - Automatic Drift Alert Status
-    """
+    w_raw = getattr(warning_threshold, "default", warning_threshold)
+    c_raw = getattr(critical_threshold, "default", critical_threshold)
+    try:
+        w_val = float(w_raw)
+    except (TypeError, ValueError):
+        w_val = 0.10
+
+    try:
+        c_val = float(c_raw)
+    except (TypeError, ValueError):
+        c_val = 0.25
+
     try:
         from app.services.drift_detector import compute_drift_metrics
         return compute_drift_metrics(
-            warning_threshold=warning_threshold,
-            critical_threshold=critical_threshold,
+            warning_threshold=w_val,
+            critical_threshold=c_val,
         )
     except Exception as exc:
         logger.exception("Failed to compute drift metrics: %s", exc)
