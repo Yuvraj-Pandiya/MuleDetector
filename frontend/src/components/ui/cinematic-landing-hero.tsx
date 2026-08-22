@@ -335,24 +335,24 @@ export function CinematicHero({
       </div>
 
       {/* BACKGROUND LAYER: Hero Texts */}
-      <div className="hero-text-wrapper absolute z-10 flex flex-col items-center justify-center text-center w-screen px-4 will-change-transform transform-style-3d">
-        <h2 className="text-track gsap-reveal text-silver-matte text-2xl md:text-4xl lg:text-5xl font-extrabold uppercase tracking-[0.2em] mb-4">
-          MULE SCOPE
+      <div className="hero-text-wrapper absolute z-10 flex flex-col items-center justify-center text-center w-full max-w-[96vw] xl:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 will-change-transform transform-style-3d">
+        <h2 className="text-track gsap-reveal text-silver-matte text-lg sm:text-xl md:text-2xl lg:text-[1.75rem] xl:text-[2.25rem] font-extrabold uppercase tracking-[0.35em] mb-3 md:mb-5">
+          {brandName}
         </h2>
-        <h1 className="text-track gsap-reveal text-3d-matte text-5xl md:text-7xl lg:text-[6rem] font-bold tracking-tight mb-2">
+        <h1 className="text-track gsap-reveal text-3d-matte text-3xl sm:text-4xl md:text-[2.75rem] lg:text-[3.6rem] xl:text-[4.35rem] 2xl:text-[5rem] font-bold tracking-tight mb-2 md:mb-3 leading-[1.1] text-center whitespace-normal lg:whitespace-nowrap">
           {tagline1}
         </h1>
-        <h1 className="text-days gsap-reveal text-silver-matte text-5xl md:text-7xl lg:text-[6rem] font-extrabold tracking-tighter">
+        <h1 className="text-days gsap-reveal text-silver-matte text-3xl sm:text-4xl md:text-[2.75rem] lg:text-[3.6rem] xl:text-[4.35rem] 2xl:text-[5rem] font-extrabold tracking-tighter leading-[1.1] text-center whitespace-normal lg:whitespace-nowrap">
           {tagline2}
         </h1>
       </div>
 
       {/* BACKGROUND LAYER 2: Tactile CTA Buttons */}
-      <div className="cta-wrapper absolute z-10 flex flex-col items-center justify-center text-center w-screen px-4 gsap-reveal pointer-events-auto will-change-transform">
-        <h2 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 tracking-tight text-silver-matte">
+      <div className="cta-wrapper absolute z-10 flex flex-col items-center justify-center text-center w-full max-w-[96vw] xl:max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 gsap-reveal pointer-events-auto will-change-transform">
+        <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-6 tracking-tight text-silver-matte">
           {ctaHeading}
         </h2>
-        <p className="text-muted-foreground text-lg md:text-xl mb-12 max-w-xl mx-auto font-light leading-relaxed">
+        <p className="text-muted-foreground text-base md:text-lg lg:text-xl mb-10 max-w-xl mx-auto font-light leading-relaxed">
           {ctaDescription}
         </p>
         <SpecularButton
