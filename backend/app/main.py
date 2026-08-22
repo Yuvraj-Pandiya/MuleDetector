@@ -91,6 +91,10 @@ async def global_exception_handler(request: Request, exc: Exception) -> JSONResp
 @app.middleware("http")
 async def request_logging_middleware(request: Request, call_next):
     """Log every request with method, path, status code, and latency (ms)."""
+    raw_path = request.scope.get("path", "")
+    if raw_path.endswith(" ") or raw_path.endswith("%20"):
+        request.scope["path"] = raw_path.rstrip(" %20")
+
     t0 = time.perf_counter()
     response = await call_next(request)
     elapsed_ms = round((time.perf_counter() - t0) * 1000, 1)

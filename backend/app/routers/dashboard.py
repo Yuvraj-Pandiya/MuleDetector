@@ -89,10 +89,6 @@ def _open_alert_count() -> int:
     summary="Dashboard summary",
     response_description="Operational snapshot: totals, dataset overview, detection overview, metrics, behavioral signals, recent alerts.",
 )
-@router.get(
-    "/dashboard-summary",
-    summary="Dashboard summary alias",
-)
 def get_dashboard_summary() -> dict[str, Any]:
     """
     Full operational snapshot for the MuleDetector dashboard.
@@ -272,4 +268,14 @@ def get_dashboard_summary() -> dict[str, Any]:
         "recent_alerts": recent_alerts,
         "data_source": str(_TRANSACTIONS_CSV if _TRANSACTIONS_CSV.exists() else _MOCK_CSV),
     }
+
+
+@router.get("", summary="Get dashboard summary")
+@router.get("/", summary="Get dashboard summary slash")
+@router.get("/stats", summary="Get dashboard telemetry stats")
+@router.get("/dashboard-summary", summary="Get dashboard summary alias")
+def get_dashboard_summary_alias() -> dict[str, Any]:
+    """Alias handler for root /dashboard and /dashboard/stats requests."""
+    return get_dashboard_summary()
+
 

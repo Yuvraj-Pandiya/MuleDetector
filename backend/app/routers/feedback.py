@@ -22,18 +22,26 @@ router = APIRouter(prefix="/feedback", tags=["feedback"])
 
 
 class FeedbackSubmission(BaseModel):
-    alert_id: str
+    alert_id: str | None = None
     account_id: str
-    decision: Literal["CONFIRMED_MULE", "LEGITIMATE", "FALSE_POSITIVE", "UNDER_INVESTIGATION"]
-    note: str
+    decision: str
+    note: str | None = ""
     investigator: str | None = "Analyst #402"
 
     @field_validator("decision")
     @classmethod
     def decision_must_be_valid(cls, v: str) -> str:
-        if v not in VALID_DECISIONS:
-            raise ValueError(f"decision must be one of {sorted(VALID_DECISIONS)}")
-        return v
+        v_upper = (v or "").upper().strip()
+        mapping = {
+            "OPEN": "UNDER_INVESTIGATION",
+            "REVIEWED": "UNDER_INVESTIGATION",
+            "DISMISSED": "FALSE_POSITIVE",
+            "CONFIRMED": "CONFIRMED_MULE",
+        }
+        mapped = mapping.get(v_upper, v_upper)
+        if mapped not in VALID_DECISIONS:
+            return "UNDER_INVESTIGATION"
+        return mapped
 
 
 @router.post("", summary="Submit investigator feedback decision and note")
@@ -47,7 +55,7 @@ def create_feedback(body: FeedbackSubmission) -> dict:
             alert_id=body.alert_id,
             account_id=body.account_id,
             decision=body.decision,
-            note=body.note,
+            note=body.note or "",
             investigator=body.investigator or "Analyst #402",
         )
         return res

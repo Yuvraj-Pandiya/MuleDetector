@@ -95,23 +95,28 @@ async def run_feature_selection() -> Dict[str, Any]:
         raise HTTPException(status_code=500, detail=str(exc))
 
 
+def _ensure_pipeline_run() -> None:
+    """Ensure feature ranking report exists, otherwise run selection on mock features."""
+    report_path = _DATA_DIR / "feature_selection_report.json"
+    if not report_path.exists():
+        try:
+            from app.services.feature_selector import FeatureSelector
+            df = _load_real_features()
+            if df is None:
+                df = _load_mock_features()
+            selector = FeatureSelector(data_dir=_DATA_DIR)
+            selector.run(df, label_col="is_mule_pattern")
+        except Exception as exc:
+            logger.exception("Failed to auto-run feature selection pipeline: %s", exc)
+
+
 @router.get("/ranking", response_class=JSONResponse)
 async def get_feature_ranking() -> List[Dict[str, Any]]:
-    """
-    Return the contents of feature_ranking.csv as a JSON list.
-
-    Each element contains: composite_rank, feature_name, feature_group,
-    composite_score, retention_decision, method, all individual method scores
-    and per-method ranks, and interpretation string.
-
-    Raises 404 if the pipeline has not been run yet.
-    """
+    """Return feature ranking list as JSON."""
+    _ensure_pipeline_run()
     csv_path = _DATA_DIR / "feature_ranking.csv"
     if not csv_path.exists():
-        raise HTTPException(
-            status_code=404,
-            detail="feature_ranking.csv not found. Run POST /feature-selection/run first.",
-        )
+        return []
     try:
         df = pd.read_csv(csv_path)
         return df.to_dict(orient="records")
@@ -123,18 +128,8 @@ async def get_feature_ranking() -> List[Dict[str, Any]]:
 async def get_top_features(
     n: int = Query(default=10, ge=1, le=50, description="Number of top features to return (1-50)"),
 ) -> List[Dict[str, Any]]:
-    """
-    Return the top N features from the feature ranking.
-
-    Query parameter:
-      n (int): Number of features to return. Default 10, max 50.
-
-    Each feature entry includes: rank, feature_name, feature_group, importance,
-    composite_score, method, interpretation, retention_decision, all method scores, all ranks.
-
-    Raises 404 if the pipeline has not been run yet.
-    """
-    # Try top_10 / top_20 cached JSON first for common requests
+    """Return top N features from ranking."""
+    _ensure_pipeline_run()
     if n == 10:
         cached = _DATA_DIR / "top_10_features.json"
         if cached.exists():
@@ -150,13 +145,9 @@ async def get_top_features(
             except Exception:
                 pass
 
-    # Fallback: read from CSV
     csv_path = _DATA_DIR / "feature_ranking.csv"
     if not csv_path.exists():
-        raise HTTPException(
-            status_code=404,
-            detail="Feature ranking not found. Run POST /feature-selection/run first.",
-        )
+        return []
     try:
         df = pd.read_csv(csv_path).head(n)
         return df.to_dict(orient="records")
@@ -166,21 +157,15 @@ async def get_top_features(
 
 @router.get("/report", response_class=JSONResponse)
 async def get_feature_selection_report() -> Dict[str, Any]:
-    """
-    Return the full feature_selection_report.json.
-
-    Contains: pipeline metadata, rejection policy, summary statistics,
-    per-group counts, top_10, top_20, and the complete all_features list
-    with scores and interpretations for every evaluated feature.
-
-    Raises 404 if the pipeline has not been run yet.
-    """
+    """Return feature selection report JSON."""
+    _ensure_pipeline_run()
     report_path = _DATA_DIR / "feature_selection_report.json"
     if not report_path.exists():
-        raise HTTPException(
-            status_code=404,
-            detail="feature_selection_report.json not found. Run POST /feature-selection/run first.",
-        )
+        return {"all_features": [], "top_10": [], "top_20": []}
+    try:
+        return json.loads(report_path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Could not read report: {exc}")
     try:
         return json.loads(report_path.read_text(encoding="utf-8"))
     except Exception as exc:
