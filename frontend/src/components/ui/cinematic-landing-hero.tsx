@@ -248,25 +248,41 @@ export function CinematicHero({
     const isMobile = window.innerWidth < 768;
 
     const ctx = gsap.context(() => {
-      gsap.set(".text-track", { autoAlpha: 0, y: 30, scale: 0.95, filter: "blur(10px)" });
+      gsap.set(".text-track", { autoAlpha: 0, y: 60, scale: 0.85, filter: "blur(20px)", rotationX: -20 });
       gsap.set(".text-days", { autoAlpha: 1, clipPath: "inset(0 100% 0 0)" });
-      gsap.set(".main-card", { y: 0, autoAlpha: 1 });
-      gsap.set([".card-left-text", ".card-right-text", ".mockup-scroll-wrapper", ".floating-badge", ".phone-widget"], { autoAlpha: 1 });
+      gsap.set(".main-card", { y: window.innerHeight + 200, autoAlpha: 1 });
+      gsap.set([".card-left-text", ".card-right-text", ".mockup-scroll-wrapper", ".floating-badge", ".phone-widget"], { autoAlpha: 0 });
 
       const introTl = gsap.timeline({ delay: 0.1 });
       introTl
         .to(".text-track", { duration: 0.8, autoAlpha: 1, y: 0, scale: 1, filter: "blur(0px)", rotationX: 0, ease: "expo.out" })
-        .to(".text-days", { duration: 0.7, clipPath: "inset(0 0% 0 0)", ease: "power4.inOut" }, "-=0.5")
+        .to(".text-days", { duration: 0.7, clipPath: "inset(0 0% 0 0)", ease: "power4.inOut" }, "-=0.5");
+
+      const scrollTl = gsap.timeline({
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: "top top",
+          end: "+=900",
+          pin: true,
+          scrub: 1,
+          anticipatePin: 1,
+        },
+      });
+
+      scrollTl
+        .to([".hero-text-wrapper", ".bg-grid-theme"], { scale: 1.1, filter: "blur(15px)", opacity: 0.2, ease: "power2.inOut", duration: 0.8 }, 0)
+        .to(".main-card", { y: 0, ease: "power3.inOut", duration: 0.8 }, 0)
+        .to(".main-card", { width: "100%", height: "100%", borderRadius: "0px", ease: "power3.inOut", duration: 0.6 })
         .fromTo(".mockup-scroll-wrapper",
-          { y: 40, autoAlpha: 0, scale: 0.92 },
-          { y: 0, autoAlpha: 1, scale: 1, ease: "expo.out", duration: 0.8 }, "-=0.3"
+          { y: 150, z: -300, rotationX: 30, rotationY: -15, autoAlpha: 0, scale: 0.8 },
+          { y: 0, z: 0, rotationX: 0, rotationY: 0, autoAlpha: 1, scale: 1, ease: "expo.out", duration: 0.8 }, "-=0.3"
         )
-        .fromTo(".phone-widget", { y: 15, autoAlpha: 0 }, { y: 0, autoAlpha: 1, stagger: 0.05, ease: "power2.out", duration: 0.5 }, "-=0.5")
-        .fromTo(".floating-badge", { y: 15, autoAlpha: 0 }, { y: 0, autoAlpha: 1, ease: "power2.out", duration: 0.5, stagger: 0.05 }, "-=0.5")
-        .fromTo(".card-left-text", { x: -25, autoAlpha: 0 }, { x: 0, autoAlpha: 1, ease: "power4.out", duration: 0.6 }, "-=0.4")
-        .fromTo(".card-right-text", { x: 25, autoAlpha: 0 }, { x: 0, autoAlpha: 1, ease: "power4.out", duration: 0.6 }, "<")
+        .fromTo(".phone-widget", { y: 20, autoAlpha: 0, scale: 0.95 }, { y: 0, autoAlpha: 1, scale: 1, stagger: 0.06, ease: "back.out(1.2)", duration: 0.6 }, "-=0.5")
         .to(".progress-ring", { strokeDashoffset: 60, duration: 0.8, ease: "power3.inOut" }, "-=0.5")
-        .to(".counter-val", { innerHTML: metricValue, snap: { innerHTML: 1 }, duration: 0.8, ease: "expo.out" }, "-=0.8");
+        .to(".counter-val", { innerHTML: metricValue, snap: { innerHTML: 1 }, duration: 0.8, ease: "expo.out" }, "-=0.8")
+        .fromTo(".floating-badge", { y: 40, autoAlpha: 0, scale: 0.85, rotationZ: -5 }, { y: 0, autoAlpha: 1, scale: 1, rotationZ: 0, ease: "back.out(1.5)", duration: 0.6, stagger: 0.08 }, "-=0.8")
+        .fromTo(".card-left-text", { x: -30, autoAlpha: 0 }, { x: 0, autoAlpha: 1, ease: "power4.out", duration: 0.6 }, "-=0.6")
+        .fromTo(".card-right-text", { x: 30, autoAlpha: 0, scale: 0.9 }, { x: 0, autoAlpha: 1, scale: 1, ease: "expo.out", duration: 0.6 }, "<");
 
     }, containerRef);
 
@@ -276,7 +292,7 @@ export function CinematicHero({
   return (
     <div
       ref={containerRef}
-      className={cn("relative w-full min-h-screen overflow-hidden flex items-center justify-center bg-background text-foreground font-sans antialiased py-16 lg:py-24", className)}
+      className={cn("relative w-screen h-screen overflow-hidden flex items-center justify-center bg-background text-foreground font-sans antialiased", className)}
       style={{ perspective: "1500px" }}
       {...props}
     >

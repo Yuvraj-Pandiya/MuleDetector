@@ -152,34 +152,28 @@ export default function FeatureShaderCards() {
   }, []);
 
   return (
-    <section className="relative w-full pt-28 md:pt-36 pb-24 lg:pb-32 px-4 sm:px-6 lg:px-8 bg-neutral-950 text-white overflow-hidden border-t border-white/10">
-      {/* Background Ambient Radial Lighting */}
-      <div
-        className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] bg-blue-600/10 rounded-full blur-[150px] pointer-events-none"
-        aria-hidden="true"
-      />
+    <section className="relative w-full py-16 lg:py-24 px-4 sm:px-6 lg:px-8 bg-[#070b16] text-white overflow-hidden border-t border-white/10 font-sans antialiased">
+      {/* Radial Background Light Filter Matching Hero Theme */}
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] bg-cyan-500/10 rounded-full blur-[150px] pointer-events-none" aria-hidden="true" />
 
-      <div className="max-w-7xl mx-auto relative z-10">
+      <div className="max-w-[1450px] mx-auto relative z-10">
         
-        {/* Section Header with Hero Typography Matching */}
-        <div className="text-center mb-16 lg:mb-20 space-y-4 px-2">
+        {/* Section Header: Matching Hero Eyebrow & Silver-Matte Typography */}
+        <div className="text-center mb-14 lg:mb-18 space-y-3.5">
           
-          {/* Eyebrow Pill */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-neutral-900/80 border border-white/15 text-cyan-400 text-[11px] font-black uppercase tracking-[0.25em] shadow-lg backdrop-blur-md">
+          {/* Eyebrow Badge */}
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-cyan-500/10 border border-cyan-400/25 text-cyan-400 text-xs lg:text-[13px] font-extrabold uppercase tracking-[0.35em] shadow-lg backdrop-blur-md">
             <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
             MULESCOPE INTELLIGENCE
           </div>
 
-          {/* Main Title Matching Hero Uppercase Matte Typography */}
-          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black uppercase tracking-tighter text-white drop-shadow-xl leading-[1.05]">
-            Built to Detect What{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-400">
-              Others Miss
-            </span>
+          {/* Heading */}
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-black uppercase tracking-tight text-white drop-shadow-md leading-[1.1]">
+            Built to Detect What <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-400">Others Miss</span>
           </h2>
 
-          {/* Subtitle */}
-          <p className="text-blue-100/70 text-sm md:text-base lg:text-lg max-w-3xl mx-auto font-normal leading-relaxed text-center">
+          {/* Subtitle / Description */}
+          <p className="text-sm md:text-base lg:text-lg text-blue-100/70 max-w-3xl mx-auto font-normal leading-relaxed">
             Five intelligence layers combine machine learning, transaction topology, behavioral signals, explainability, and real-time telemetry to expose coordinated mule activity.
           </p>
         </div>
@@ -191,12 +185,10 @@ export default function FeatureShaderCards() {
           ))}
         </div>
 
-        {/* Row 2: Bottom 2 Centered Cards */}
-        <div className="flex flex-col md:flex-row justify-center items-stretch gap-6 lg:gap-8 max-w-5xl mx-auto">
+        {/* Row 2: Bottom 2 Cards (Centered) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 max-w-4xl mx-auto">
           {features.slice(3, 5).map((feature) => (
-            <div key={feature.id} className="w-full md:w-[calc(50%-12px)] lg:w-[calc(50%-16px)]">
-              <FeatureCard feature={feature} reduceMotion={reduceMotion} />
-            </div>
+            <FeatureCard key={feature.id} feature={feature} reduceMotion={reduceMotion} />
           ))}
         </div>
 
@@ -209,11 +201,11 @@ function FeatureCard({ feature, reduceMotion }: { feature: FeatureCardData; redu
   const [hasWebGLError, setHasWebGLError] = useState(false);
 
   return (
-    <div className="relative group h-full min-h-[380px] flex flex-col justify-between rounded-3xl overflow-hidden border border-white/10 bg-neutral-950/85 backdrop-blur-xl hover:border-cyan-400/50 transition-all duration-500 hover:-translate-y-1.5 hover:shadow-[0_15px_45px_rgba(56,189,248,0.22)] p-6 sm:p-7">
+    <div className="relative group h-full min-h-[350px] flex flex-col rounded-2xl overflow-hidden border border-white/10 bg-gradient-to-b from-neutral-900/80 via-neutral-950/90 to-neutral-950/95 backdrop-blur-xl hover:border-cyan-400/50 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_12px_35px_rgba(56,189,248,0.18)]">
       
       {/* Background Animated WebGL Shader */}
       {!reduceMotion && !hasWebGLError && (
-        <div className="absolute inset-0 opacity-35 group-hover:opacity-55 transition-opacity duration-700 pointer-events-none rounded-3xl overflow-hidden">
+        <div className="absolute inset-0 opacity-35 group-hover:opacity-55 transition-opacity duration-500 pointer-events-none rounded-2xl overflow-hidden">
           <ErrorBoundary onError={() => setHasWebGLError(true)}>
             <Warp
               style={{ height: "100%", width: "100%" }}
@@ -233,56 +225,57 @@ function FeatureCard({ feature, reduceMotion }: { feature: FeatureCardData; redu
         </div>
       )}
 
-      {/* Subtle Dark Gradient Overlay for High Contrast */}
-      <div className="absolute inset-0 bg-gradient-to-b from-neutral-950/60 via-neutral-950/85 to-neutral-950/98 pointer-events-none" />
+      {/* Glass Tint Fallback Pattern */}
+      <div className="absolute inset-0 bg-gradient-to-b from-neutral-900/60 via-neutral-950/85 to-neutral-950/95 pointer-events-none" />
 
-      {/* Card Content Top Section */}
-      <div className="relative z-10 flex flex-col space-y-4">
+      {/* Card Content Container */}
+      <div className="relative z-10 p-6 lg:p-7 flex flex-col justify-between flex-1 h-full">
         
-        {/* Eyebrow & Icon Row */}
-        <div className="flex items-center justify-between">
-          <span className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-cyan-400/90 bg-cyan-500/10 px-3 py-1 rounded-full border border-cyan-400/25">
-            {feature.eyebrow}
-          </span>
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500/20 to-blue-600/10 border border-cyan-400/30 flex items-center justify-center shadow-md group-hover:scale-110 group-hover:border-cyan-400/60 transition-all duration-300">
-            {feature.icon}
+        <div>
+          {/* Eyebrow & Icon Row */}
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-cyan-400 bg-cyan-500/10 px-3 py-1 rounded-full border border-cyan-400/20">
+              {feature.eyebrow}
+            </span>
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-b from-cyan-500/20 to-cyan-900/10 border border-cyan-400/30 flex items-center justify-center shadow-md group-hover:scale-110 group-hover:border-cyan-400/60 transition-all duration-300 shrink-0">
+              {feature.icon}
+            </div>
+          </div>
+
+          {/* Feature Title */}
+          <h3 className="text-xl lg:text-2xl font-bold tracking-tight text-white mb-2.5 group-hover:text-cyan-200 transition-colors">
+            {feature.title}
+          </h3>
+
+          {/* Feature Description */}
+          <p className="text-xs lg:text-sm text-blue-100/70 font-normal leading-relaxed mb-6">
+            {feature.description}
+          </p>
+        </div>
+
+        {/* Technical Chips & Link */}
+        <div className="mt-auto pt-2">
+          <div className="flex flex-wrap gap-1.5 mb-5">
+            {feature.chips.map((chip, idx) => (
+              <span
+                key={idx}
+                className="text-[10px] font-semibold tracking-wide px-2.5 py-0.5 rounded-full bg-white/5 border border-white/10 text-blue-200/80 group-hover:border-cyan-400/30 group-hover:text-cyan-200 transition-colors"
+              >
+                {chip}
+              </span>
+            ))}
+          </div>
+
+          {/* Capability Specs Link */}
+          <div className="flex items-center text-[11px] font-extrabold uppercase tracking-wider text-cyan-400 group-hover:text-cyan-300 transition-colors">
+            <span>Capability Specs</span>
+            <svg className="w-3.5 h-3.5 ml-1.5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
           </div>
         </div>
 
-        {/* Feature Title */}
-        <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-white group-hover:text-cyan-200 transition-colors leading-snug">
-          {feature.title}
-        </h3>
-
-        {/* Feature Description */}
-        <p className="text-xs sm:text-sm text-blue-100/70 font-normal leading-relaxed">
-          {feature.description}
-        </p>
       </div>
-
-      {/* Card Content Bottom Section (Technical Chips & Link) */}
-      <div className="relative z-10 mt-6 pt-4 border-t border-white/5 flex flex-col space-y-3">
-        {/* Technical Chips */}
-        <div className="flex flex-wrap gap-1.5">
-          {feature.chips.map((chip, idx) => (
-            <span
-              key={idx}
-              className="text-[10px] font-bold tracking-wider px-2.5 py-1 rounded-md bg-white/5 border border-white/10 text-cyan-200/80 group-hover:border-cyan-400/30 group-hover:text-cyan-300 transition-colors"
-            >
-              {chip}
-            </span>
-          ))}
-        </div>
-
-        {/* Capability Specs Link */}
-        <div className="inline-flex items-center text-[11px] font-extrabold uppercase tracking-wider text-cyan-400 group-hover:text-cyan-300 transition-colors pt-1">
-          <span className="mr-1.5">Capability Specs</span>
-          <svg className="w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-        </div>
-      </div>
-
     </div>
   );
 }
