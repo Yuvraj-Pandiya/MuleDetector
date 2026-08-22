@@ -350,4 +350,43 @@ export async function getTransactionGraph(id, params = {}) {
 }
 
 
+export async function submitFeedback(payload) {
+  if (MOCK) {
+    return {
+      feedback_id: Date.now(),
+      alert_id: payload.alert_id,
+      account_id: payload.account_id,
+      decision: payload.decision,
+      note: payload.note,
+      investigator: payload.investigator || 'Analyst #402',
+      timestamp: new Date().toISOString(),
+      current_status: payload.decision,
+    };
+  }
+  const { data } = await api.post('/feedback', payload);
+  return data;
+}
+
+export async function getFeedbackHistory(params = {}) {
+  if (MOCK) {
+    return {
+      current_status: 'UNDER_INVESTIGATION',
+      history: [
+        {
+          feedback_id: 1,
+          alert_id: `ALT-${params.account_id || '001'}`,
+          account_id: params.account_id || 'ACC-001001',
+          decision: 'UNDER_INVESTIGATION',
+          note: 'Initial triage performed following suspicious rapid fund forwarding signal.',
+          investigator: 'Analyst #109',
+          timestamp: new Date().toISOString(),
+        },
+      ],
+    };
+  }
+  const { data } = await api.get('/feedback', { params });
+  return data;
+}
+
 export default api;
+

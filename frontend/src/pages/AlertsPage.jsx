@@ -3,9 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import {
   AlertTriangle, CheckCircle, XCircle, Eye,
   Clock, ShieldAlert, Filter, Check, Search, Calendar,
-  ArrowUpDown, CheckSquare, Square, Layers, Sparkles, BrainCircuit, RefreshCw, ChevronLeft, ChevronRight
+  ArrowUpDown, CheckSquare, Square, Layers, Sparkles, BrainCircuit, RefreshCw, ChevronLeft, ChevronRight,
+  FileText, Send, X, ShieldCheck
 } from 'lucide-react';
-import { getAlerts, patchAlert, bulkPatchAlerts } from '../api/client';
+import { getAlerts, patchAlert, bulkPatchAlerts, submitFeedback, getFeedbackHistory } from '../api/client';
 import './AlertsPage.css';
 
 const ALL_STATUSES = [
@@ -36,6 +37,13 @@ export default function AlertsPage() {
   // Bulk Selection
   const [selectedIds, setSelectedIds] = useState([]);
   const [bulkActionStatus, setBulkActionStatus] = useState('UNDER_INVESTIGATION');
+
+  // Feedback Modal State
+  const [activeFeedbackAlert, setActiveFeedbackAlert] = useState(null);
+  const [modalDecision, setModalDecision] = useState('UNDER_INVESTIGATION');
+  const [modalNote, setModalNote] = useState('');
+  const [modalHistory, setModalHistory] = useState([]);
+  const [submittingModal, setSubmittingModal] = useState(false);
 
   const navigate = useNavigate();
 
@@ -91,6 +99,43 @@ export default function AlertsPage() {
       loadAlerts();
     } catch (err) {
       console.error('Failed bulk update:', err);
+    }
+  };
+
+  const openFeedbackModal = async (alt) => {
+    setActiveFeedbackAlert(alt);
+    setModalDecision(alt.status || 'UNDER_INVESTIGATION');
+    setModalNote('');
+    try {
+      const fbRes = await getFeedbackHistory({ account_id: alt.account_id, alert_id: alt.alert_id });
+      setModalHistory(fbRes.history || []);
+    } catch (err) {
+      setModalHistory([]);
+    }
+  };
+
+  const handleSubmitModalFeedback = async (e) => {
+    e.preventDefault();
+    if (!modalNote.trim() || !activeFeedbackAlert) return;
+
+    setSubmittingModal(true);
+    try {
+      await submitFeedback({
+        alert_id: activeFeedbackAlert.alert_id,
+        account_id: activeFeedbackAlert.account_id,
+        decision: modalDecision,
+        note: modalNote.trim(),
+        investigator: 'Compliance Analyst',
+      });
+
+      setModalNote('');
+      setActiveFeedbackAlert(null);
+      // Re-fetch backend alerts without calling POST /train
+      await loadAlerts();
+    } catch (err) {
+      console.error('Failed to submit investigator feedback modal:', err);
+    } finally {
+      setSubmittingModal(false);
     }
   };
 
@@ -301,7 +346,7 @@ export default function AlertsPage() {
                   </div>
 
                   {/* Card Right Action Panel */}
-                  <div className="alert-card-right">
+                  <div className="alert-card-right flex-column gap-xs">
                     {/* Status Dropdown */}
                     <div className="status-change-box">
                       <label className="text-xs text-stone">Status:</label>
@@ -319,7 +364,15 @@ export default function AlertsPage() {
                     </div>
 
                     <button
-                      className="btn-primary sm margin-top-xs"
+                      className="btn-secondary sm"
+                      style={{ width: '100%', justifyContent: 'center' }}
+                      onClick={() => openFeedbackModal(alt)}
+                    >
+                      <FileText size={13} /> Feedback & Notes
+                    </button>
+
+                    <button
+                      className="btn-primary sm"
                       style={{ width: '100%', justifyContent: 'center' }}
                       onClick={() => navigate(`/explain?id=${alt.account_id}`)}
                     >
@@ -358,7 +411,99 @@ export default function AlertsPage() {
           </div>
         </div>
       )}
+
+      {/* Investigator Feedback & Decision Modal */}
+      {activeFeedbackAlert && (
+        <div className="modal-backdrop animate-fade-in" onClick={() => setActiveFeedbackAlert(null)}>
+          <div className="modal-content-card" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header flex-between">
+              <div className="flex-align gap-xs">
+                <FileText size={18} className="text-teal" />
+                <h3>Investigator Case Feedback — {activeFeedbackAlert.alert_id}</h3>
+              </div>
+              <button className="btn-close" onClick={() => setActiveFeedbackAlert(null)}>
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className="modal-body">
+              <div className="info-box margin-bottom-xs flex-between">
+                <span>Account: <strong className="font-mono text-ink">{activeFeedbackAlert.account_id}</strong></span>
+                <span className={`status-pill ${activeFeedbackAlert.status.toLowerCase()}`}>
+                  Current Status: {activeFeedbackAlert.status}
+                </span>
+              </div>
+
+              <form onSubmit={handleSubmitModalFeedback} className="note-form">
+                <div className="margin-bottom-xs">
+                  <label className="text-xs text-stone font-semibold">Investigator Action / Decision:</label>
+                  <div className="decision-radios flex-wrap gap-xs margin-top-xs">
+                    {[
+                      { id: 'CONFIRMED_MULE', label: 'Confirmed Mule', class: 'mule' },
+                      { id: 'LEGITIMATE', label: 'Legitimate Account', class: 'legit' },
+                      { id: 'FALSE_POSITIVE', label: 'False Positive Alert', class: 'fp' },
+                      { id: 'UNDER_INVESTIGATION', label: 'Under Investigation', class: 'invest' },
+                    ].map((act) => (
+                      <button
+                        key={act.id}
+                        type="button"
+                        className={`decision-btn ${act.class} ${modalDecision === act.id ? 'active' : ''}`}
+                        onClick={() => setModalDecision(act.id)}
+                      >
+                        {act.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="margin-bottom-xs">
+                  <label className="text-xs text-stone font-semibold">Investigator Rationale & Case Notes:</label>
+                  <textarea
+                    rows="3"
+                    placeholder="Enter compliance justification or audit notes..."
+                    value={modalNote}
+                    onChange={(e) => setModalNote(e.target.value)}
+                    className="note-input margin-top-xs"
+                    required
+                  />
+                </div>
+
+                <button type="submit" className="btn-primary sm margin-top-xs" disabled={submittingModal || !modalNote.trim()}>
+                  <Send size={13} /> {submittingModal ? 'Submitting...' : 'Submit Decision & Refresh'}
+                </button>
+              </form>
+
+              {/* History */}
+              <div className="notes-list margin-top-sm border-top padding-top-xs">
+                <h4 className="text-xs text-stone font-bold text-uppercase margin-bottom-xs">Audit History & Past Decisions</h4>
+                {modalHistory.length === 0 ? (
+                  <p className="text-xs text-stone">No previous decision notes recorded for this alert.</p>
+                ) : (
+                  modalHistory.map((item, idx) => (
+                    <div key={item.feedback_id || idx} className="note-card margin-bottom-xs">
+                      <div className="flex-between text-xs text-stone">
+                        <span className="font-bold text-ink flex-align gap-xs">
+                          <ShieldCheck size={13} className="text-teal" />
+                          {item.investigator || 'Analyst'}
+                        </span>
+                        <span className="font-mono">{item.timestamp ? new Date(item.timestamp).toLocaleString() : 'N/A'}</span>
+                      </div>
+                      <div className="flex-between margin-top-xs">
+                        <span className={`decision-badge ${(item.decision || '').toLowerCase()}`}>
+                          {item.decision}
+                        </span>
+                      </div>
+                      <p className="note-text margin-top-xs">{item.note}</p>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
 

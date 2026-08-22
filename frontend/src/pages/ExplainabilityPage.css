@@ -718,3 +718,84 @@
   border-radius: var(--radius-lg);
   gap: 14px;
 }
+
+/* Decision Selector & Badges */
+.decision-radios {
+  display: flex;
+  gap: 8px;
+}
+
+.decision-btn {
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid var(--hairline);
+  background: var(--canvas);
+  color: var(--stone);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.decision-btn:hover {
+  border-color: var(--hairline-strong);
+  color: var(--ink);
+}
+
+.decision-btn.mule.active {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+.decision-btn.legit.active {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--success);
+  border-color: var(--success);
+}
+
+.decision-btn.fp.active {
+  background: rgba(20, 184, 166, 0.15);
+  color: var(--teal);
+  border-color: var(--teal);
+}
+
+.decision-btn.invest.active {
+  background: rgba(59, 130, 246, 0.15);
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+.decision-badge {
+  font-size: 10px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.decision-badge.confirmed_mule {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--danger);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.decision-badge.legitimate {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--success);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.decision-badge.false_positive {
+  background: rgba(20, 184, 166, 0.15);
+  color: var(--teal);
+  border: 1px solid rgba(20, 184, 166, 0.3);
+}
+
+.decision-badge.under_investigation {
+  background: rgba(59, 130, 246, 0.15);
+  color: var(--primary);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+

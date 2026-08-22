@@ -3,9 +3,9 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import {
   BrainCircuit, ShieldAlert, ArrowLeft, Share2, AlertTriangle, CheckCircle,
   HelpCircle, Cpu, Zap, Activity, Clock, Layers, Users, ArrowUpRight,
-  ArrowDownLeft, FileText, Send, RefreshCw, Calendar
+  ArrowDownLeft, FileText, Send, RefreshCw, Calendar, CheckSquare, ShieldCheck
 } from 'lucide-react';
-import { getExplanation, getRiskScores, getGlobalFeatureImportance } from '../api/client';
+import { getExplanation, getRiskScores, getGlobalFeatureImportance, submitFeedback, getFeedbackHistory } from '../api/client';
 import './ExplainabilityPage.css';
 
 export default function ExplainabilityPage() {
@@ -17,8 +17,12 @@ export default function ExplainabilityPage() {
   const [error, setError] = useState(null);
   const [accountList, setAccountList] = useState([]);
   const [globalImportance, setGlobalImportance] = useState([]);
+  
+  // Feedback & Notes State
   const [newNote, setNewNote] = useState('');
-  const [notesList, setNotesList] = useState([]);
+  const [feedbackDecision, setFeedbackDecision] = useState('UNDER_INVESTIGATION');
+  const [feedbackHistory, setFeedbackHistory] = useState([]);
+  const [submittingFeedback, setSubmittingFeedback] = useState(false);
 
   // Timeline Filter State
   const [txDirectionFilter, setTxDirectionFilter] = useState('ALL');
@@ -29,28 +33,31 @@ export default function ExplainabilityPage() {
 
   const navigate = useNavigate();
 
-
   const loadData = async () => {
     setLoading(true);
     setError(null);
     try {
-      const [accountsRes, gImp] = await Promise.all([
-        getRiskScores({ page_size: 100 }).catch(() => ({ accounts: [] })),
-        getGlobalFeatureImportance().catch(() => []),
-      ]);
-      const accList = accountsRes.accounts || (Array.isArray(accountsRes) ? accountsRes : []);
-      setAccountList(accList);
-      setGlobalImportance(gImp);
+      let resolvedId = paramId;
+      const accRes = await getRiskScores({ page_size: 100 }).catch(() => ({ accounts: [] }));
+      const accs = accRes.accounts || (Array.isArray(accRes) ? accRes : []);
+      setAccountList(accs);
 
-      const resolvedId = paramId || (accList.length > 0 ? (accList[0].account_id || accList[0].id) : 'ACC-001001');
+      if (!resolvedId && accs.length > 0) {
+        resolvedId = accs[0].account_id || accs[0].id;
+      }
       if (!resolvedId) {
-        setLoading(false);
-        return;
+        resolvedId = 'ACC-001001';
       }
 
-      const exp = await getExplanation(resolvedId);
+      const [exp, globFeats, fbRes] = await Promise.all([
+        getExplanation(resolvedId),
+        getGlobalFeatureImportance().catch(() => []),
+        getFeedbackHistory({ account_id: resolvedId }).catch(() => ({ history: [] })),
+      ]);
+
       setData(exp);
-      setNotesList(exp.notes || []);
+      setGlobalImportance(globFeats);
+      setFeedbackHistory(fbRes.history || []);
     } catch (err) {
       console.error('Error fetching account investigation payload:', err);
       setError(err.message || 'Unable to fetch account risk investigation data.');
@@ -64,17 +71,31 @@ export default function ExplainabilityPage() {
     loadData();
   }, [paramId]);
 
-  const handleAddNote = (e) => {
+  const handleSubmitFeedback = async (e) => {
     e.preventDefault();
     if (!newNote.trim()) return;
-    const noteObj = {
-      id: `NOTE-${Date.now()}`,
-      author: 'Current Investigator',
-      timestamp: new Date().toISOString(),
-      text: newNote.trim(),
-    };
-    setNotesList([noteObj, ...notesList]);
-    setNewNote('');
+
+    setSubmittingFeedback(true);
+    try {
+      const acctId = data?.header?.account_id || paramId || 'ACC-001001';
+      const alertId = data?.alerts?.[0]?.alert_id || `ALT-${acctId}`;
+
+      await submitFeedback({
+        alert_id: alertId,
+        account_id: acctId,
+        decision: feedbackDecision,
+        note: newNote.trim(),
+        investigator: 'Compliance Officer',
+      });
+
+      setNewNote('');
+      // Re-fetch backend account investigation telemetry without calling POST /train
+      await loadData();
+    } catch (err) {
+      console.error('Failed to submit investigator feedback:', err);
+    } finally {
+      setSubmittingFeedback(false);
+    }
   };
 
   if (loading) {
@@ -855,42 +876,88 @@ export default function ExplainabilityPage() {
           )}
         </div>
 
-        {/* 11. INVESTIGATOR NOTES */}
+        {/* 11. INVESTIGATOR FEEDBACK & DECISIONS */}
         <div className="section-card">
-          <div className="section-title">
-            <FileText size={18} className="title-icon" />
-            <div>
-              <h3>11. Investigator Audit Notes</h3>
-              <span>Compliance reviewer log & case notes</span>
+          <div className="section-title flex-between">
+            <div className="flex-align gap-xs">
+              <FileText size={18} className="title-icon text-teal" />
+              <div>
+                <h3>11. Investigator Decision & Audit Feedback</h3>
+                <span>Submit case decisions with investigator rationale</span>
+              </div>
             </div>
+
+            <span className={`status-pill ${feedbackHistory.length > 0 ? (feedbackHistory[0].decision || 'UNDER_INVESTIGATION').toLowerCase() : 'open'}`}>
+              Current Status: {feedbackHistory.length > 0 ? feedbackHistory[0].decision : 'OPEN'}
+            </span>
           </div>
 
-          <form onSubmit={handleAddNote} className="note-form">
-            <textarea
-              rows="3"
-              placeholder="Add investigator note or compliance findings..."
-              value={newNote}
-              onChange={(e) => setNewNote(e.target.value)}
-              className="note-input"
-            />
-            <button type="submit" className="btn-primary sm margin-top-xs">
-              <Send size={13} /> Save Note
+          <form onSubmit={handleSubmitFeedback} className="note-form margin-top-xs">
+            <div className="decision-selector-group">
+              <label className="text-xs text-stone font-semibold">Investigator Action / Decision:</label>
+              <div className="decision-radios flex-wrap gap-xs margin-top-xs">
+                {[
+                  { id: 'CONFIRMED_MULE', label: 'Confirmed Mule', class: 'mule' },
+                  { id: 'LEGITIMATE', label: 'Legitimate Account', class: 'legit' },
+                  { id: 'FALSE_POSITIVE', label: 'False Positive Alert', class: 'fp' },
+                  { id: 'UNDER_INVESTIGATION', label: 'Under Investigation', class: 'invest' },
+                ].map((act) => (
+                  <button
+                    key={act.id}
+                    type="button"
+                    className={`decision-btn ${act.class} ${feedbackDecision === act.id ? 'active' : ''}`}
+                    onClick={() => setFeedbackDecision(act.id)}
+                  >
+                    {act.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="margin-top-xs">
+              <textarea
+                rows="3"
+                placeholder="Enter detailed investigator notes or compliance findings..."
+                value={newNote}
+                onChange={(e) => setNewNote(e.target.value)}
+                className="note-input"
+                required
+              />
+            </div>
+
+            <button type="submit" className="btn-primary sm margin-top-xs" disabled={submittingFeedback || !newNote.trim()}>
+              <Send size={13} /> {submittingFeedback ? 'Submitting...' : 'Submit Investigator Decision & Note'}
             </button>
           </form>
 
-          <div className="notes-list margin-top-sm">
-            {notesList.map((note) => (
-              <div key={note.id} className="note-card">
-                <div className="flex-between text-xs text-stone">
-                  <strong>{note.author}</strong>
-                  <span>{new Date(note.timestamp).toLocaleString()}</span>
+          {/* Historical Decisions Timeline */}
+          <div className="notes-list margin-top-sm border-top padding-top-xs">
+            <h4 className="text-xs text-stone font-bold text-uppercase margin-bottom-xs">Previous Investigator Decisions & Notes</h4>
+            {feedbackHistory.length === 0 ? (
+              <p className="text-xs text-stone">No previous decision notes recorded for this account.</p>
+            ) : (
+              feedbackHistory.map((item, idx) => (
+                <div key={item.feedback_id || idx} className="note-card margin-bottom-xs">
+                  <div className="flex-between text-xs text-stone">
+                    <span className="font-bold text-ink flex-align gap-xs">
+                      <ShieldCheck size={13} className="text-teal" />
+                      {item.investigator || 'Analyst'}
+                    </span>
+                    <span className="font-mono">{item.timestamp ? new Date(item.timestamp).toLocaleString() : 'N/A'}</span>
+                  </div>
+                  <div className="flex-between margin-top-xs">
+                    <span className={`decision-badge ${(item.decision || '').toLowerCase()}`}>
+                      {item.decision}
+                    </span>
+                  </div>
+                  <p className="note-text margin-top-xs">{item.note}</p>
                 </div>
-                <p className="note-text">{note.text}</p>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
       </div>
     </div>
   );
 }
+
