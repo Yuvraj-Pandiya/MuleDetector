@@ -404,7 +404,7 @@ export function CinematicHero({
             </div>
 
             {/* 2. LEFT FEATURE CARDS STACK (Desktop: cols 4-5 / order 2) */}
-            <div className="order-2 lg:col-span-2 flex flex-col justify-between h-[420px] md:h-[500px] lg:h-[560px] py-2 lg:py-4 z-20 w-full">
+            <div className="order-2 lg:col-span-2 flex flex-col justify-between h-[420px] md:h-[500px] lg:h-[560px] py-1 lg:py-2 z-20 w-full">
               {/* Card 1: Explainable AI Scoring */}
               <div className="floating-badge relative group flex items-center gap-1.5 lg:gap-2 w-full">
                 <div className="flex-1 floating-ui-badge rounded-xl p-2.5 lg:p-3 flex items-center gap-2.5 shadow-lg border border-white/10 backdrop-blur-md bg-neutral-900/60 hover:bg-neutral-800/80 transition-all duration-300">
@@ -416,9 +416,10 @@ export function CinematicHero({
                     <p className="text-blue-200/50 text-[9px] lg:text-[10px] font-medium truncate">SHAP human-readable reasoning</p>
                   </div>
                 </div>
-                <div className="hidden lg:flex items-center text-blue-400/70 shrink-0 w-5 xl:w-7" aria-hidden="true">
-                  <div className="h-[1px] w-full bg-gradient-to-r from-blue-400/30 to-blue-400/80 border-t border-dashed border-blue-400/70" />
-                  <span className="text-[10px] -ml-1 text-blue-400 font-bold">►</span>
+                {/* Angled Down-Right Arrow */}
+                <div className="hidden lg:flex items-center text-blue-400/80 shrink-0 w-6 xl:w-8 transform rotate-[22deg] translate-y-3 origin-right" aria-hidden="true">
+                  <div className="h-[1.5px] w-full bg-gradient-to-r from-blue-400/30 via-blue-400/80 to-cyan-400 border-t border-dashed border-blue-400/80" />
+                  <span className="text-[11px] -ml-1 text-cyan-400 font-bold drop-shadow-[0_0_5px_rgba(56,189,248,0.8)]">►</span>
                 </div>
               </div>
 
@@ -433,9 +434,9 @@ export function CinematicHero({
                     <p className="text-blue-200/50 text-[9px] lg:text-[10px] font-medium truncate">Sortable, filterable, color-coded tiers</p>
                   </div>
                 </div>
-                <div className="hidden lg:flex items-center text-blue-400/70 shrink-0 w-5 xl:w-7" aria-hidden="true">
-                  <div className="h-[1px] w-full bg-gradient-to-r from-blue-400/30 to-blue-400/80 border-t border-dashed border-blue-400/70" />
-                  <span className="text-[10px] -ml-1 text-blue-400 font-bold">►</span>
+                <div className="hidden lg:flex items-center text-blue-400/80 shrink-0 w-6 xl:w-8" aria-hidden="true">
+                  <div className="h-[1.5px] w-full bg-gradient-to-r from-blue-400/30 via-blue-400/80 to-cyan-400 border-t border-dashed border-blue-400/80" />
+                  <span className="text-[11px] -ml-1 text-cyan-400 font-bold drop-shadow-[0_0_5px_rgba(56,189,248,0.8)]">►</span>
                 </div>
               </div>
 
@@ -450,9 +451,9 @@ export function CinematicHero({
                     <p className="text-blue-200/50 text-[9px] lg:text-[10px] font-medium truncate">Drag-and-drop CSV, instant preview</p>
                   </div>
                 </div>
-                <div className="hidden lg:flex items-center text-blue-400/70 shrink-0 w-5 xl:w-7" aria-hidden="true">
-                  <div className="h-[1px] w-full bg-gradient-to-r from-blue-400/30 to-blue-400/80 border-t border-dashed border-blue-400/70" />
-                  <span className="text-[10px] -ml-1 text-blue-400 font-bold">►</span>
+                <div className="hidden lg:flex items-center text-blue-400/80 shrink-0 w-6 xl:w-8" aria-hidden="true">
+                  <div className="h-[1.5px] w-full bg-gradient-to-r from-blue-400/30 via-blue-400/80 to-cyan-400 border-t border-dashed border-blue-400/80" />
+                  <span className="text-[11px] -ml-1 text-cyan-400 font-bold drop-shadow-[0_0_5px_rgba(56,189,248,0.8)]">►</span>
                 </div>
               </div>
 
@@ -467,9 +468,10 @@ export function CinematicHero({
                     <p className="text-blue-200/50 text-[9px] lg:text-[10px] font-medium truncate">Severity alerts &amp; analyst workflow</p>
                   </div>
                 </div>
-                <div className="hidden lg:flex items-center text-blue-400/70 shrink-0 w-5 xl:w-7" aria-hidden="true">
-                  <div className="h-[1px] w-full bg-gradient-to-r from-blue-400/30 to-blue-400/80 border-t border-dashed border-blue-400/70" />
-                  <span className="text-[10px] -ml-1 text-blue-400 font-bold">►</span>
+                {/* Angled Up-Right Arrow */}
+                <div className="hidden lg:flex items-center text-blue-400/80 shrink-0 w-6 xl:w-8 transform -rotate-[22deg] -translate-y-3 origin-right" aria-hidden="true">
+                  <div className="h-[1.5px] w-full bg-gradient-to-r from-blue-400/30 via-blue-400/80 to-cyan-400 border-t border-dashed border-blue-400/80" />
+                  <span className="text-[11px] -ml-1 text-cyan-400 font-bold drop-shadow-[0_0_5px_rgba(56,189,248,0.8)]">►</span>
                 </div>
               </div>
             </div>
@@ -496,74 +498,112 @@ export function CinematicHero({
                       <div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.8)] animate-pulse" />
                     </div>
 
-                    {/* App Interface */}
-                    <div className="relative w-full h-full pt-10 px-4.5 pb-7 flex flex-col justify-between">
+                    {/* App Interface: 4 Clear Levels Matching All 8 Features */}
+                    <div className="relative w-full h-full pt-8 px-3.5 pb-6 flex flex-col justify-between">
                       
-                      {/* Header */}
-                      <div className="phone-widget flex justify-between items-center mb-2">
-                        <div className="flex flex-col">
-                          <span className="text-[9px] text-neutral-400 uppercase tracking-widest font-bold mb-0.5">Live Telemetry</span>
-                          <span className="text-lg font-extrabold tracking-tight text-white drop-shadow-md">Risk Engine</span>
+                      {/* LEVEL 1 (TOP): Header + 2 Feature Target Badges */}
+                      <div className="space-y-1.5">
+                        <div className="phone-widget flex justify-between items-center px-1">
+                          <div className="flex flex-col">
+                            <span className="text-[8px] text-neutral-400 uppercase tracking-widest font-bold">Live Telemetry</span>
+                            <span className="text-base font-extrabold tracking-tight text-white drop-shadow-md">Risk Engine</span>
+                          </div>
+                          <div className="w-7 h-7 rounded-full bg-white/5 text-neutral-200 flex items-center justify-center font-bold text-[10px] border border-white/10 shadow-lg">GNN</div>
                         </div>
-                        <div className="w-9 h-9 rounded-full bg-white/5 text-neutral-200 flex items-center justify-center font-bold text-xs border border-white/10 shadow-lg shadow-black/50">GNN</div>
+
+                        {/* Level 1 Target Badges: Explainable AI & Model Metrics */}
+                        <div className="flex items-center gap-1.5">
+                          <div className="flex-1 rounded-lg p-1.5 bg-blue-500/10 border border-blue-400/30 flex items-center gap-1.5">
+                            <span className="text-[10px]">⚡</span>
+                            <div className="min-w-0">
+                              <div className="text-[8px] font-bold text-white truncate">SHAP AI</div>
+                              <div className="text-[7px] text-blue-200/60 truncate">Feature Reason</div>
+                            </div>
+                          </div>
+                          <div className="flex-1 rounded-lg p-1.5 bg-indigo-500/10 border border-indigo-400/30 flex items-center gap-1.5">
+                            <span className="text-[10px]">✉️</span>
+                            <div className="min-w-0">
+                              <div className="text-[8px] font-bold text-white truncate">Simulation</div>
+                              <div className="text-[7px] text-indigo-200/60 truncate">What-If Model</div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
 
-                      {/* Circle Gauge */}
-                      <div className="phone-widget relative w-40 h-40 mx-auto flex items-center justify-center mb-2 drop-shadow-[0_15px_25px_rgba(0,0,0,0.8)]">
+                      {/* LEVEL 2 (MIDDLE GAUGE): Ring Gauge + Side Target Badges */}
+                      <div className="phone-widget relative w-36 h-36 mx-auto flex items-center justify-center drop-shadow-[0_15px_25px_rgba(0,0,0,0.8)] my-1">
                         <svg className="absolute inset-0 w-full h-full" viewBox="0 0 160 160" aria-hidden="true">
-                          <circle cx="80" cy="80" r="60" fill="none" stroke="rgba(255,255,255,0.03)" strokeWidth="11" />
-                          <circle className="progress-ring" cx="80" cy="80" r="60" fill="none" stroke="#3B82F6" strokeWidth="11" strokeDasharray="377" strokeDashoffset="90" strokeLinecap="round" />
-                          <path id="textArc" d="M 32,98 A 54,54 0 0,0 128,98" fill="none" />
-                          <text className="fill-blue-200/50 text-[7px] font-bold tracking-[0.15em] uppercase">
+                          <circle cx="80" cy="80" r="58" fill="none" stroke="rgba(255,255,255,0.03)" strokeWidth="10" />
+                          <circle className="progress-ring" cx="80" cy="80" r="58" fill="none" stroke="#3B82F6" strokeWidth="10" strokeDasharray="364" strokeDashoffset="85" strokeLinecap="round" />
+                          <path id="textArc" d="M 32,96 A 52,52 0 0,0 128,96" fill="none" />
+                          <text className="fill-blue-200/50 text-[7px] font-bold tracking-[0.14em] uppercase">
                             <textPath href="#textArc" startOffset="50%" textAnchor="middle">
                               ACCOUNT MONITORED
                             </textPath>
                           </text>
                         </svg>
-                        <div className="text-center z-10 flex flex-col items-center pt-1">
-                          <span className="counter-val text-4xl font-black tracking-tighter text-white">0</span>
+                        <div className="text-center z-10 flex flex-col items-center pt-0.5">
+                          <span className="counter-val text-3xl font-black tracking-tighter text-white">0</span>
                           <span className="text-[8px] text-blue-200/60 uppercase tracking-[0.12em] font-bold mt-0.5">{metricLabel}</span>
+                        </div>
+
+                        {/* Level 2 Target Side Badges */}
+                        <div className="absolute -left-2 bottom-1 rounded-md px-1.5 py-0.5 bg-amber-500/20 border border-amber-400/40 text-[7px] font-bold text-amber-200 flex items-center gap-1 shadow-md">
+                          <span>📊</span> Tiers
+                        </div>
+                        <div className="absolute -right-2 bottom-1 rounded-md px-1.5 py-0.5 bg-cyan-500/20 border border-cyan-400/40 text-[7px] font-bold text-cyan-200 flex items-center gap-1 shadow-md">
+                          🎯 Rings <span></span>
                         </div>
                       </div>
 
-                      {/* 3 Internal Cards */}
-                      <div className="space-y-2">
-                        {/* Card 1: Alerts & Case Management */}
-                        <div className="phone-widget widget-depth rounded-xl p-2.5 flex items-center bg-white/[0.03] border border-white/5">
-                          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500/20 to-orange-600/10 flex items-center justify-center mr-2.5 border border-amber-400/30 shadow-inner flex-shrink-0">
-                            <span className="text-xs">🔔</span>
+                      {/* LEVEL 3 (LOWER MIDDLE): Ingestion & Streaming Telemetry Cards */}
+                      <div className="grid grid-cols-2 gap-1.5">
+                        <div className="phone-widget widget-depth rounded-lg p-1.5 flex items-center bg-emerald-500/10 border border-emerald-400/30">
+                          <div className="w-6 h-6 rounded bg-emerald-500/20 flex items-center justify-center mr-1.5 border border-emerald-400/30 shrink-0">
+                            <span className="text-[9px]">☁️</span>
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="text-[10px] font-bold text-white tracking-tight truncate">Alerts &amp; Case Management</div>
-                            <div className="text-[8px] text-neutral-400 truncate">Severity alerts &amp; analyst workflow</div>
-                          </div>
-                        </div>
-
-                        {/* Card 2: Model Metrics & Simulation */}
-                        <div className="phone-widget widget-depth rounded-xl p-2.5 flex items-center bg-white/[0.03] border border-white/5">
-                          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500/20 to-blue-600/10 flex items-center justify-center mr-2.5 border border-blue-400/30 shadow-inner flex-shrink-0">
-                            <span className="text-xs">🎯</span>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="text-[10px] font-bold text-white tracking-tight truncate">Model Metrics &amp; Simulation</div>
-                            <div className="text-[8px] text-neutral-400 truncate">Precision, ROC-AUC &amp; live streaming</div>
+                          <div className="min-w-0">
+                            <div className="text-[8px] font-bold text-white truncate">CSV Ingest</div>
+                            <div className="text-[7px] text-emerald-200/60 truncate">Drag &amp; Drop</div>
                           </div>
                         </div>
 
-                        {/* Card 3: Transaction Network Graph */}
-                        <div className="phone-widget widget-depth rounded-xl p-2.5 flex items-center bg-white/[0.03] border border-white/5">
-                          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500/20 to-indigo-600/10 flex items-center justify-center mr-2.5 border border-indigo-400/30 shadow-inner flex-shrink-0">
-                            <span className="text-xs">🛡️</span>
+                        <div className="phone-widget widget-depth rounded-lg p-1.5 flex items-center bg-violet-500/10 border border-violet-400/30">
+                          <div className="w-6 h-6 rounded bg-violet-500/20 flex items-center justify-center mr-1.5 border border-violet-400/30 shrink-0">
+                            <span className="text-[9px]">📈</span>
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="text-[10px] font-bold text-white tracking-tight truncate">Transaction Network Graph</div>
-                            <div className="text-[8px] text-neutral-400 truncate">Force-directed mule ring engine</div>
+                          <div className="min-w-0">
+                            <div className="text-[8px] font-bold text-white truncate">Streaming</div>
+                            <div className="text-[7px] text-violet-200/60 truncate">ROC-AUC Live</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* LEVEL 4 (BOTTOM): Alert & Workflow Cards */}
+                      <div className="grid grid-cols-2 gap-1.5">
+                        <div className="phone-widget widget-depth rounded-lg p-1.5 flex items-center bg-red-500/10 border border-red-400/30">
+                          <div className="w-6 h-6 rounded bg-red-500/20 flex items-center justify-center mr-1.5 border border-red-400/30 shrink-0">
+                            <span className="text-[9px]">⚠️</span>
+                          </div>
+                          <div className="min-w-0">
+                            <div className="text-[8px] font-bold text-white truncate">Severity Alerts</div>
+                            <div className="text-[7px] text-red-200/60 truncate">High Priority</div>
+                          </div>
+                        </div>
+
+                        <div className="phone-widget widget-depth rounded-lg p-1.5 flex items-center bg-rose-500/10 border border-rose-400/30">
+                          <div className="w-6 h-6 rounded bg-rose-500/20 flex items-center justify-center mr-1.5 border border-rose-400/30 shrink-0">
+                            <span className="text-[9px]">🔔</span>
+                          </div>
+                          <div className="min-w-0">
+                            <div className="text-[8px] font-bold text-white truncate">Workflow</div>
+                            <div className="text-[7px] text-rose-200/60 truncate">Analyst Action</div>
                           </div>
                         </div>
                       </div>
 
                       {/* Bottom Home Bar */}
-                      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-[110px] h-[3px] bg-white/20 rounded-full shadow-[0_1px_2px_rgba(0,0,0,0.5)]" />
+                      <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-[100px] h-[3px] bg-white/20 rounded-full shadow-[0_1px_2px_rgba(0,0,0,0.5)]" />
                     </div>
                   </div>
                 </div>
@@ -571,12 +611,13 @@ export function CinematicHero({
             </div>
 
             {/* 4. RIGHT FEATURE CARDS STACK (Desktop: cols 8-9 / order 4) */}
-            <div className="order-4 lg:col-span-2 flex flex-col justify-between h-[420px] md:h-[500px] lg:h-[560px] py-2 lg:py-4 z-20 w-full">
+            <div className="order-4 lg:col-span-2 flex flex-col justify-between h-[420px] md:h-[500px] lg:h-[560px] py-1 lg:py-2 z-20 w-full">
               {/* Card 1: Model Metrics & Simulation */}
               <div className="floating-badge relative group flex items-center gap-1.5 lg:gap-2 w-full">
-                <div className="hidden lg:flex items-center text-blue-400/70 shrink-0 w-5 xl:w-7" aria-hidden="true">
-                  <span className="text-[10px] -mr-1 text-blue-400 font-bold">◄</span>
-                  <div className="h-[1px] w-full bg-gradient-to-r from-blue-400/80 to-blue-400/30 border-t border-dashed border-blue-400/70" />
+                {/* Angled Down-Left Arrow */}
+                <div className="hidden lg:flex items-center text-blue-400/80 shrink-0 w-6 xl:w-8 transform -rotate-[22deg] translate-y-3 origin-left" aria-hidden="true">
+                  <span className="text-[11px] -mr-1 text-cyan-400 font-bold drop-shadow-[0_0_5px_rgba(56,189,248,0.8)]">◄</span>
+                  <div className="h-[1.5px] w-full bg-gradient-to-r from-cyan-400 via-blue-400/80 to-blue-400/30 border-t border-dashed border-blue-400/80" />
                 </div>
                 <div className="flex-1 floating-ui-badge rounded-xl p-2.5 lg:p-3 flex items-center gap-2.5 shadow-lg border border-white/10 backdrop-blur-md bg-neutral-900/60 hover:bg-neutral-800/80 transition-all duration-300">
                   <div className="w-7 h-7 rounded-full bg-gradient-to-b from-indigo-500/20 to-indigo-900/10 flex items-center justify-center border border-indigo-400/30 shrink-0">
@@ -591,9 +632,9 @@ export function CinematicHero({
 
               {/* Card 2: Transaction Network Graph */}
               <div className="floating-badge relative group flex items-center gap-1.5 lg:gap-2 w-full">
-                <div className="hidden lg:flex items-center text-blue-400/70 shrink-0 w-5 xl:w-7" aria-hidden="true">
-                  <span className="text-[10px] -mr-1 text-blue-400 font-bold">◄</span>
-                  <div className="h-[1px] w-full bg-gradient-to-r from-blue-400/80 to-blue-400/30 border-t border-dashed border-blue-400/70" />
+                <div className="hidden lg:flex items-center text-blue-400/80 shrink-0 w-6 xl:w-8" aria-hidden="true">
+                  <span className="text-[11px] -mr-1 text-cyan-400 font-bold drop-shadow-[0_0_5px_rgba(56,189,248,0.8)]">◄</span>
+                  <div className="h-[1.5px] w-full bg-gradient-to-r from-cyan-400 via-blue-400/80 to-blue-400/30 border-t border-dashed border-blue-400/80" />
                 </div>
                 <div className="flex-1 floating-ui-badge rounded-xl p-2.5 lg:p-3 flex items-center gap-2.5 shadow-lg border border-white/10 backdrop-blur-md bg-neutral-900/60 hover:bg-neutral-800/80 transition-all duration-300">
                   <div className="w-7 h-7 rounded-full bg-gradient-to-b from-cyan-500/20 to-cyan-900/10 flex items-center justify-center border border-cyan-400/30 shrink-0">
@@ -608,9 +649,9 @@ export function CinematicHero({
 
               {/* Card 3: Model Metrics & Simulation */}
               <div className="floating-badge relative group flex items-center gap-1.5 lg:gap-2 w-full">
-                <div className="hidden lg:flex items-center text-blue-400/70 shrink-0 w-5 xl:w-7" aria-hidden="true">
-                  <span className="text-[10px] -mr-1 text-blue-400 font-bold">◄</span>
-                  <div className="h-[1px] w-full bg-gradient-to-r from-blue-400/80 to-blue-400/30 border-t border-dashed border-blue-400/70" />
+                <div className="hidden lg:flex items-center text-blue-400/80 shrink-0 w-6 xl:w-8" aria-hidden="true">
+                  <span className="text-[11px] -mr-1 text-cyan-400 font-bold drop-shadow-[0_0_5px_rgba(56,189,248,0.8)]">◄</span>
+                  <div className="h-[1.5px] w-full bg-gradient-to-r from-cyan-400 via-blue-400/80 to-blue-400/30 border-t border-dashed border-blue-400/80" />
                 </div>
                 <div className="flex-1 floating-ui-badge rounded-xl p-2.5 lg:p-3 flex items-center gap-2.5 shadow-lg border border-white/10 backdrop-blur-md bg-neutral-900/60 hover:bg-neutral-800/80 transition-all duration-300">
                   <div className="w-7 h-7 rounded-full bg-gradient-to-b from-violet-500/20 to-violet-900/10 flex items-center justify-center border border-violet-400/30 shrink-0">
@@ -625,9 +666,10 @@ export function CinematicHero({
 
               {/* Card 4: Alerts & Case Management */}
               <div className="floating-badge relative group flex items-center gap-1.5 lg:gap-2 w-full">
-                <div className="hidden lg:flex items-center text-blue-400/70 shrink-0 w-5 xl:w-7" aria-hidden="true">
-                  <span className="text-[10px] -mr-1 text-blue-400 font-bold">◄</span>
-                  <div className="h-[1px] w-full bg-gradient-to-r from-blue-400/80 to-blue-400/30 border-t border-dashed border-blue-400/70" />
+                {/* Angled Up-Left Arrow */}
+                <div className="hidden lg:flex items-center text-blue-400/80 shrink-0 w-6 xl:w-8 transform rotate-[22deg] -translate-y-3 origin-left" aria-hidden="true">
+                  <span className="text-[11px] -mr-1 text-cyan-400 font-bold drop-shadow-[0_0_5px_rgba(56,189,248,0.8)]">◄</span>
+                  <div className="h-[1.5px] w-full bg-gradient-to-r from-cyan-400 via-blue-400/80 to-blue-400/30 border-t border-dashed border-blue-400/80" />
                 </div>
                 <div className="flex-1 floating-ui-badge rounded-xl p-2.5 lg:p-3 flex items-center gap-2.5 shadow-lg border border-white/10 backdrop-blur-md bg-neutral-900/60 hover:bg-neutral-800/80 transition-all duration-300">
                   <div className="w-7 h-7 rounded-full bg-gradient-to-b from-rose-500/20 to-rose-900/10 flex items-center justify-center border border-rose-400/30 shrink-0">
