@@ -476,116 +476,120 @@ export function CinematicHero({
                     <div className="absolute inset-0 screen-glare z-40 pointer-events-none" aria-hidden="true" />
 
                     {/* Dynamic Island Notch */}
-                    <div className="absolute top-[7px] left-1/2 -translate-x-1/2 w-[96px] h-[24px] bg-black rounded-full z-50 flex items-center justify-end px-3 shadow-[inset_0_-1px_2px_rgba(255,255,255,0.1)]">
+                    <div className="absolute top-[8px] left-1/2 -translate-x-1/2 w-[90px] h-[22px] bg-black rounded-full z-50 flex items-center justify-end px-3 shadow-[inset_0_-1px_2px_rgba(255,255,255,0.15)]">
                       <div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.8)] animate-pulse" />
                     </div>
 
-                    {/* App Interface: 4 Clear Levels Matching All 8 Features */}
-                    <div className="relative w-full h-full pt-8 px-3.5 pb-5 flex flex-col justify-between">
+                    {/* App Interface: 4 Clean, Centered, Non-Overlapping Levels */}
+                    <div className="relative w-full h-full pt-10 px-3 pb-4 flex flex-col justify-between items-center text-center">
                       
-                      {/* LEVEL 1 (TOP): Header + 2 Feature Target Badges */}
-                      <div className="space-y-1.5">
-                        <div className="phone-widget flex justify-between items-center px-2 py-1.5 rounded-xl bg-white/5 border border-white/10 backdrop-blur-md">
+                      {/* LEVEL 1 (TOP): Header below Dynamic Island + 2 Target Badges */}
+                      <div className="w-full space-y-1.5">
+                        <div className="w-full flex justify-between items-center px-2 py-1 rounded-xl bg-white/5 border border-white/10 backdrop-blur-md">
                           <div className="flex flex-col text-left">
                             <span className="text-[7px] text-cyan-400 uppercase tracking-widest font-extrabold">LIVE TELEMETRY</span>
-                            <span className="text-sm font-extrabold tracking-tight text-white drop-shadow-md">Risk Engine</span>
+                            <span className="text-xs font-extrabold tracking-tight text-white drop-shadow-md">Risk Engine</span>
                           </div>
-                          <div className="px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 font-extrabold text-[9px] border border-cyan-400/30 shadow-sm">GNN</div>
+                          <div className="px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 font-extrabold text-[8px] border border-cyan-400/30 shadow-sm">GNN</div>
                         </div>
 
                         {/* Level 1 Target Badges: Explainable AI & Model Metrics */}
-                        <div className="flex items-center gap-1.5">
-                          <div className="flex-1 rounded-lg p-1.5 bg-blue-500/15 border border-blue-400/30 flex items-center gap-1.5">
-                            <span className="text-[10px]">⚡</span>
+                        <div className="w-full flex items-center gap-1.5">
+                          <div className="flex-1 rounded-lg p-1 bg-blue-500/15 border border-blue-400/30 flex items-center gap-1.5 min-w-0">
+                            <span className="text-[9px] shrink-0">⚡</span>
                             <div className="min-w-0 text-left">
                               <div className="text-[8px] font-extrabold text-white truncate">SHAP AI</div>
-                              <div className="text-[7px] text-blue-200/70 truncate">Feature Reason</div>
+                              <div className="text-[6.5px] text-blue-200/70 truncate">Feature Reason</div>
                             </div>
                           </div>
-                          <div className="flex-1 rounded-lg p-1.5 bg-indigo-500/15 border border-indigo-400/30 flex items-center gap-1.5">
-                            <span className="text-[10px]">✉️</span>
+                          <div className="flex-1 rounded-lg p-1 bg-indigo-500/15 border border-indigo-400/30 flex items-center gap-1.5 min-w-0">
+                            <span className="text-[9px] shrink-0">✉️</span>
                             <div className="min-w-0 text-left">
                               <div className="text-[8px] font-extrabold text-white truncate">Metrics &amp; Sim</div>
-                              <div className="text-[7px] text-indigo-200/70 truncate">What-If Model</div>
+                              <div className="text-[6.5px] text-indigo-200/70 truncate">What-If Model</div>
                             </div>
                           </div>
                         </div>
                       </div>
 
-                      {/* LEVEL 2 (MIDDLE GAUGE): Ring Gauge + Side Target Badges */}
-                      <div className="phone-widget relative w-32 h-32 mx-auto flex items-center justify-center drop-shadow-[0_15px_25px_rgba(0,0,0,0.8)] my-0.5">
-                        <svg className="absolute inset-0 w-full h-full" viewBox="0 0 160 160" aria-hidden="true">
-                          <circle cx="80" cy="80" r="58" fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="10" />
-                          <circle className="progress-ring" cx="80" cy="80" r="58" fill="none" stroke="#3B82F6" strokeWidth="10" strokeDasharray="364" strokeDashoffset="85" strokeLinecap="round" />
-                          <path id="textArc" d="M 32,96 A 52,52 0 0,0 128,96" fill="none" />
-                          <text className="fill-blue-200/60 text-[7px] font-bold tracking-[0.14em] uppercase">
-                            <textPath href="#textArc" startOffset="50%" textAnchor="middle">
-                              ACCOUNT MONITORED
-                            </textPath>
-                          </text>
-                        </svg>
-                        <div className="text-center z-10 flex flex-col items-center pt-0.5">
-                          <span className="counter-val text-2xl font-black tracking-tighter text-white">1247</span>
-                          <span className="text-[7px] text-blue-200/70 uppercase tracking-[0.12em] font-bold mt-0.5">RISK SCORE</span>
+                      {/* LEVEL 2 (MIDDLE GAUGE): Perfectly Centered Ring Gauge + Side Pills */}
+                      <div className="w-full flex flex-col items-center justify-center my-0.5">
+                        <div className="relative w-28 h-28 flex items-center justify-center drop-shadow-[0_10px_20px_rgba(0,0,0,0.8)]">
+                          <svg className="absolute inset-0 w-full h-full" viewBox="0 0 160 160" aria-hidden="true">
+                            <circle cx="80" cy="80" r="58" fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="10" />
+                            <circle className="progress-ring" cx="80" cy="80" r="58" fill="none" stroke="#3B82F6" strokeWidth="10" strokeDasharray="364" strokeDashoffset="85" strokeLinecap="round" />
+                            <path id="textArc" d="M 32,96 A 52,52 0 0,0 128,96" fill="none" />
+                            <text className="fill-blue-200/60 text-[7px] font-bold tracking-[0.14em] uppercase">
+                              <textPath href="#textArc" startOffset="50%" textAnchor="middle">
+                                ACCOUNT MONITORED
+                              </textPath>
+                            </text>
+                          </svg>
+                          <div className="text-center z-10 flex flex-col items-center pt-0.5">
+                            <span className="counter-val text-2xl font-black tracking-tighter text-white">1247</span>
+                            <span className="text-[7px] text-blue-200/70 uppercase tracking-[0.12em] font-bold mt-0.5">RISK SCORE</span>
+                          </div>
                         </div>
 
-                        {/* Level 2 Target Side Badges */}
-                        <div className="absolute -left-1 bottom-1 rounded-md px-1.5 py-0.5 bg-amber-500/20 border border-amber-400/40 text-[7px] font-bold text-amber-200 flex items-center gap-1 shadow-md">
-                          <span>📊</span> Tiers
-                        </div>
-                        <div className="absolute -right-1 bottom-1 rounded-md px-1.5 py-0.5 bg-cyan-500/20 border border-cyan-400/40 text-[7px] font-bold text-cyan-200 flex items-center gap-1 shadow-md">
-                          <span>🎯</span> Rings
+                        {/* Level 2 Target Side Badges Row */}
+                        <div className="w-full flex justify-between items-center px-1 -mt-2 z-20">
+                          <div className="rounded-md px-1.5 py-0.5 bg-amber-500/20 border border-amber-400/40 text-[7px] font-bold text-amber-200 flex items-center gap-1 shadow-md">
+                            <span>📊</span> Tiers
+                          </div>
+                          <div className="rounded-md px-1.5 py-0.5 bg-cyan-500/20 border border-cyan-400/40 text-[7px] font-bold text-cyan-200 flex items-center gap-1 shadow-md">
+                            <span>🎯</span> Rings
+                          </div>
                         </div>
                       </div>
 
                       {/* LEVEL 3 (LOWER MIDDLE): Ingestion & Zero-Day Anomaly Scorer Cards */}
-                      <div className="grid grid-cols-2 gap-1.5">
-                        <div className="phone-widget widget-depth rounded-lg p-1.5 flex items-center bg-emerald-500/15 border border-emerald-400/30">
-                          <div className="w-6 h-6 rounded bg-emerald-500/20 flex items-center justify-center mr-1.5 border border-emerald-400/30 shrink-0">
-                            <span className="text-[9px]">☁️</span>
+                      <div className="w-full grid grid-cols-2 gap-1.5">
+                        <div className="rounded-lg p-1.5 flex items-center bg-emerald-500/15 border border-emerald-400/30 min-w-0">
+                          <div className="w-5 h-5 rounded bg-emerald-500/20 flex items-center justify-center mr-1 border border-emerald-400/30 shrink-0">
+                            <span className="text-[8px]">☁️</span>
                           </div>
                           <div className="min-w-0 text-left">
-                            <div className="text-[8px] font-extrabold text-white truncate">CSV Ingest</div>
-                            <div className="text-[7px] text-emerald-200/70 truncate">Drag &amp; Drop</div>
+                            <div className="text-[7.5px] font-extrabold text-white truncate">CSV Ingest</div>
+                            <div className="text-[6.5px] text-emerald-200/70 truncate">Drag &amp; Drop</div>
                           </div>
                         </div>
 
-                        <div className="phone-widget widget-depth rounded-lg p-1.5 flex items-center bg-violet-500/15 border border-violet-400/30">
-                          <div className="w-6 h-6 rounded bg-violet-500/20 flex items-center justify-center mr-1.5 border border-violet-400/30 shrink-0">
-                            <span className="text-[9px]">🔬</span>
+                        <div className="rounded-lg p-1.5 flex items-center bg-violet-500/15 border border-violet-400/30 min-w-0">
+                          <div className="w-5 h-5 rounded bg-violet-500/20 flex items-center justify-center mr-1 border border-violet-400/30 shrink-0">
+                            <span className="text-[8px]">🔬</span>
                           </div>
                           <div className="min-w-0 text-left">
-                            <div className="text-[8px] font-extrabold text-white truncate">Zero-Day AI</div>
-                            <div className="text-[7px] text-violet-200/70 truncate">Isolation Forest</div>
+                            <div className="text-[7.5px] font-extrabold text-white truncate">Zero-Day AI</div>
+                            <div className="text-[6.5px] text-violet-200/70 truncate">Isolation Forest</div>
                           </div>
                         </div>
                       </div>
 
                       {/* LEVEL 4 (BOTTOM): 74 Signals & Case Alerts Cards */}
-                      <div className="grid grid-cols-2 gap-1.5">
-                        <div className="phone-widget widget-depth rounded-lg p-1.5 flex items-center bg-rose-500/15 border border-rose-400/30">
-                          <div className="w-6 h-6 rounded bg-rose-500/20 flex items-center justify-center mr-1.5 border border-rose-400/30 shrink-0">
-                            <span className="text-[9px]">⚡</span>
+                      <div className="w-full grid grid-cols-2 gap-1.5">
+                        <div className="rounded-lg p-1.5 flex items-center bg-rose-500/15 border border-rose-400/30 min-w-0">
+                          <div className="w-5 h-5 rounded bg-rose-500/20 flex items-center justify-center mr-1 border border-rose-400/30 shrink-0">
+                            <span className="text-[8px]">⚡</span>
                           </div>
                           <div className="min-w-0 text-left">
-                            <div className="text-[8px] font-extrabold text-white truncate">74 Signals</div>
-                            <div className="text-[7px] text-rose-200/70 truncate">Zero Leakage</div>
+                            <div className="text-[7.5px] font-extrabold text-white truncate">74 Signals</div>
+                            <div className="text-[6.5px] text-rose-200/70 truncate">Zero Leakage</div>
                           </div>
                         </div>
 
-                        <div className="phone-widget widget-depth rounded-lg p-1.5 flex items-center bg-red-500/15 border border-red-400/30">
-                          <div className="w-6 h-6 rounded bg-red-500/20 flex items-center justify-center mr-1.5 border border-red-400/30 shrink-0">
-                            <span className="text-[9px]">⚠️</span>
+                        <div className="rounded-lg p-1.5 flex items-center bg-red-500/15 border border-red-400/30 min-w-0">
+                          <div className="w-5 h-5 rounded bg-red-500/20 flex items-center justify-center mr-1 border border-red-400/30 shrink-0">
+                            <span className="text-[8px]">⚠️</span>
                           </div>
                           <div className="min-w-0 text-left">
-                            <div className="text-[8px] font-extrabold text-white truncate">Case Alerts</div>
-                            <div className="text-[7px] text-red-200/70 truncate">Analyst Action</div>
+                            <div className="text-[7.5px] font-extrabold text-white truncate">Case Alerts</div>
+                            <div className="text-[6.5px] text-red-200/70 truncate">Analyst Action</div>
                           </div>
                         </div>
                       </div>
 
                       {/* Bottom Home Bar */}
-                      <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-[100px] h-[3px] bg-white/20 rounded-full shadow-[0_1px_2px_rgba(0,0,0,0.5)]" />
+                      <div className="w-[90px] h-[3px] bg-white/20 rounded-full shadow-[0_1px_2px_rgba(0,0,0,0.5)] mx-auto mt-0.5" />
                     </div>
                   </div>
                 </div>
