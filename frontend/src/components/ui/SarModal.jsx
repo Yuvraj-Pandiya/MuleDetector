@@ -197,6 +197,10 @@ export default function SarModal({ accountId, onClose, onSaveSuccess }) {
               <Loader className="spinner" />
               <span>Fetching model insights and auto-generating draft...</span>
             </div>
+          ) : !sarData ? (
+            <div className="sar-loading">
+              <span>Unable to load SAR draft data for account {accountId}.</span>
+            </div>
           ) : (
             <>
               {message && (

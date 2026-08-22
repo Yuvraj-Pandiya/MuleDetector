@@ -55,7 +55,7 @@ const features: FeatureCardData[] = [
     chips: ["Mule Rings", "High Density", "diag(A²+A³+A⁴)", "PageRank", "Hub Centrality"],
     icon: (
       <svg className="w-5 h-5 text-zinc-100" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 21a9 9 0 100-18 9 9 0 000 18ptM9 10a2 2 0 11-4 0 2 2 0 014 0zM19 10a2 2 0 11-4 0 2 2 0 014 0zM14 17a2 2 0 11-4 0 2 2 0 014 0z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 21a9 9 0 100-18 9 9 0 000 18M9 10a2 2 0 11-4 0 2 2 0 014 0zM19 10a2 2 0 11-4 0 2 2 0 014 0zM14 17a2 2 0 11-4 0 2 2 0 014 0z" />
       </svg>
     ),
     shader: {
@@ -207,11 +207,19 @@ function FeatureCard({ feature, reduceMotion }: { feature: FeatureCardData; redu
   const [hasWebGLError, setHasWebGLError] = useState(false);
 
   return (
+<<<<<<< HEAD
     <div className="relative group w-full h-full flex flex-col rounded-xl overflow-hidden border border-zinc-800/80 bg-zinc-950/90 backdrop-blur-xl hover:border-zinc-700 transition-all duration-300 hover:shadow-[0_8px_25px_rgba(0,0,0,0.8)]">
       
       {/* Background Animated WebGL Shader */}
       {!reduceMotion && !hasWebGLError && (
         <div className="absolute inset-0 opacity-20 group-hover:opacity-40 transition-opacity duration-500 pointer-events-none rounded-xl overflow-hidden">
+=======
+    <div className="relative group w-full h-full flex flex-col rounded-xl overflow-hidden border border-zinc-800/80 bg-zinc-950/90 backdrop-blur-xl hover:border-zinc-500 transition-all duration-500 hover:shadow-[0_10px_35px_rgba(0,0,0,0.95)]">
+      
+      {/* Background Animated WebGL Shader */}
+      {!reduceMotion && !hasWebGLError && (
+        <div className="absolute inset-0 opacity-20 group-hover:opacity-50 transition-opacity duration-500 pointer-events-none rounded-xl overflow-hidden">
+>>>>>>> 07bd474f9d29c018ffa840fed6bca53a8b5f4cf9
           <ErrorBoundary onError={() => setHasWebGLError(true)}>
             <Warp
               style={{ height: "100%", width: "100%" }}
@@ -231,6 +239,15 @@ function FeatureCard({ feature, reduceMotion }: { feature: FeatureCardData; redu
         </div>
       )}
 
+<<<<<<< HEAD
+=======
+      {/* Enhanced Black & White Hover Gradient Glow Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-zinc-800/35 to-black opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-xl" />
+
+      {/* Bright Top Border White Highlight Line */}
+      <div className="absolute top-0 inset-x-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+
+>>>>>>> 07bd474f9d29c018ffa840fed6bca53a8b5f4cf9
       {/* Glass Tint Overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-zinc-950/60 via-black/80 to-black/95 pointer-events-none" />
 
@@ -239,10 +256,17 @@ function FeatureCard({ feature, reduceMotion }: { feature: FeatureCardData; redu
         
         {/* Eyebrow & Icon Row */}
         <div className="flex items-center justify-between mb-3.5">
+<<<<<<< HEAD
           <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-300 bg-zinc-900/90 px-3 py-1 rounded-full border border-zinc-800">
             {feature.eyebrow}
           </span>
           <div className="w-8 h-8 rounded-lg bg-zinc-900/80 border border-zinc-800 flex items-center justify-center text-zinc-300 shrink-0">
+=======
+          <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-300 bg-zinc-900/90 group-hover:bg-zinc-800 group-hover:text-white px-3 py-1 rounded-full border border-zinc-800 group-hover:border-zinc-600 transition-colors">
+            {feature.eyebrow}
+          </span>
+          <div className="w-8 h-8 rounded-lg bg-zinc-900/80 group-hover:bg-zinc-800 border border-zinc-800 group-hover:border-zinc-600 flex items-center justify-center text-zinc-300 group-hover:text-white shrink-0 transition-colors">
+>>>>>>> 07bd474f9d29c018ffa840fed6bca53a8b5f4cf9
             {feature.icon}
           </div>
         </div>
@@ -263,15 +287,24 @@ function FeatureCard({ feature, reduceMotion }: { feature: FeatureCardData; redu
         </div>
 
         {/* Technical Chips */}
+<<<<<<< HEAD
         <div className="flex flex-wrap gap-1.5 mb-4">
           {feature.chips.map((chip, idx) => (
             <span
               key={idx}
               className="text-[11px] font-medium tracking-wide px-2.5 py-0.5 rounded-full bg-zinc-900/90 border border-zinc-800 text-zinc-300"
+=======
+        <div className="flex flex-wrap gap-1.5">
+          {feature.chips.map((chip, idx) => (
+            <span
+              key={idx}
+              className="text-[11px] font-medium tracking-wide px-2.5 py-0.5 rounded-full bg-zinc-900/90 group-hover:bg-zinc-800/90 border border-zinc-800 group-hover:border-zinc-600 text-zinc-300 group-hover:text-white transition-colors"
+>>>>>>> 07bd474f9d29c018ffa840fed6bca53a8b5f4cf9
             >
               {chip}
             </span>
           ))}
+<<<<<<< HEAD
         </div>
 
         {/* Capability Specs Link */}
@@ -280,6 +313,8 @@ function FeatureCard({ feature, reduceMotion }: { feature: FeatureCardData; redu
           <svg className="w-3.5 h-3.5 ml-1 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
           </svg>
+=======
+>>>>>>> 07bd474f9d29c018ffa840fed6bca53a8b5f4cf9
         </div>
 
       </div>
@@ -288,9 +323,12 @@ function FeatureCard({ feature, reduceMotion }: { feature: FeatureCardData; redu
 }
 
 function FeatureVisualGraphic({ featureId }: { featureId: string }) {
+  const boxHoverClasses = "w-full bg-gradient-to-r from-black via-zinc-950 to-black group-hover:from-zinc-900 group-hover:via-zinc-800/70 group-hover:to-zinc-950 hover:from-zinc-800 hover:via-zinc-700/60 hover:to-zinc-900 border border-zinc-800 group-hover:border-zinc-700 hover:border-zinc-400 hover:shadow-[0_0_25px_rgba(255,255,255,0.12)] transition-all duration-500 rounded-lg p-3 sm:p-3.5 px-3.5 sm:px-4 overflow-hidden box-border";
+
   switch (featureId) {
     case "dual-ai":
       return (
+<<<<<<< HEAD
         <div className="w-full bg-black/90 border border-zinc-800 rounded-lg p-3 sm:p-4 flex flex-col gap-2.5">
           <div className="flex items-center justify-between text-xs gap-2">
             <span className="flex items-center gap-2 font-bold text-zinc-200">
@@ -306,28 +344,61 @@ function FeatureVisualGraphic({ featureId }: { featureId: string }) {
               <div className="bg-gradient-to-r from-zinc-400 to-white h-full w-[94%]" />
             </div>
             <span className="text-[11px] font-mono text-zinc-400 shrink-0">14ms</span>
+=======
+        <div className={`${boxHoverClasses} flex flex-col gap-2`}>
+          <div className="flex items-center justify-between text-xs gap-2 min-w-0 w-full">
+            <span className="flex items-center gap-1.5 font-bold text-zinc-200 min-w-0 truncate">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)] shrink-0" />
+              <span className="truncate text-[11px] sm:text-xs">XGBoost + Isolation Forest</span>
+            </span>
+            <span className="text-[10px] sm:text-[11px] font-mono text-zinc-400 bg-zinc-900 px-2 py-0.5 rounded border border-zinc-800 shrink-0 ml-auto">
+              99.4% ROC-AUC
+            </span>
+          </div>
+          <div className="flex items-center justify-between gap-2.5 mt-0.5 min-w-0 w-full">
+            <div className="flex-1 bg-zinc-900 rounded-full h-1.5 overflow-hidden border border-zinc-800 min-w-0">
+              <div className="bg-gradient-to-r from-zinc-400 to-white h-full w-[94%]" />
+            </div>
+            <span className="text-[10px] sm:text-[11px] font-mono text-zinc-400 shrink-0">14ms</span>
+>>>>>>> 07bd474f9d29c018ffa840fed6bca53a8b5f4cf9
           </div>
         </div>
       );
 
     case "graph-topology":
       return (
+<<<<<<< HEAD
         <div className="w-full bg-black/90 border border-zinc-800 rounded-lg p-3 sm:p-4 flex items-center justify-between gap-2">
           <div className="flex items-center gap-3">
             {/* SVG Network Topology Node Diagram matching reference image */}
             <svg className="w-11 h-7 text-zinc-300 shrink-0" viewBox="0 0 48 36" fill="none">
+=======
+        <div className={`${boxHoverClasses} flex items-center justify-between gap-2`}>
+          <div className="flex items-center gap-2.5 min-w-0 truncate">
+            {/* SVG Network Topology Node Diagram matching reference image */}
+            <svg className="w-10 h-6 text-zinc-300 shrink-0" viewBox="0 0 48 36" fill="none">
+>>>>>>> 07bd474f9d29c018ffa840fed6bca53a8b5f4cf9
               <circle cx="10" cy="18" r="4" fill="#E4E4E7" />
               <circle cx="24" cy="8" r="5" fill="#FFFFFF" />
               <circle cx="24" cy="28" r="4" fill="#A1A1AA" />
               <circle cx="38" cy="18" r="4.5" fill="#E4E4E7" />
               <path d="M14 16L20 10M14 20L20 26M28 10L34 16M28 26L34 20" stroke="#71717A" strokeWidth="1.5" strokeDasharray="2 2" />
             </svg>
+<<<<<<< HEAD
             <div className="flex flex-col text-left">
               <span className="text-xs font-bold text-zinc-200">Mule Ring Density</span>
               <span className="text-[11px] text-zinc-400 font-mono">diag(A² + A³ + A⁴)</span>
             </div>
           </div>
           <span className="text-[11px] font-mono uppercase bg-zinc-900 px-2.5 py-1 rounded text-zinc-300 border border-zinc-800 font-bold shrink-0">
+=======
+            <div className="flex flex-col text-left min-w-0 truncate">
+              <span className="text-xs font-bold text-zinc-200 truncate">Mule Ring Density</span>
+              <span className="text-[10px] sm:text-[11px] text-zinc-400 font-mono truncate">diag(A² + A³ + A⁴)</span>
+            </div>
+          </div>
+          <span className="text-[10px] font-mono uppercase bg-zinc-900 px-2 py-0.5 rounded text-zinc-300 border border-zinc-800 font-bold shrink-0 ml-auto">
+>>>>>>> 07bd474f9d29c018ffa840fed6bca53a8b5f4cf9
             PAGERANK
           </span>
         </div>
@@ -335,6 +406,7 @@ function FeatureVisualGraphic({ featureId }: { featureId: string }) {
 
     case "zero-leakage":
       return (
+<<<<<<< HEAD
         <div className="w-full bg-black/90 border border-zinc-800 rounded-lg p-3 sm:p-4 flex items-center justify-between gap-2">
           <div className="flex items-center gap-3">
             {/* Waveform / Sparkline SVG matching reference image */}
@@ -347,6 +419,20 @@ function FeatureVisualGraphic({ featureId }: { featureId: string }) {
             </div>
           </div>
           <span className="text-[11px] font-mono bg-zinc-900 text-zinc-300 px-2.5 py-0.5 rounded border border-zinc-800 font-bold shrink-0">
+=======
+        <div className={`${boxHoverClasses} flex items-center justify-between gap-2`}>
+          <div className="flex items-center gap-2.5 min-w-0 truncate">
+            {/* Waveform / Sparkline SVG matching reference image */}
+            <svg className="w-11 h-6 text-zinc-200 shrink-0" viewBox="0 0 64 32" fill="none">
+              <path d="M0 20 L12 20 L18 8 L24 24 L30 14 L36 22 L44 10 L52 20 L64 20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            <div className="flex flex-col text-left min-w-0 truncate">
+              <span className="text-xs font-bold text-zinc-200 truncate">74 Signals Stream</span>
+              <span className="text-[10px] sm:text-[11px] text-zinc-400 font-mono truncate">Zero Temporal Leak</span>
+            </div>
+          </div>
+          <span className="text-[10px] font-mono bg-zinc-900 text-zinc-300 px-2 py-0.5 rounded border border-zinc-800 font-bold shrink-0 ml-auto">
+>>>>>>> 07bd474f9d29c018ffa840fed6bca53a8b5f4cf9
             5m–7d
           </span>
         </div>
@@ -354,6 +440,7 @@ function FeatureVisualGraphic({ featureId }: { featureId: string }) {
 
     case "explainable-ai":
       return (
+<<<<<<< HEAD
         <div className="w-full bg-black/90 border border-zinc-800 rounded-lg p-3 sm:p-4 flex flex-col gap-2">
           <div className="flex justify-between items-center text-[11px] font-mono text-zinc-300">
             <span>Amount Velocity</span>
@@ -365,12 +452,26 @@ function FeatureVisualGraphic({ featureId }: { featureId: string }) {
           <div className="flex justify-between items-center text-[11px] font-mono text-zinc-400">
             <span>Off-Hours Spike</span>
             <span className="font-bold text-zinc-300 shrink-0">+32% SHAP</span>
+=======
+        <div className={`${boxHoverClasses} flex flex-col gap-2`}>
+          <div className="flex justify-between items-center text-[10px] sm:text-[11px] font-mono text-zinc-300 min-w-0 w-full">
+            <span className="truncate min-w-0">Amount Velocity</span>
+            <span className="font-bold text-white shrink-0 ml-auto">+48% SHAP</span>
+          </div>
+          <div className="w-full bg-zinc-900 rounded-full h-1.5 overflow-hidden border border-zinc-800 min-w-0">
+            <div className="bg-gradient-to-r from-zinc-400 to-white h-full w-[82%]" />
+          </div>
+          <div className="flex justify-between items-center text-[10px] sm:text-[11px] font-mono text-zinc-400 min-w-0 w-full">
+            <span className="truncate min-w-0">Off-Hours Spike</span>
+            <span className="font-bold text-zinc-300 shrink-0 ml-auto">+32% SHAP</span>
+>>>>>>> 07bd474f9d29c018ffa840fed6bca53a8b5f4cf9
           </div>
         </div>
       );
 
     case "real-time":
       return (
+<<<<<<< HEAD
         <div className="w-full bg-black/90 border border-zinc-800 rounded-lg p-3 sm:p-4 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)] shrink-0" />
@@ -379,6 +480,16 @@ function FeatureVisualGraphic({ featureId }: { featureId: string }) {
           <div className="flex items-center gap-1.5 font-mono text-[11px] text-zinc-300 bg-zinc-900 px-2.5 py-0.5 rounded-md border border-zinc-800 shrink-0">
             <span>&lt; 45ms</span>
             <span className="text-emerald-400 bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-800/50 text-[10px] font-bold">Live</span>
+=======
+        <div className={`${boxHoverClasses} flex items-center justify-between gap-2`}>
+          <div className="flex items-center gap-2 min-w-0 truncate">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)] shrink-0" />
+            <span className="text-xs font-bold text-zinc-200 truncate">WebSocket Ticker</span>
+          </div>
+          <div className="flex items-center gap-1.5 font-mono text-[10px] sm:text-[11px] text-zinc-300 bg-zinc-900 px-2 py-0.5 rounded-md border border-zinc-800 shrink-0 ml-auto">
+            <span>&lt; 45ms</span>
+            <span className="text-emerald-400 bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-800/50 text-[9px] font-bold">Live</span>
+>>>>>>> 07bd474f9d29c018ffa840fed6bca53a8b5f4cf9
           </div>
         </div>
       );
