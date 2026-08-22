@@ -15,6 +15,7 @@ __pycache__/
 .DS_Store
 
 # Data / Generated Artifacts
+*.csv
 backend/app/data/*.db
 backend/app/data/*.pkl
 backend/app/data/*.json
