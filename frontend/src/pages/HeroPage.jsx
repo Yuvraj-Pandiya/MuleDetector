@@ -64,7 +64,7 @@ export default function HeroPage() {
       />
 
       {/* 2. NEW FEATURES SECTION: Placed at the end/bottom of the page in its own clean vertical space */}
-      <div className="relative z-20 w-full bg-neutral-950 border-t border-white/10 flex justify-center items-center">
+      <div className="relative z-20 w-full bg-black border-t border-white/10 flex justify-center items-center">
         <FeatureShaderCards />
       </div>
     </div>
