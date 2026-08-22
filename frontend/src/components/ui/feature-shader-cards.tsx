@@ -207,11 +207,11 @@ function FeatureCard({ feature, reduceMotion }: { feature: FeatureCardData; redu
   const [hasWebGLError, setHasWebGLError] = useState(false);
 
   return (
-    <div className="relative group w-full h-full flex flex-col rounded-xl overflow-hidden border border-zinc-800/80 bg-zinc-950/90 backdrop-blur-xl hover:border-zinc-600 transition-all duration-500 hover:shadow-[0_8px_30px_rgba(0,0,0,0.9)]">
+    <div className="relative group w-full h-full flex flex-col rounded-xl overflow-hidden border border-zinc-800/80 bg-zinc-950/90 backdrop-blur-xl hover:border-zinc-500 transition-all duration-500 hover:shadow-[0_10px_35px_rgba(0,0,0,0.95)]">
       
       {/* Background Animated WebGL Shader */}
       {!reduceMotion && !hasWebGLError && (
-        <div className="absolute inset-0 opacity-20 group-hover:opacity-40 transition-opacity duration-500 pointer-events-none rounded-xl overflow-hidden">
+        <div className="absolute inset-0 opacity-20 group-hover:opacity-50 transition-opacity duration-500 pointer-events-none rounded-xl overflow-hidden">
           <ErrorBoundary onError={() => setHasWebGLError(true)}>
             <Warp
               style={{ height: "100%", width: "100%" }}
@@ -231,11 +231,11 @@ function FeatureCard({ feature, reduceMotion }: { feature: FeatureCardData; redu
         </div>
       )}
 
-      {/* Minimal Black & White Hover Gradient Glow Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-zinc-900/20 to-black opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-xl" />
+      {/* Enhanced Black & White Hover Gradient Glow Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-zinc-800/35 to-black opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-xl" />
 
-      {/* Subtle Top Border White Highlight Line */}
-      <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+      {/* Bright Top Border White Highlight Line */}
+      <div className="absolute top-0 inset-x-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
       {/* Glass Tint Overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-zinc-950/60 via-black/80 to-black/95 pointer-events-none" />
@@ -245,10 +245,10 @@ function FeatureCard({ feature, reduceMotion }: { feature: FeatureCardData; redu
         
         {/* Eyebrow & Icon Row */}
         <div className="flex items-center justify-between mb-3.5">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-300 bg-zinc-900/90 group-hover:bg-zinc-800/90 group-hover:text-white px-3 py-1 rounded-full border border-zinc-800 group-hover:border-zinc-700 transition-colors">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-300 bg-zinc-900/90 group-hover:bg-zinc-800 group-hover:text-white px-3 py-1 rounded-full border border-zinc-800 group-hover:border-zinc-600 transition-colors">
             {feature.eyebrow}
           </span>
-          <div className="w-8 h-8 rounded-lg bg-zinc-900/80 group-hover:bg-zinc-800/90 border border-zinc-800 group-hover:border-zinc-700 flex items-center justify-center text-zinc-300 group-hover:text-white shrink-0 transition-colors">
+          <div className="w-8 h-8 rounded-lg bg-zinc-900/80 group-hover:bg-zinc-800 border border-zinc-800 group-hover:border-zinc-600 flex items-center justify-center text-zinc-300 group-hover:text-white shrink-0 transition-colors">
             {feature.icon}
           </div>
         </div>
@@ -273,7 +273,7 @@ function FeatureCard({ feature, reduceMotion }: { feature: FeatureCardData; redu
           {feature.chips.map((chip, idx) => (
             <span
               key={idx}
-              className="text-[11px] font-medium tracking-wide px-2.5 py-0.5 rounded-full bg-zinc-900/90 group-hover:bg-zinc-800/80 border border-zinc-800 group-hover:border-zinc-700 text-zinc-300 group-hover:text-zinc-200 transition-colors"
+              className="text-[11px] font-medium tracking-wide px-2.5 py-0.5 rounded-full bg-zinc-900/90 group-hover:bg-zinc-800/90 border border-zinc-800 group-hover:border-zinc-600 text-zinc-300 group-hover:text-white transition-colors"
             >
               {chip}
             </span>
@@ -286,7 +286,7 @@ function FeatureCard({ feature, reduceMotion }: { feature: FeatureCardData; redu
 }
 
 function FeatureVisualGraphic({ featureId }: { featureId: string }) {
-  const boxHoverClasses = "w-full bg-gradient-to-r from-black via-zinc-950 to-black hover:from-zinc-900 hover:via-zinc-800/60 hover:to-zinc-950 border border-zinc-800 hover:border-zinc-600/80 hover:shadow-[0_0_20px_rgba(255,255,255,0.06)] transition-all duration-500 rounded-lg p-3 sm:p-3.5 px-3.5 sm:px-4 overflow-hidden box-border";
+  const boxHoverClasses = "w-full bg-gradient-to-r from-black via-zinc-950 to-black group-hover:from-zinc-900 group-hover:via-zinc-800/70 group-hover:to-zinc-950 hover:from-zinc-800 hover:via-zinc-700/60 hover:to-zinc-900 border border-zinc-800 group-hover:border-zinc-700 hover:border-zinc-400 hover:shadow-[0_0_25px_rgba(255,255,255,0.12)] transition-all duration-500 rounded-lg p-3 sm:p-3.5 px-3.5 sm:px-4 overflow-hidden box-border";
 
   switch (featureId) {
     case "dual-ai":
