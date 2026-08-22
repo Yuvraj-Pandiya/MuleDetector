@@ -41,8 +41,17 @@ DB_PATH = _DATA_DIR / "alerts.db"
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
-CRITICAL_THRESHOLD = 0.90   # risk_score > 0.90 → Critical; else High
-VALID_STATUSES = {"OPEN", "REVIEWED", "DISMISSED"}
+CRITICAL_THRESHOLD = 85.0   # risk_score > 85.0 → Critical
+HIGH_THRESHOLD = 70.0       # risk_score > 70.0 → High
+
+VALID_STATUSES = {
+    "OPEN",
+    "UNDER_INVESTIGATION",
+    "CONFIRMED_MULE",
+    "FALSE_POSITIVE",
+    "DISMISSED",
+}
+
 
 
 # ---------------------------------------------------------------------------

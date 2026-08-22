@@ -238,20 +238,59 @@ export async function getGlobalFeatureImportance() {
 
 
 
-export async function getAlerts() {
-  if (MOCK) return [...mockAlerts];
-  const { data } = await api.get('/alerts');
-  const list = Array.isArray(data) ? data : (data.alerts || []);
+export async function getAlerts(params = {}) {
+  if (MOCK) {
+    return {
+      alerts: mockAlerts.map((alt) => ({
+        alert_id: alt.id,
+        account_id: alt.account_id,
+        risk_score: alt.risk_score || 88.5,
+        risk_tier: (alt.severity || 'HIGH').toUpperCase(),
+        mule_probability: 0.88,
+        anomaly_score: 0.75,
+        network_risk: 82.0,
+        top_reasons: [alt.type || 'Rapid fund forwarding (<15m)', 'Velocity burst spike'],
+        model_version: 'v2.4-PaySim-XGB',
+        created_at: alt.created_at || new Date().toISOString(),
+        status: (alt.status || 'OPEN').toUpperCase(),
+      })),
+      total: mockAlerts.length,
+      page: params.page || 1,
+      page_size: params.page_size || 10,
+      total_pages: 1,
+    };
+  }
 
-  return list.map((alt, i) => ({
-    id: alt.alert_id || alt.id || `ALT-${i}`,
+  const { data } = await api.get('/alerts', { params });
+  const rawList = Array.isArray(data) ? data : (data.alerts || []);
+
+  const alerts = rawList.map((alt, i) => ({
+    alert_id: alt.alert_id || alt.id || `ALT-${i}`,
     account_id: alt.account_id,
-    severity: (alt.severity || 'high').toLowerCase(),
-    type: alt.summary ? alt.summary.split('.')[0] : (alt.type || 'Mule Risk Flag'),
-    message: alt.summary || alt.message || 'High risk score triggered compliance alert',
-    status: (alt.status || 'open').toLowerCase(),
+    risk_score: alt.risk_score ?? 85.0,
+    risk_tier: (alt.risk_tier || alt.severity || 'HIGH').toUpperCase(),
+    severity: (alt.severity || alt.risk_tier || 'HIGH').toUpperCase(),
+    mule_probability: alt.mule_probability ?? (alt.risk_score ? alt.risk_score / 100 : 0.85),
+    anomaly_score: alt.anomaly_score ?? 0.72,
+    network_risk: alt.network_risk ?? 80.0,
+    top_reasons: alt.top_reasons || alt.top_features || [
+      'Rapid fund forwarding (<15m)',
+      'High 1h transaction velocity spike',
+      'Fan-out topology risk',
+    ],
+    summary: alt.summary || `Alert for ${alt.account_id}`,
+    model_version: alt.model_version || 'v2.4-PaySim-XGB',
+    status: (alt.status || 'OPEN').toUpperCase(),
     created_at: alt.created_at || new Date().toISOString(),
   }));
+
+  return {
+    alerts,
+    total: data.total ?? alerts.length,
+    page: data.page ?? params.page ?? 1,
+    page_size: data.page_size ?? params.page_size ?? 10,
+    total_pages: data.total_pages ?? Math.max(1, Math.ceil((data.total ?? alerts.length) / (data.page_size ?? 10))),
+  };
 }
 
 export async function patchAlert(id, update) {
@@ -265,11 +304,18 @@ export async function patchAlert(id, update) {
     status: update.status ? update.status.toUpperCase() : undefined,
   };
   const { data } = await api.patch(`/alerts/${id}`, payload);
-  return {
-    id: data.alert_id || data.id,
-    status: (data.status || 'open').toLowerCase(),
-  };
+  return data;
 }
+
+export async function bulkPatchAlerts(alertIds, status) {
+  if (MOCK) return { updated_count: alertIds.length };
+  const { data } = await api.post('/alerts/bulk-status', {
+    alert_ids: alertIds,
+    status: status.toUpperCase(),
+  });
+  return data;
+}
+
 
 export async function getModelMetrics() {
   if (MOCK) return mockMetrics;
