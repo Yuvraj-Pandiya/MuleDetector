@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Outlet, useLocation, Navigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
+import NetworkCursorTrail from '../ui/NetworkCursorTrail';
 import './Layout.css';
 
 const PAGE_TITLES = {
@@ -34,6 +35,7 @@ export default function Layout() {
 
   return (
     <div className={`sage-layout ${isHeroPage ? 'hero-layout' : ''}`}>
+      <NetworkCursorTrail />
       {!isHeroPage && (
         <Sidebar
           isCollapsed={isSidebarCollapsed}
