@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ShieldAlert, ArrowRight } from 'lucide-react';
 import { CinematicHero } from '@/components/ui/cinematic-landing-hero';
+import FeatureShaderCards from '@/components/ui/feature-shader-cards';
 
 export default function HeroPage() {
   const navigate = useNavigate();
@@ -11,7 +12,7 @@ export default function HeroPage() {
   };
 
   return (
-    <div className="relative overflow-x-hidden w-full min-h-screen">
+    <div className="relative overflow-x-hidden w-full min-h-screen bg-neutral-950">
       {/* Top Floating Branding & CTA Layer for Hero Viewport */}
       <header className="fixed top-4 left-4 right-4 md:top-5 md:left-6 md:right-8 z-50 flex items-center justify-between pointer-events-none">
         {/* Top-Left Logo / Branding */}
@@ -42,6 +43,7 @@ export default function HeroPage() {
         </button>
       </header>
 
+      {/* 1. Hero Viewport Section */}
       <CinematicHero
         brandName="MULE SCOPE"
         tagline1="Real-time fraud detection & risk scoring,"
@@ -60,6 +62,11 @@ export default function HeroPage() {
         onPrimaryClick={handleGetInside}
         onSecondaryClick={() => navigate('/upload')}
       />
+
+      {/* 2. NEW FEATURES SECTION: Placed at the end/bottom of the page in its own clean vertical space */}
+      <div className="relative z-20 w-full bg-neutral-950 border-t border-white/10">
+        <FeatureShaderCards />
+      </div>
     </div>
   );
 }
