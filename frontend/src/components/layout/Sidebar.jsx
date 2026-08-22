@@ -15,6 +15,7 @@ const navItems = [
   { label: 'Graph', href: '/graph' },
   { label: 'Alerts', href: '/alerts' },
   { label: 'Metrics', href: '/metrics' },
+  { label: 'Monitoring', href: '/monitoring' },
   { label: 'Simulation', href: '/simulation' },
 ];
 

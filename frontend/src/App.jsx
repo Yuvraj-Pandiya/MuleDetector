@@ -12,6 +12,7 @@ import AlertsPage from './pages/AlertsPage';
 import ModelMetricsPage from './pages/ModelMetricsPage';
 import FeatureIntelligencePage from './pages/FeatureIntelligencePage';
 import AnomalyDetectionPage from './pages/AnomalyDetectionPage';
+import ModelMonitoringPage from './pages/ModelMonitoringPage';
 import SimulationPage from './pages/SimulationPage';
 
 export default function App() {
@@ -30,6 +31,7 @@ export default function App() {
             <Route path="/graph" element={<GraphPage />} />
             <Route path="/alerts" element={<AlertsPage />} />
             <Route path="/metrics" element={<ModelMetricsPage />} />
+            <Route path="/monitoring" element={<ModelMonitoringPage />} />
             <Route path="/simulation" element={<SimulationPage />} />
           </Route>
         </Routes>
@@ -37,5 +39,6 @@ export default function App() {
     </AuthProvider>
   );
 }
+
 
 
