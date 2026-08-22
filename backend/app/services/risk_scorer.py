@@ -74,12 +74,16 @@ FEATURE_SCHEMA_COLUMNS: list[str] = [
 # ---------------------------------------------------------------------------
 
 def _load_model() -> Any:
-    """Load the persisted model from disk; raise 503-friendly error if absent."""
+    """Load the persisted model from disk; auto-train default model if absent."""
     if not MODEL_PATH.exists():
-        raise FileNotFoundError(
-            f"Trained model not found at '{MODEL_PATH}'. "
-            "Call POST /train first."
-        )
+        logger.info("Trained model not found at '%s' — auto-training default model...", MODEL_PATH)
+        mock_csv = _DATA_DIR / "mock_features.csv"
+        if not mock_csv.exists():
+            from app.services.mock_generator import generate_mock_features_csv
+            generate_mock_features_csv(mock_csv)
+        feature_df = pd.read_csv(mock_csv)
+        from app.services.model_trainer import train_model
+        train_model(feature_df)
     return joblib.load(MODEL_PATH)
 
 

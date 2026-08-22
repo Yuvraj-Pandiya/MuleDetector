@@ -54,8 +54,8 @@ def _load_feature_df() -> pd.DataFrame:
         return build_feature_matrix(_TRANSACTIONS_CSV)
 
     if not _MOCK_CSV.exists():
-        from scripts.generate_mock_features import main as gen_mock
-        gen_mock()
+        from app.services.mock_generator import generate_mock_features_csv
+        generate_mock_features_csv(_MOCK_CSV)
     return pd.read_csv(_MOCK_CSV)
 
 
