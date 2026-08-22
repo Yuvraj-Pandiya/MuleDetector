@@ -2,7 +2,7 @@ import React from 'react';
 import { Search, Bell, Shield, Sun, Moon } from 'lucide-react';
 import './Navbar.css';
 
-export default function Navbar({ title = 'SAGE Intelligence', theme = 'dark', onToggleTheme }) {
+export default function Navbar({ title = 'Risk Intelligence', theme = 'dark', onToggleTheme }) {
   return (
     <header className="sage-navbar">
       <div className="navbar-left">

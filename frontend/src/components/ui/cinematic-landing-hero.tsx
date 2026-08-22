@@ -4,6 +4,8 @@ import React, { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { cn } from "@/lib/utils";
+import SideRays from "./SideRays";
+import SpecularButton from "./SpecularButton";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -178,20 +180,22 @@ export interface CinematicHeroProps extends React.HTMLAttributes<HTMLDivElement>
   metricLabel?: string;
   ctaHeading?: string;
   ctaDescription?: string;
+  onGetStarted?: () => void;
   onPrimaryClick?: () => void;
   onSecondaryClick?: () => void;
 }
 
 export function CinematicHero({ 
-  brandName = "SAGE",
-  tagline1 = "Mule network detection,",
-  tagline2 = "redefined for banking AI.",
-  cardHeading = "Financial crime intelligence.",
-  cardDescription = <><span className="text-white font-semibold">SAGE</span> empowers compliance teams with multi-hop GNN detection, SHAP auditability, and real-time pass-through account tracking.</>,
+  brandName = "MULE INTEL",
+  tagline1 = "Real-Time Fraud Detection & Risk Scoring,",
+  tagline2 = "Built for Analysts, Not Just Models.",
+  cardHeading = "Explainable AI & Mule Network Detection",
+  cardDescription = <>A real-time fraud detection and risk intelligence platform that scores accounts, explains every decision with SHAP attribution, and visualizes transaction networks to catch mule rings instantly.</>,
   metricValue = 1247,
   metricLabel = "Accounts Monitored",
-  ctaHeading = "Eliminate mule rings.",
-  ctaDescription = "Ingest transaction telemetry in real-time or evaluate historical data with multi-hop GNN detection.",
+  ctaHeading = "Uncover Hidden Fraud & Mule Networks",
+  ctaDescription = "Drag-and-drop CSV dataset upload, risk-ranked account tables, SHAP feature attribution, force-directed transaction graphs, and analyst case workflows.",
+  onGetStarted,
   onPrimaryClick,
   onSecondaryClick,
   className, 
@@ -313,6 +317,23 @@ export function CinematicHero({
       <style dangerouslySetInnerHTML={{ __html: INJECTED_STYLES }} />
       <div className="film-grain" aria-hidden="true" />
       <div className="bg-grid-theme absolute inset-0 z-0 pointer-events-none opacity-50" aria-hidden="true" />
+      
+      {/* SideRays Background Light Effect */}
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-30 overflow-hidden" aria-hidden="true">
+        <SideRays
+          speed={2.0}
+          rayColor1="#3B82F6"
+          rayColor2="#10B981"
+          intensity={1.8}
+          spread={2.2}
+          origin="top-right"
+          tilt={10}
+          saturation={1.4}
+          blend={0.6}
+          falloff={1.5}
+          opacity={0.85}
+        />
+      </div>
 
       {/* BACKGROUND LAYER: Hero Texts */}
       <div className="hero-text-wrapper absolute z-10 flex flex-col items-center justify-center text-center w-screen px-4 will-change-transform transform-style-3d">
@@ -332,36 +353,28 @@ export function CinematicHero({
         <p className="text-muted-foreground text-lg md:text-xl mb-12 max-w-xl mx-auto font-light leading-relaxed">
           {ctaDescription}
         </p>
-        <div className="flex flex-col sm:flex-row gap-6">
-          <button 
-            type="button"
-            onClick={onPrimaryClick} 
-            aria-label="Explore Dashboard" 
-            className="btn-modern-light flex items-center justify-center gap-3 px-8 py-4 rounded-[1.25rem] group focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 cursor-pointer"
-          >
-            <svg className="w-8 h-8 transition-transform group-hover:scale-105" fill="currentColor" viewBox="0 0 384 512" aria-hidden="true">
-              <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/>
-            </svg>
-            <div className="text-left">
-              <div className="text-[10px] font-bold tracking-wider text-neutral-500 uppercase mb-[-2px]">Live Demo</div>
-              <div className="text-xl font-bold leading-none tracking-tight">Dashboard →</div>
-            </div>
-          </button>
-          <button 
-            type="button"
-            onClick={onSecondaryClick} 
-            aria-label="Upload Dataset" 
-            className="btn-modern-dark flex items-center justify-center gap-3 px-8 py-4 rounded-[1.25rem] group focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-background cursor-pointer"
-          >
-            <svg className="w-7 h-7 transition-transform group-hover:scale-105" fill="currentColor" viewBox="0 0 512 512" aria-hidden="true">
-               <path d="M325.3 234.3L104.6 13l280.8 161.2-60.1 60.1zM47 0C34 6.8 25.3 19.2 25.3 35.3v441.3c0 16.1 8.7 28.5 21.7 35.3l256.6-256L47 0zm425.2 225.6l-58.9-34.1-65.7 64.5 65.7 64.5 60.1-34.1c18-14.3 18-46.5-1.2-60.8zM104.6 499l280.8-161.2-60.1-60.1L104.6 499z"/>
-            </svg>
-            <div className="text-left">
-              <div className="text-[10px] font-bold tracking-wider text-neutral-400 uppercase mb-[-2px]">Dataset</div>
-              <div className="text-xl font-bold leading-none tracking-tight">Upload CSV →</div>
-            </div>
-          </button>
-        </div>
+        <SpecularButton
+          size="lg"
+          radius={9999}
+          tint="#07080a"
+          tintOpacity={0.95}
+          blur={16}
+          textColor="#ffffff"
+          lineColor="#ffffff"
+          baseColor="#525252"
+          intensity={2.0}
+          shineSize={22}
+          shineFade={45}
+          thickness={1.5}
+          speed={0.4}
+          followMouse
+          proximity={300}
+          autoAnimate={true}
+          onClick={onGetStarted || onPrimaryClick}
+          className="font-bold text-lg tracking-wide shadow-2xl hover:scale-105 transition-transform"
+        >
+          Get Started →
+        </SpecularButton>
       </div>
 
       {/* FOREGROUND LAYER: The Physical Deep Blue Card */}
@@ -376,9 +389,15 @@ export function CinematicHero({
           <div className="relative w-full h-full max-w-7xl mx-auto px-4 lg:px-12 flex flex-col justify-evenly lg:grid lg:grid-cols-3 items-center lg:gap-8 z-10 py-6 lg:py-0">
             
             {/* 1. TOP (Mobile) / RIGHT (Desktop): BRAND NAME */}
-            <div className="card-right-text gsap-reveal order-1 lg:order-3 flex justify-center lg:justify-end z-20 w-full">
-              <h2 className="text-6xl md:text-[6rem] lg:text-[8rem] font-black uppercase tracking-tighter text-card-silver-matte lg:mt-0">
-                {brandName}
+            <div className="card-right-text gsap-reveal order-1 lg:order-3 flex justify-center lg:justify-end z-20 w-full lg:pr-2">
+              <h2 className="text-5xl md:text-6xl lg:text-7xl xl:text-[7.5rem] font-black uppercase tracking-tighter text-card-silver-matte leading-[0.88] text-center lg:text-right flex flex-col items-center lg:items-end">
+                {typeof brandName === 'string' && brandName.includes(' ') ? (
+                  brandName.split(' ').map((word, idx) => (
+                    <span key={idx} className="block whitespace-nowrap">{word}</span>
+                  ))
+                ) : (
+                  brandName
+                )}
               </h2>
             </div>
 
@@ -413,7 +432,7 @@ export function CinematicHero({
                       <div className="phone-widget flex justify-between items-center mb-8">
                         <div className="flex flex-col">
                           <span className="text-[10px] text-neutral-400 uppercase tracking-widest font-bold mb-1">Live Telemetry</span>
-                          <span className="text-xl font-bold tracking-tight text-white drop-shadow-md">SAGE Engine</span>
+                          <span className="text-xl font-bold tracking-tight text-white drop-shadow-md">Risk Engine</span>
                         </div>
                         <div className="w-9 h-9 rounded-full bg-white/5 text-neutral-200 flex items-center justify-center font-bold text-sm border border-white/10 shadow-lg shadow-black/50">GNN</div>
                       </div>
@@ -431,25 +450,25 @@ export function CinematicHero({
 
                       <div className="space-y-3">
                         <div className="phone-widget widget-depth rounded-2xl p-3 flex items-center">
-                          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-600/5 flex items-center justify-center mr-3 border border-blue-400/20 shadow-inner">
+                          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-600/5 flex items-center justify-center mr-3 border border-blue-400/20 shadow-inner flex-shrink-0">
                             <svg className="w-4 h-4 text-blue-400 drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                           </div>
-                          <div className="flex-1">
-                            <div className="h-2 w-20 bg-neutral-300 rounded-full mb-2 shadow-inner" />
-                            <div className="h-1.5 w-12 bg-neutral-600 rounded-full shadow-inner" />
+                          <div className="flex-1 min-w-0">
+                            <div className="text-[11px] font-semibold text-white tracking-tight truncate">Alerts & Case Management</div>
+                            <div className="text-[9px] text-neutral-400 truncate">Severity alerts & analyst workflow</div>
                           </div>
                         </div>
                         <div className="phone-widget widget-depth rounded-2xl p-3 flex items-center">
-                          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/20 to-emerald-600/5 flex items-center justify-center mr-3 border border-emerald-400/20 shadow-inner">
+                          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/20 to-emerald-600/5 flex items-center justify-center mr-3 border border-emerald-400/20 shadow-inner flex-shrink-0">
                             <svg className="w-4 h-4 text-emerald-400 drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                             </svg>
                           </div>
-                          <div className="flex-1">
-                            <div className="h-2 w-16 bg-neutral-300 rounded-full mb-2 shadow-inner" />
-                            <div className="h-1.5 w-24 bg-neutral-600 rounded-full shadow-inner" />
+                          <div className="flex-1 min-w-0">
+                            <div className="text-[11px] font-semibold text-white tracking-tight truncate">Model Metrics & Simulation</div>
+                            <div className="text-[9px] text-neutral-400 truncate">Precision, ROC-AUC & live streaming</div>
                           </div>
                         </div>
                       </div>
@@ -460,23 +479,69 @@ export function CinematicHero({
                 </div>
 
                 {/* Floating Glass Badges */}
-                <div className="floating-badge absolute flex top-6 lg:top-12 left-[-15px] lg:left-[-80px] floating-ui-badge rounded-xl lg:rounded-2xl p-3 lg:p-4 items-center gap-3 lg:gap-4 z-30">
+                {/* 1. Upper Left: Explainable AI Scoring */}
+                <div className="floating-badge absolute flex top-2 lg:top-4 left-[-15px] lg:left-[-90px] floating-ui-badge rounded-xl lg:rounded-2xl p-3 lg:p-4 items-center gap-3 lg:gap-4 z-30">
                   <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-gradient-to-b from-blue-500/20 to-blue-900/10 flex items-center justify-center border border-blue-400/30 shadow-inner">
                     <span className="text-base lg:text-xl drop-shadow-lg" aria-hidden="true">⚡</span>
                   </div>
                   <div>
-                    <p className="text-white text-xs lg:text-sm font-bold tracking-tight">SHAP Explainability</p>
-                    <p className="text-blue-200/50 text-[10px] lg:text-xs font-medium">94.3% Accuracy</p>
+                    <p className="text-white text-xs lg:text-sm font-bold tracking-tight">Explainable AI Scoring</p>
+                    <p className="text-blue-200/50 text-[10px] lg:text-xs font-medium">SHAP human-readable reasoning</p>
                   </div>
                 </div>
 
-                <div className="floating-badge absolute flex bottom-12 lg:bottom-20 right-[-15px] lg:right-[-80px] floating-ui-badge rounded-xl lg:rounded-2xl p-3 lg:p-4 items-center gap-3 lg:gap-4 z-30">
+                {/* 2. Mid Left: Risk-Ranked Accounts */}
+                <div className="floating-badge absolute flex top-[135px] lg:top-[155px] left-[-15px] lg:left-[-100px] floating-ui-badge rounded-xl lg:rounded-2xl p-3 lg:p-4 items-center gap-3 lg:gap-4 z-30">
+                  <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-gradient-to-b from-amber-500/20 to-amber-900/10 flex items-center justify-center border border-amber-400/30 shadow-inner">
+                    <span className="text-base lg:text-xl drop-shadow-lg" aria-hidden="true">📊</span>
+                  </div>
+                  <div>
+                    <p className="text-white text-xs lg:text-sm font-bold tracking-tight">Risk-Ranked Accounts</p>
+                    <p className="text-blue-200/50 text-[10px] lg:text-xs font-medium">Sortable, filterable, color-coded risk tiers</p>
+                  </div>
+                </div>
+
+                {/* 3. Upper Right: Upload & Ingestion */}
+                <div className="floating-badge absolute flex top-2 lg:top-4 right-[-15px] lg:right-[-90px] floating-ui-badge rounded-xl lg:rounded-2xl p-3 lg:p-4 items-center gap-3 lg:gap-4 z-30">
+                  <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-gradient-to-b from-emerald-500/20 to-emerald-900/10 flex items-center justify-center border border-emerald-400/30 shadow-inner">
+                    <span className="text-base lg:text-xl drop-shadow-lg" aria-hidden="true">📤</span>
+                  </div>
+                  <div>
+                    <p className="text-white text-xs lg:text-sm font-bold tracking-tight">Upload &amp; Ingestion</p>
+                    <p className="text-blue-200/50 text-[10px] lg:text-xs font-medium">Drag-and-drop CSV, instant schema preview</p>
+                  </div>
+                </div>
+
+                {/* 4. Mid-Upper Right: Alerts & Case Management */}
+                <div className="floating-badge absolute flex top-[135px] lg:top-[155px] right-[-15px] lg:right-[-90px] floating-ui-badge rounded-xl lg:rounded-2xl p-3 lg:p-4 items-center gap-3 lg:gap-4 z-30">
+                  <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-gradient-to-b from-red-500/20 to-red-900/10 flex items-center justify-center border border-red-400/30 shadow-inner">
+                    <span className="text-base lg:text-xl drop-shadow-lg" aria-hidden="true">🔔</span>
+                  </div>
+                  <div>
+                    <p className="text-white text-xs lg:text-sm font-bold tracking-tight">Alerts &amp; Case Management</p>
+                    <p className="text-blue-200/50 text-[10px] lg:text-xs font-medium">Severity alerts &amp; analyst workflow</p>
+                  </div>
+                </div>
+
+                {/* 5. Mid-Lower Right: Transaction Network Graph */}
+                <div className="floating-badge absolute flex top-[280px] lg:top-[310px] right-[-15px] lg:right-[-90px] floating-ui-badge rounded-xl lg:rounded-2xl p-3 lg:p-4 items-center gap-3 lg:gap-4 z-30">
                   <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-gradient-to-b from-indigo-500/20 to-indigo-900/10 flex items-center justify-center border border-indigo-400/30 shadow-inner">
                     <span className="text-base lg:text-lg drop-shadow-lg" aria-hidden="true">🛡️</span>
                   </div>
                   <div>
-                    <p className="text-white text-xs lg:text-sm font-bold tracking-tight">Topology Ring Engine</p>
-                    <p className="text-blue-200/50 text-[10px] lg:text-xs font-medium">Multi-hop GNN active</p>
+                    <p className="text-white text-xs lg:text-sm font-bold tracking-tight">Transaction Network Graph</p>
+                    <p className="text-blue-200/50 text-[10px] lg:text-xs font-medium">Force-directed mule ring engine</p>
+                  </div>
+                </div>
+
+                {/* 6. Bottom Right: Model Metrics & Simulation */}
+                <div className="floating-badge absolute flex bottom-2 lg:bottom-4 right-[-15px] lg:right-[-80px] floating-ui-badge rounded-xl lg:rounded-2xl p-3 lg:p-4 items-center gap-3 lg:gap-4 z-30">
+                  <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-gradient-to-b from-violet-500/20 to-violet-900/10 flex items-center justify-center border border-violet-400/30 shadow-inner">
+                    <span className="text-base lg:text-xl drop-shadow-lg" aria-hidden="true">📈</span>
+                  </div>
+                  <div>
+                    <p className="text-white text-xs lg:text-sm font-bold tracking-tight">Model Metrics &amp; Simulation</p>
+                    <p className="text-blue-200/50 text-[10px] lg:text-xs font-medium">Precision, ROC-AUC &amp; live streaming</p>
                   </div>
                 </div>
 
@@ -485,7 +550,10 @@ export function CinematicHero({
 
             {/* 3. BOTTOM (Mobile) / LEFT (Desktop): ACCOUNTABILITY TEXT */}
             <div className="card-left-text gsap-reveal order-3 lg:order-1 flex flex-col justify-center text-center lg:text-left z-20 w-full lg:max-w-none px-4 lg:px-0">
-              <h3 className="text-white text-2xl md:text-3xl lg:text-4xl font-bold mb-0 lg:mb-5 tracking-tight">
+              <h3
+                className="text-white text-2xl md:text-3xl lg:text-4xl font-bold mb-0 lg:mb-5 tracking-tight"
+                style={{ color: '#ffffff', WebkitTextFillColor: '#ffffff', textShadow: '0 2px 12px rgba(0,0,0,0.6)' }}
+              >
                 {cardHeading}
               </h3>
               {/* HIDDEN ON MOBILE (added hidden md:block) */}
