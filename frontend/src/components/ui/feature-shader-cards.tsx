@@ -291,43 +291,43 @@ function FeatureVisualGraphic({ featureId }: { featureId: string }) {
   switch (featureId) {
     case "dual-ai":
       return (
-        <div className="w-full bg-black/90 border border-zinc-800 rounded-lg p-3 sm:p-4 flex flex-col gap-2.5">
-          <div className="flex items-center justify-between text-xs gap-2">
-            <span className="flex items-center gap-2 font-bold text-zinc-200">
+        <div className="w-full bg-black/90 border border-zinc-800 rounded-lg p-3 sm:p-3.5 px-3.5 sm:px-4 flex flex-col gap-2 overflow-hidden box-border">
+          <div className="flex items-center justify-between text-xs gap-2 min-w-0 w-full">
+            <span className="flex items-center gap-1.5 font-bold text-zinc-200 min-w-0 truncate">
               <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)] shrink-0" />
-              <span>XGBoost + Isolation Forest</span>
+              <span className="truncate text-[11px] sm:text-xs">XGBoost + Isolation Forest</span>
             </span>
-            <span className="text-[11px] font-mono text-zinc-400 bg-zinc-900 px-2.5 py-0.5 rounded border border-zinc-800 shrink-0">
+            <span className="text-[10px] sm:text-[11px] font-mono text-zinc-400 bg-zinc-900 px-2 py-0.5 rounded border border-zinc-800 shrink-0 ml-auto">
               99.4% ROC-AUC
             </span>
           </div>
-          <div className="flex items-center justify-between gap-3 mt-0.5">
-            <div className="flex-1 bg-zinc-900 rounded-full h-1.5 overflow-hidden border border-zinc-800">
+          <div className="flex items-center justify-between gap-2.5 mt-0.5 min-w-0 w-full">
+            <div className="flex-1 bg-zinc-900 rounded-full h-1.5 overflow-hidden border border-zinc-800 min-w-0">
               <div className="bg-gradient-to-r from-zinc-400 to-white h-full w-[94%]" />
             </div>
-            <span className="text-[11px] font-mono text-zinc-400 shrink-0">14ms</span>
+            <span className="text-[10px] sm:text-[11px] font-mono text-zinc-400 shrink-0">14ms</span>
           </div>
         </div>
       );
 
     case "graph-topology":
       return (
-        <div className="w-full bg-black/90 border border-zinc-800 rounded-lg p-3 sm:p-4 flex items-center justify-between gap-2">
-          <div className="flex items-center gap-3">
+        <div className="w-full bg-black/90 border border-zinc-800 rounded-lg p-3 sm:p-3.5 px-3.5 sm:px-4 flex items-center justify-between gap-2 overflow-hidden box-border">
+          <div className="flex items-center gap-2.5 min-w-0 truncate">
             {/* SVG Network Topology Node Diagram matching reference image */}
-            <svg className="w-11 h-7 text-zinc-300 shrink-0" viewBox="0 0 48 36" fill="none">
+            <svg className="w-10 h-6 text-zinc-300 shrink-0" viewBox="0 0 48 36" fill="none">
               <circle cx="10" cy="18" r="4" fill="#E4E4E7" />
               <circle cx="24" cy="8" r="5" fill="#FFFFFF" />
               <circle cx="24" cy="28" r="4" fill="#A1A1AA" />
               <circle cx="38" cy="18" r="4.5" fill="#E4E4E7" />
               <path d="M14 16L20 10M14 20L20 26M28 10L34 16M28 26L34 20" stroke="#71717A" strokeWidth="1.5" strokeDasharray="2 2" />
             </svg>
-            <div className="flex flex-col text-left">
-              <span className="text-xs font-bold text-zinc-200">Mule Ring Density</span>
-              <span className="text-[11px] text-zinc-400 font-mono">diag(A² + A³ + A⁴)</span>
+            <div className="flex flex-col text-left min-w-0 truncate">
+              <span className="text-xs font-bold text-zinc-200 truncate">Mule Ring Density</span>
+              <span className="text-[10px] sm:text-[11px] text-zinc-400 font-mono truncate">diag(A² + A³ + A⁴)</span>
             </div>
           </div>
-          <span className="text-[11px] font-mono uppercase bg-zinc-900 px-2.5 py-1 rounded text-zinc-300 border border-zinc-800 font-bold shrink-0">
+          <span className="text-[10px] font-mono uppercase bg-zinc-900 px-2 py-0.5 rounded text-zinc-300 border border-zinc-800 font-bold shrink-0 ml-auto">
             PAGERANK
           </span>
         </div>
@@ -335,18 +335,18 @@ function FeatureVisualGraphic({ featureId }: { featureId: string }) {
 
     case "zero-leakage":
       return (
-        <div className="w-full bg-black/90 border border-zinc-800 rounded-lg p-3 sm:p-4 flex items-center justify-between gap-2">
-          <div className="flex items-center gap-3">
+        <div className="w-full bg-black/90 border border-zinc-800 rounded-lg p-3 sm:p-3.5 px-3.5 sm:px-4 flex items-center justify-between gap-2 overflow-hidden box-border">
+          <div className="flex items-center gap-2.5 min-w-0 truncate">
             {/* Waveform / Sparkline SVG matching reference image */}
-            <svg className="w-12 h-6 text-zinc-200 shrink-0" viewBox="0 0 64 32" fill="none">
+            <svg className="w-11 h-6 text-zinc-200 shrink-0" viewBox="0 0 64 32" fill="none">
               <path d="M0 20 L12 20 L18 8 L24 24 L30 14 L36 22 L44 10 L52 20 L64 20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-            <div className="flex flex-col text-left">
-              <span className="text-xs font-bold text-zinc-200">74 Signals Stream</span>
-              <span className="text-[11px] text-zinc-400 font-mono">Zero Temporal Leak</span>
+            <div className="flex flex-col text-left min-w-0 truncate">
+              <span className="text-xs font-bold text-zinc-200 truncate">74 Signals Stream</span>
+              <span className="text-[10px] sm:text-[11px] text-zinc-400 font-mono truncate">Zero Temporal Leak</span>
             </div>
           </div>
-          <span className="text-[11px] font-mono bg-zinc-900 text-zinc-300 px-2.5 py-0.5 rounded border border-zinc-800 font-bold shrink-0">
+          <span className="text-[10px] font-mono bg-zinc-900 text-zinc-300 px-2 py-0.5 rounded border border-zinc-800 font-bold shrink-0 ml-auto">
             5m–7d
           </span>
         </div>
@@ -354,31 +354,31 @@ function FeatureVisualGraphic({ featureId }: { featureId: string }) {
 
     case "explainable-ai":
       return (
-        <div className="w-full bg-black/90 border border-zinc-800 rounded-lg p-3 sm:p-4 flex flex-col gap-2">
-          <div className="flex justify-between items-center text-[11px] font-mono text-zinc-300">
-            <span>Amount Velocity</span>
-            <span className="font-bold text-white shrink-0">+48% SHAP</span>
+        <div className="w-full bg-black/90 border border-zinc-800 rounded-lg p-3 sm:p-3.5 px-3.5 sm:px-4 flex flex-col gap-2 overflow-hidden box-border">
+          <div className="flex justify-between items-center text-[10px] sm:text-[11px] font-mono text-zinc-300 min-w-0 w-full">
+            <span className="truncate min-w-0">Amount Velocity</span>
+            <span className="font-bold text-white shrink-0 ml-auto">+48% SHAP</span>
           </div>
-          <div className="w-full bg-zinc-900 rounded-full h-1.5 overflow-hidden border border-zinc-800">
+          <div className="w-full bg-zinc-900 rounded-full h-1.5 overflow-hidden border border-zinc-800 min-w-0">
             <div className="bg-gradient-to-r from-zinc-400 to-white h-full w-[82%]" />
           </div>
-          <div className="flex justify-between items-center text-[11px] font-mono text-zinc-400">
-            <span>Off-Hours Spike</span>
-            <span className="font-bold text-zinc-300 shrink-0">+32% SHAP</span>
+          <div className="flex justify-between items-center text-[10px] sm:text-[11px] font-mono text-zinc-400 min-w-0 w-full">
+            <span className="truncate min-w-0">Off-Hours Spike</span>
+            <span className="font-bold text-zinc-300 shrink-0 ml-auto">+32% SHAP</span>
           </div>
         </div>
       );
 
     case "real-time":
       return (
-        <div className="w-full bg-black/90 border border-zinc-800 rounded-lg p-3 sm:p-4 flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
+        <div className="w-full bg-black/90 border border-zinc-800 rounded-lg p-3 sm:p-3.5 px-3.5 sm:px-4 flex items-center justify-between gap-2 overflow-hidden box-border">
+          <div className="flex items-center gap-2 min-w-0 truncate">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)] shrink-0" />
-            <span className="text-xs font-bold text-zinc-200">WebSocket Ticker</span>
+            <span className="text-xs font-bold text-zinc-200 truncate">WebSocket Ticker</span>
           </div>
-          <div className="flex items-center gap-1.5 font-mono text-[11px] text-zinc-300 bg-zinc-900 px-2.5 py-0.5 rounded-md border border-zinc-800 shrink-0">
+          <div className="flex items-center gap-1.5 font-mono text-[10px] sm:text-[11px] text-zinc-300 bg-zinc-900 px-2 py-0.5 rounded-md border border-zinc-800 shrink-0 ml-auto">
             <span>&lt; 45ms</span>
-            <span className="text-emerald-400 bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-800/50 text-[10px] font-bold">Live</span>
+            <span className="text-emerald-400 bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-800/50 text-[9px] font-bold">Live</span>
           </div>
         </div>
       );
