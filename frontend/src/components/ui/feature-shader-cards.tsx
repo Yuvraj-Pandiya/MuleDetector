@@ -241,18 +241,18 @@ function FeatureCard({ feature, reduceMotion }: { feature: FeatureCardData; redu
           </div>
 
           {/* Feature Title */}
-          <h3 className="text-xl lg:text-2xl font-bold tracking-tight text-white mb-3 group-hover:text-zinc-200 transition-colors leading-snug">
+          <h3 className="text-xl lg:text-2xl font-bold tracking-tight text-white mb-2.5 group-hover:text-zinc-200 transition-colors leading-snug">
             {feature.title}
           </h3>
 
           {/* Feature Description */}
-          <p className="text-sm lg:text-base text-zinc-300/90 font-normal leading-relaxed mb-2">
+          <p className="text-sm lg:text-base text-zinc-300/90 font-normal leading-relaxed mb-1">
             {feature.description}
           </p>
         </div>
 
-        {/* Feature Specific Visual Graphic Badge Section (Generous Vertical Spacing Above & Below) */}
-        <div className="my-6 lg:my-7 w-full">
+        {/* Feature Specific Visual Graphic Badge Section (Clean Reduced Vertical Spacing) */}
+        <div className="my-3.5 lg:my-4 w-full">
           <FeatureVisualGraphic featureId={feature.id} />
         </div>
 
