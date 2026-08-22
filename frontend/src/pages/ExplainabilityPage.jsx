@@ -10,7 +10,7 @@ import './ExplainabilityPage.css';
 
 export default function ExplainabilityPage() {
   const [searchParams] = useSearchParams();
-  const paramId = searchParams.get('id');
+  const paramId = searchParams.get('account_id') || searchParams.get('id');
 
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
