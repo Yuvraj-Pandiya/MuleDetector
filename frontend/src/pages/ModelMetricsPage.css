@@ -121,3 +121,108 @@
   font-size: 12px;
   color: var(--mute);
 }
+
+/* Metadata Grid */
+.meta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+}
+
+.meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.meta-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--stone);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.meta-val {
+  font-size: 12px;
+  color: var(--ink);
+}
+
+/* Tables & Badges */
+.mini-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.mini-table th {
+  text-align: left;
+  padding: 8px 12px;
+  background: var(--canvas);
+  color: var(--stone);
+  font-weight: 600;
+  font-size: 11px;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.mini-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--hairline);
+  color: var(--ink);
+}
+
+.mini-table tr.active-row {
+  background: rgba(20, 184, 166, 0.08);
+}
+
+.mini-table tr.production-model-row {
+  background: rgba(20, 184, 166, 0.12);
+  border-left: 3px solid var(--teal);
+}
+
+.default-badge {
+  font-size: 9px;
+  padding: 1px 5px;
+  background: rgba(20, 184, 166, 0.2);
+  color: var(--teal);
+  border-radius: 4px;
+  font-weight: 700;
+  margin-left: 4px;
+}
+
+.prod-status-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  background: rgba(16, 185, 129, 0.18);
+  color: var(--success);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  border-radius: var(--radius-xs);
+  display: inline-flex;
+}
+
+.bench-status-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 8px;
+  background: var(--canvas);
+  color: var(--stone);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-xs);
+  display: inline-flex;
+}
+
+.prod-chip {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--teal);
+  background: rgba(20, 184, 166, 0.12);
+  border: 1px solid rgba(20, 184, 166, 0.25);
+  padding: 4px 10px;
+  border-radius: 12px;
+}
+

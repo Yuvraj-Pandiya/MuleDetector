@@ -317,10 +317,101 @@ export async function bulkPatchAlerts(alertIds, status) {
 }
 
 
+export async function getModelPerformance() {
+  if (MOCK) {
+    return {
+      metadata: {
+        model_name: 'XGBoost Mule Classifier',
+        model_version: 'v2.4-PaySim-XGB',
+        training_dataset: 'PaySim Financial Transactions Dataset (1,048,575 rows)',
+        training_date: '2026-08-22T14:30:00Z',
+        feature_count: 21,
+        training_period: 'Step 1 to Step 500 (Historical Window)',
+        validation_period: 'Step 501 to Step 600 (Validation Window)',
+        test_period: 'Step 601 to Step 743 (Holdout Test Window)',
+      },
+      metrics: {
+        precision: 0.934,
+        recall: 0.892,
+        f1: 0.913,
+        roc_auc: 0.968,
+        pr_auc: 0.945,
+      },
+      confusion_matrix: {
+        tn: 945,
+        fp: 15,
+        fn: 13,
+        tp: 107,
+        matrix: [[945, 15], [13, 107]],
+      },
+      roc_curve: [
+        { fpr: 0.0, tpr: 0.0, threshold: 1.0 },
+        { fpr: 0.005, tpr: 0.35, threshold: 0.90 },
+        { fpr: 0.012, tpr: 0.68, threshold: 0.75 },
+        { fpr: 0.016, tpr: 0.892, threshold: 0.50 },
+        { fpr: 0.035, tpr: 0.955, threshold: 0.30 },
+        { fpr: 0.080, tpr: 0.985, threshold: 0.15 },
+        { fpr: 1.0, tpr: 1.0, threshold: 0.0 },
+      ],
+      pr_curve: [
+        { recall: 0.0, precision: 1.0, threshold: 1.0 },
+        { recall: 0.35, precision: 0.982, threshold: 0.90 },
+        { recall: 0.68, precision: 0.955, threshold: 0.75 },
+        { recall: 0.892, precision: 0.934, threshold: 0.50 },
+        { recall: 0.955, precision: 0.852, threshold: 0.30 },
+        { recall: 0.985, precision: 0.710, threshold: 0.15 },
+        { recall: 1.0, precision: 0.102, threshold: 0.0 },
+      ],
+      threshold_comparison: [
+        { threshold: 0.10, precision: 0.685, recall: 0.988, f1: 0.809, false_positives: 54 },
+        { threshold: 0.25, "precision": 0.842, recall: 0.945, f1: 0.890, false_positives: 24 },
+        { threshold: 0.50, precision: 0.934, recall: 0.892, f1: 0.913, false_positives: 15 },
+        { threshold: 0.65, precision: 0.955, recall: 0.812, f1: 0.877, false_positives: 8 },
+        { threshold: 0.80, precision: 0.982, recall: 0.680, f1: 0.804, false_positives: 2 },
+      ],
+      model_comparison: [
+        {
+          model_name: 'Logistic Regression',
+          model_type: 'LogisticRegression',
+          precision: 0.762,
+          recall: 0.684,
+          f1: 0.721,
+          roc_auc: 0.815,
+          pr_auc: 0.748,
+          is_production: false,
+        },
+        {
+          model_name: 'Random Forest',
+          model_type: 'RandomForestClassifier',
+          precision: 0.885,
+          recall: 0.830,
+          f1: 0.857,
+          roc_auc: 0.932,
+          pr_auc: 0.891,
+          is_production: false,
+        },
+        {
+          model_name: 'XGBoost Classifier',
+          model_type: 'XGBClassifier',
+          precision: 0.934,
+          recall: 0.892,
+          f1: 0.913,
+          roc_auc: 0.968,
+          pr_auc: 0.945,
+          is_production: true,
+        },
+      ],
+    };
+  }
+
+  const { data } = await api.get('/train/performance');
+  return data;
+}
+
 export async function getModelMetrics() {
   if (MOCK) return mockMetrics;
   try {
-    const { data } = await api.post('/train');
+    const { data } = await api.get('/train/performance');
     const metrics = data.metrics || data;
     return {
       accuracy: metrics.roc_auc ?? 0.95,
@@ -328,7 +419,7 @@ export async function getModelMetrics() {
       recall: metrics.recall ?? 0.88,
       f1_score: metrics.f1 ?? 0.90,
       roc_auc: metrics.roc_auc ?? 0.96,
-      confusion_matrix: metrics.confusion_matrix || { tp: 50, fp: 2, fn: 3, tn: 945 },
+      confusion_matrix: data.confusion_matrix || { tp: 107, fp: 15, fn: 13, tn: 945 },
       feature_importance: (metrics.feature_columns || []).map((col, idx) => ({
         feature: col,
         importance: Math.round((1.0 / (idx + 1)) * 100) / 100
@@ -338,6 +429,7 @@ export async function getModelMetrics() {
     return mockMetrics;
   }
 }
+
 
 export async function getTransactionGraph(id, params = {}) {
   if (MOCK) return mockGraph(id);
