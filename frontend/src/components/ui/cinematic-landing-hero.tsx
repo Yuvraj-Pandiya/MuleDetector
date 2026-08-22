@@ -475,74 +475,95 @@ export function CinematicHero({
             </div>
 
             {/* 3. CENTER: CLEAN PHONE MOCKUP (Desktop: cols 6-7 / order 3) */}
-            <div className="mockup-scroll-wrapper order-3 lg:col-span-2 relative w-full h-[380px] md:h-[480px] lg:h-[540px] flex items-center justify-center z-10 my-1 lg:my-0" style={{ perspective: "1000px" }}>
-              <div className="relative w-full h-full flex items-center justify-center transform scale-[0.62] md:scale-[0.75] lg:scale-[0.84]">
+            <div className="mockup-scroll-wrapper order-3 lg:col-span-2 relative w-full h-[420px] md:h-[500px] lg:h-[560px] flex items-center justify-center z-10 my-1 lg:my-0" style={{ perspective: "1000px" }}>
+              <div className="relative w-full h-full flex items-center justify-center transform scale-[0.66] md:scale-[0.78] lg:scale-[0.86]">
                 <div
                   ref={mockupRef}
-                  className="relative w-[270px] h-[540px] rounded-[2.75rem] iphone-bezel flex flex-col will-change-transform transform-style-3d shadow-[0_25px_60px_rgba(0,0,0,0.9)] shrink-0"
+                  className="relative w-[280px] h-[570px] rounded-[3rem] iphone-bezel flex flex-col will-change-transform transform-style-3d shadow-[0_30px_70px_rgba(0,0,0,0.85)] shrink-0"
                 >
                   {/* Physical Hardware Buttons */}
-                  <div className="absolute top-[110px] -left-[3px] w-[3px] h-[22px] hardware-btn rounded-l-md z-0" aria-hidden="true" />
-                  <div className="absolute top-[148px] -left-[3px] w-[3px] h-[40px] hardware-btn rounded-l-md z-0" aria-hidden="true" />
-                  <div className="absolute top-[202px] -left-[3px] w-[3px] h-[40px] hardware-btn rounded-l-md z-0" aria-hidden="true" />
-                  <div className="absolute top-[156px] -right-[3px] w-[3px] h-[65px] hardware-btn rounded-r-md z-0 scale-x-[-1]" aria-hidden="true" />
+                  <div className="absolute top-[120px] -left-[3px] w-[3px] h-[24px] hardware-btn rounded-l-md z-0" aria-hidden="true" />
+                  <div className="absolute top-[156px] -left-[3px] w-[3px] h-[44px] hardware-btn rounded-l-md z-0" aria-hidden="true" />
+                  <div className="absolute top-[212px] -left-[3px] w-[3px] h-[44px] hardware-btn rounded-l-md z-0" aria-hidden="true" />
+                  <div className="absolute top-[166px] -right-[3px] w-[3px] h-[68px] hardware-btn rounded-r-md z-0 scale-x-[-1]" aria-hidden="true" />
 
                   {/* Inner Screen Container */}
-                  <div className="absolute inset-[6px] bg-[#050914] rounded-[2.35rem] overflow-hidden shadow-[inset_0_0_15px_rgba(0,0,0,1)] text-white z-10">
+                  <div className="absolute inset-[7px] bg-[#050914] rounded-[2.5rem] overflow-hidden shadow-[inset_0_0_20px_rgba(0,0,0,1)] text-white z-10">
                     <div className="absolute inset-0 screen-glare z-40 pointer-events-none" aria-hidden="true" />
 
                     {/* Dynamic Island Notch */}
-                    <div className="absolute top-[6px] left-1/2 -translate-x-1/2 w-[90px] h-[22px] bg-black rounded-full z-50 flex items-center justify-end px-2.5 shadow-[inset_0_-1px_2px_rgba(255,255,255,0.1)]">
+                    <div className="absolute top-[7px] left-1/2 -translate-x-1/2 w-[96px] h-[24px] bg-black rounded-full z-50 flex items-center justify-end px-3 shadow-[inset_0_-1px_2px_rgba(255,255,255,0.1)]">
                       <div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.8)] animate-pulse" />
                     </div>
 
                     {/* App Interface */}
-                    <div className="relative w-full h-full pt-9 px-4 pb-6 flex flex-col justify-between">
-                      <div className="phone-widget flex justify-between items-center mb-3">
+                    <div className="relative w-full h-full pt-10 px-4.5 pb-7 flex flex-col justify-between">
+                      
+                      {/* Header */}
+                      <div className="phone-widget flex justify-between items-center mb-2">
                         <div className="flex flex-col">
                           <span className="text-[9px] text-neutral-400 uppercase tracking-widest font-bold mb-0.5">Live Telemetry</span>
-                          <span className="text-base font-bold tracking-tight text-white drop-shadow-md">Risk Engine</span>
+                          <span className="text-lg font-extrabold tracking-tight text-white drop-shadow-md">Risk Engine</span>
                         </div>
-                        <div className="w-8 h-8 rounded-full bg-white/5 text-neutral-200 flex items-center justify-center font-bold text-xs border border-white/10 shadow-lg shadow-black/50">GNN</div>
+                        <div className="w-9 h-9 rounded-full bg-white/5 text-neutral-200 flex items-center justify-center font-bold text-xs border border-white/10 shadow-lg shadow-black/50">GNN</div>
                       </div>
 
-                      <div className="phone-widget relative w-36 h-36 mx-auto flex items-center justify-center mb-3 drop-shadow-[0_15px_25px_rgba(0,0,0,0.8)]">
-                        <svg className="absolute inset-0 w-full h-full" viewBox="0 0 144 144" aria-hidden="true">
-                          <circle cx="72" cy="72" r="54" fill="none" stroke="rgba(255,255,255,0.03)" strokeWidth="10" />
-                          <circle className="progress-ring" cx="72" cy="72" r="54" fill="none" stroke="#3B82F6" strokeWidth="10" />
+                      {/* Circle Gauge */}
+                      <div className="phone-widget relative w-40 h-40 mx-auto flex items-center justify-center mb-2 drop-shadow-[0_15px_25px_rgba(0,0,0,0.8)]">
+                        <svg className="absolute inset-0 w-full h-full" viewBox="0 0 160 160" aria-hidden="true">
+                          <circle cx="80" cy="80" r="60" fill="none" stroke="rgba(255,255,255,0.03)" strokeWidth="11" />
+                          <circle className="progress-ring" cx="80" cy="80" r="60" fill="none" stroke="#3B82F6" strokeWidth="11" strokeDasharray="377" strokeDashoffset="90" strokeLinecap="round" />
+                          <path id="textArc" d="M 32,98 A 54,54 0 0,0 128,98" fill="none" />
+                          <text className="fill-blue-200/50 text-[7px] font-bold tracking-[0.15em] uppercase">
+                            <textPath href="#textArc" startOffset="50%" textAnchor="middle">
+                              ACCOUNT MONITORED
+                            </textPath>
+                          </text>
                         </svg>
-                        <div className="text-center z-10 flex flex-col items-center">
-                          <span className="counter-val text-3xl font-extrabold tracking-tighter text-white">0</span>
-                          <span className="text-[8px] text-blue-200/50 uppercase tracking-[0.1em] font-bold mt-0.5">{metricLabel}</span>
+                        <div className="text-center z-10 flex flex-col items-center pt-1">
+                          <span className="counter-val text-4xl font-black tracking-tighter text-white">0</span>
+                          <span className="text-[8px] text-blue-200/60 uppercase tracking-[0.12em] font-bold mt-0.5">{metricLabel}</span>
                         </div>
                       </div>
 
+                      {/* 3 Internal Cards */}
                       <div className="space-y-2">
-                        <div className="phone-widget widget-depth rounded-xl p-2.5 flex items-center">
-                          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500/20 to-blue-600/5 flex items-center justify-center mr-2.5 border border-blue-400/20 shadow-inner flex-shrink-0">
-                            <svg className="w-3.5 h-3.5 text-blue-400 drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
+                        {/* Card 1: Alerts & Case Management */}
+                        <div className="phone-widget widget-depth rounded-xl p-2.5 flex items-center bg-white/[0.03] border border-white/5">
+                          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500/20 to-orange-600/10 flex items-center justify-center mr-2.5 border border-amber-400/30 shadow-inner flex-shrink-0">
+                            <span className="text-xs">🔔</span>
                           </div>
                           <div className="flex-1 min-w-0">
-                            <div className="text-[10px] font-semibold text-white tracking-tight truncate">Alerts &amp; Case Management</div>
+                            <div className="text-[10px] font-bold text-white tracking-tight truncate">Alerts &amp; Case Management</div>
                             <div className="text-[8px] text-neutral-400 truncate">Severity alerts &amp; analyst workflow</div>
                           </div>
                         </div>
-                        <div className="phone-widget widget-depth rounded-xl p-2.5 flex items-center">
-                          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500/20 to-emerald-600/5 flex items-center justify-center mr-2.5 border border-emerald-400/20 shadow-inner flex-shrink-0">
-                            <svg className="w-3.5 h-3.5 text-emerald-400 drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                            </svg>
+
+                        {/* Card 2: Model Metrics & Simulation */}
+                        <div className="phone-widget widget-depth rounded-xl p-2.5 flex items-center bg-white/[0.03] border border-white/5">
+                          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500/20 to-blue-600/10 flex items-center justify-center mr-2.5 border border-blue-400/30 shadow-inner flex-shrink-0">
+                            <span className="text-xs">🎯</span>
                           </div>
                           <div className="flex-1 min-w-0">
-                            <div className="text-[10px] font-semibold text-white tracking-tight truncate">Model Metrics &amp; Simulation</div>
+                            <div className="text-[10px] font-bold text-white tracking-tight truncate">Model Metrics &amp; Simulation</div>
                             <div className="text-[8px] text-neutral-400 truncate">Precision, ROC-AUC &amp; live streaming</div>
+                          </div>
+                        </div>
+
+                        {/* Card 3: Transaction Network Graph */}
+                        <div className="phone-widget widget-depth rounded-xl p-2.5 flex items-center bg-white/[0.03] border border-white/5">
+                          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500/20 to-indigo-600/10 flex items-center justify-center mr-2.5 border border-indigo-400/30 shadow-inner flex-shrink-0">
+                            <span className="text-xs">🛡️</span>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-[10px] font-bold text-white tracking-tight truncate">Transaction Network Graph</div>
+                            <div className="text-[8px] text-neutral-400 truncate">Force-directed mule ring engine</div>
                           </div>
                         </div>
                       </div>
 
-                      <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-[100px] h-[3px] bg-white/20 rounded-full shadow-[0_1px_2px_rgba(0,0,0,0.5)]" />
+                      {/* Bottom Home Bar */}
+                      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-[110px] h-[3px] bg-white/20 rounded-full shadow-[0_1px_2px_rgba(0,0,0,0.5)]" />
                     </div>
                   </div>
                 </div>
