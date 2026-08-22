@@ -20,7 +20,7 @@ import pathlib
 from typing import Any, List, Dict
 
 import pandas as pd
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 
 from app.services.alert_generator import DB_PATH, get_alerts
 from app.services.model_trainer import METRICS_PATH

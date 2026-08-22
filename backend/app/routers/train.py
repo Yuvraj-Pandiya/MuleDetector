@@ -13,7 +13,7 @@ import logging
 import pathlib
 
 import pandas as pd
-from fastapi import APIRouter, BackgroundTasks, HTTPException
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Query
 
 from app.services.feature_pipeline import build_feature_matrix
 

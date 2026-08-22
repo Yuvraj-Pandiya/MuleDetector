@@ -13,7 +13,7 @@ reported in the response body and logged so Track B catches drift early.
 from pathlib import Path
 from typing import Optional, Any, List, Dict
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import JSONResponse
 
 from app.services.feature_pipeline import SCHEMA_COLUMNS, build_feature_matrix
