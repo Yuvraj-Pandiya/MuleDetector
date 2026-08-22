@@ -1,24 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CinematicHero } from '@/components/ui/cinematic-landing-hero';
-import AuthModal from '@/components/ui/AuthModal';
-import { useAuth } from '@/context/AuthContext';
-import '@/components/ui/AuthModal.css';
 
 export default function HeroPage() {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
-  const [authModalOpen, setAuthModalOpen] = useState(false);
-  const [authModalMode, setAuthModalMode] = useState('signup');
-
-  const handleGetStarted = () => {
-    if (isAuthenticated) {
-      navigate('/dashboard');
-    } else {
-      setAuthModalMode('signup');
-      setAuthModalOpen(true);
-    }
-  };
 
   return (
     <div className="overflow-x-hidden w-[100%] min-h-screen">
@@ -36,14 +21,9 @@ export default function HeroPage() {
         metricLabel="Accounts Monitored"
         ctaHeading="Uncover Hidden Fraud & Mule Networks"
         ctaDescription="Drag-and-drop CSV dataset upload with column previews, risk-ranked account tables, transparent model performance metrics, and analyst case management."
-        onGetStarted={handleGetStarted}
-        onPrimaryClick={handleGetStarted}
-        onSecondaryClick={handleGetStarted}
-      />
-      <AuthModal
-        isOpen={authModalOpen}
-        onClose={() => setAuthModalOpen(false)}
-        initialMode={authModalMode}
+        onGetStarted={() => navigate('/dashboard')}
+        onPrimaryClick={() => navigate('/dashboard')}
+        onSecondaryClick={() => navigate('/upload')}
       />
     </div>
   );
