@@ -5,7 +5,6 @@ import GooeyNav from '../ui/GooeyNav';
 import './Sidebar.css';
 
 const navItems = [
-  { label: 'Home', href: '/' },
   { label: 'Dashboard', href: '/dashboard' },
   { label: 'Real-Time', href: '/stream' },
   { label: 'Upload', href: '/upload' },

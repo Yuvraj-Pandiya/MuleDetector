@@ -36,13 +36,15 @@ export default function Layout() {
 
 
   return (
-    <div className="sage-layout">
-      <Sidebar
-        isCollapsed={isSidebarCollapsed}
-        onToggle={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-        theme={theme}
-        onToggleTheme={toggleTheme}
-      />
+    <div className={`sage-layout ${isHeroPage ? 'hero-layout' : ''}`}>
+      {!isHeroPage && (
+        <Sidebar
+          isCollapsed={isSidebarCollapsed}
+          onToggle={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+          theme={theme}
+          onToggleTheme={toggleTheme}
+        />
+      )}
       <div className="sage-main">
         {!isHeroPage && (
           <Navbar

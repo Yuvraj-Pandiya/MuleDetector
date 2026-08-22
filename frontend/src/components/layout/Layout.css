@@ -9,6 +9,10 @@
   padding-top: 64px;
 }
 
+.sage-layout.hero-layout {
+  padding-top: 0;
+}
+
 .sage-main {
   flex: 1;
   display: flex;
@@ -25,5 +29,5 @@
 
 .sage-content.hero-mode {
   padding: 0;
-  margin-top: -64px;
+  margin-top: 0;
 }

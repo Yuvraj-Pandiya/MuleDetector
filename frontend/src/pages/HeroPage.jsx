@@ -1,12 +1,47 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ShieldAlert, ArrowRight } from 'lucide-react';
 import { CinematicHero } from '@/components/ui/cinematic-landing-hero';
 
 export default function HeroPage() {
   const navigate = useNavigate();
 
+  const handleGetInside = () => {
+    navigate('/dashboard');
+  };
+
   return (
-    <div className="overflow-x-hidden w-[100%] min-h-screen">
+    <div className="relative overflow-x-hidden w-full min-h-screen">
+      {/* Top Floating Branding & CTA Layer for Hero Viewport */}
+      <header className="fixed top-4 left-4 right-4 md:top-5 md:left-6 md:right-8 z-50 flex items-center justify-between pointer-events-none">
+        {/* Top-Left Logo / Branding */}
+        <div
+          onClick={() => navigate('/')}
+          role="button"
+          tabIndex={0}
+          className="pointer-events-auto flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-neutral-950/70 border border-white/15 backdrop-blur-xl shadow-lg hover:border-blue-400/40 transition-all duration-300 cursor-pointer group"
+          title="MuleScope Home"
+        >
+          <ShieldAlert className="w-4 h-4 text-blue-400 group-hover:scale-110 transition-transform" />
+          <span className="text-xs font-black tracking-wider text-white">
+            MULE<span className="text-[9px] font-bold bg-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded ml-1 tracking-widest">SCOPE</span>
+          </span>
+        </div>
+
+        {/* Top-Right "GET INSIDE" CTA Gateway Button */}
+        <button
+          onClick={handleGetInside}
+          className="pointer-events-auto group relative inline-flex items-center justify-center px-5 py-2 md:px-6 md:py-2.5 rounded-full font-bold text-xs md:text-sm tracking-wider uppercase text-white bg-neutral-950/80 hover:bg-neutral-900 border border-white/20 hover:border-blue-400/60 backdrop-blur-xl shadow-xl transition-all duration-300 hover:scale-[1.03] hover:shadow-[0_0_25px_rgba(59,130,246,0.45)] active:scale-95 cursor-pointer"
+          title="Enter MuleScope Platform"
+        >
+          <span className="relative z-10 flex items-center gap-2">
+            GET INSIDE
+            <ArrowRight className="w-4 h-4 text-blue-400 transition-transform duration-300 group-hover:translate-x-1" />
+          </span>
+          <span className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-600/25 to-indigo-600/25 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+        </button>
+      </header>
+
       <CinematicHero
         brandName="MULE SCOPE"
         tagline1="Real-time fraud detection & risk scoring,"
@@ -21,8 +56,8 @@ export default function HeroPage() {
         metricLabel="Accounts Monitored"
         ctaHeading="Uncover Hidden Fraud & Mule Networks"
         ctaDescription="Drag-and-drop CSV dataset upload with column previews, risk-ranked account tables, transparent model performance metrics, and analyst case management."
-        onGetStarted={() => navigate('/dashboard')}
-        onPrimaryClick={() => navigate('/dashboard')}
+        onGetStarted={handleGetInside}
+        onPrimaryClick={handleGetInside}
         onSecondaryClick={() => navigate('/upload')}
       />
     </div>
