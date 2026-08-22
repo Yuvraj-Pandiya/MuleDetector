@@ -11,6 +11,7 @@ import GraphPage from './pages/GraphPage';
 import AlertsPage from './pages/AlertsPage';
 import ModelMetricsPage from './pages/ModelMetricsPage';
 import FeatureIntelligencePage from './pages/FeatureIntelligencePage';
+import AnomalyDetectionPage from './pages/AnomalyDetectionPage';
 import SimulationPage from './pages/SimulationPage';
 
 export default function App() {
@@ -23,6 +24,7 @@ export default function App() {
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/upload" element={<UploadPage />} />
             <Route path="/accounts" element={<AccountsPage />} />
+            <Route path="/anomaly" element={<AnomalyDetectionPage />} />
             <Route path="/features" element={<FeatureIntelligencePage />} />
             <Route path="/explain" element={<ExplainabilityPage />} />
             <Route path="/graph" element={<GraphPage />} />
@@ -35,4 +37,5 @@ export default function App() {
     </AuthProvider>
   );
 }
+
 

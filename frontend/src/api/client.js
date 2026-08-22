@@ -659,6 +659,74 @@ export async function getFeatureIntelligence() {
   return data;
 }
 
+export async function getAnomalySummary(params = {}) {
+  if (MOCK) {
+    return {
+      total_accounts_analyzed: 1048,
+      anomalous_accounts: 134,
+      anomaly_rate: 12.79,
+      average_anomaly_score: 0.385,
+      high_anomaly_accounts: 42,
+      distribution: [
+        { range: '0.0 - 0.2 (Normal)', count: 540, tier: 'Low' },
+        { range: '0.2 - 0.4 (Mild)', count: 374, tier: 'Low' },
+        { range: '0.4 - 0.6 (Moderate)', count: 92, tier: 'Medium' },
+        { range: '0.6 - 0.8 (Elevated)', count: 28, tier: 'High' },
+        { range: '0.8 - 1.0 (Critical)', count: 14, tier: 'Critical' },
+      ],
+      page: params.page || 1,
+      page_size: params.page_size || 15,
+      total_pages: 3,
+      accounts: [
+        {
+          account_id: 'ACC-001001',
+          anomaly_score: 0.942,
+          risk_score: 96.5,
+          transaction_velocity: 48,
+          behavior_change: 4.85,
+          network_risk: 88.2,
+        },
+        {
+          account_id: 'ACC-001004',
+          anomaly_score: 0.884,
+          risk_score: 91.2,
+          transaction_velocity: 32,
+          behavior_change: 3.42,
+          network_risk: 82.5,
+        },
+        {
+          account_id: 'ACC-001009',
+          anomaly_score: 0.812,
+          risk_score: 87.4,
+          transaction_velocity: 29,
+          behavior_change: 2.95,
+          network_risk: 76.0,
+        },
+        {
+          account_id: 'ACC-001015',
+          anomaly_score: 0.745,
+          risk_score: 79.0,
+          transaction_velocity: 21,
+          behavior_change: 2.10,
+          network_risk: 68.4,
+        },
+        {
+          account_id: 'ACC-001022',
+          anomaly_score: 0.680,
+          risk_score: 72.3,
+          transaction_velocity: 18,
+          behavior_change: 1.85,
+          network_risk: 61.2,
+        },
+      ],
+    };
+  }
+
+  const { data } = await api.get('/predict/anomalies', { params });
+  return data;
+}
+
 export default api;
+
 
 

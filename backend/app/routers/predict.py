@@ -171,6 +171,124 @@ def get_risk_scores(
 
 
 @router.get(
+    "/anomalies",
+    summary="Get Isolation Forest anomaly detection summary and account breakdown",
+    response_description="Anomaly summary KPIs, score distribution histogram, and account anomaly records.",
+)
+def get_anomaly_summary(
+    min_anomaly: Optional[float] = None,
+    sort_by: Optional[str] = "highest_anomaly",
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=15, ge=1, le=200),
+) -> dict[str, Any]:
+    """
+    Computes Isolation Forest anomaly detection metrics across all accounts.
+    Returns:
+      - total_accounts_analyzed
+      - anomalous_accounts
+      - anomaly_rate
+      - average_anomaly_score
+      - high_anomaly_accounts
+      - anomaly_distribution (histogram buckets)
+      - account table with: account_id, anomaly_score, risk_score, transaction_velocity, behavior_change, network_risk
+    """
+    df = _load_feature_df()
+
+    try:
+        scored = score_accounts(df)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    except Exception as exc:
+        logger.exception("score_accounts failed in get_anomaly_summary: %s", exc)
+        raise HTTPException(status_code=500, detail=f"Anomaly query failed: {exc}") from exc
+
+    total_count = len(scored)
+    if total_count == 0:
+        return {
+            "total_accounts_analyzed": 0,
+            "anomalous_accounts": 0,
+            "anomaly_rate": 0.0,
+            "average_anomaly_score": 0.0,
+            "high_anomaly_accounts": 0,
+            "distribution": [],
+            "accounts": [],
+        }
+
+    # Extract anomaly scores produced by Isolation Forest / backend anomaly service
+    anomaly_scores = scored["anomaly_score"].values
+    avg_anomaly = float(np.mean(anomaly_scores))
+    anomalous_cnt = int(np.sum(anomaly_scores >= 0.50))
+    high_anomalous_cnt = int(np.sum(anomaly_scores >= 0.70))
+    anomaly_rate = round((anomalous_cnt / total_count) * 100.0, 2)
+
+    # Compute Anomaly Score Distribution histogram (5 buckets: 0.0-0.2, 0.2-0.4, 0.4-0.6, 0.6-0.8, 0.8-1.0)
+    bins = [0.0, 0.2, 0.4, 0.6, 0.8, 1.05]
+    counts, _ = np.histogram(anomaly_scores, bins=bins)
+    distribution = [
+        {"range": "0.0 - 0.2 (Normal)", "count": int(counts[0]), "tier": "Low"},
+        {"range": "0.2 - 0.4 (Mild)", "count": int(counts[1]), "tier": "Low"},
+        {"range": "0.4 - 0.6 (Moderate)", "count": int(counts[2]), "tier": "Medium"},
+        {"range": "0.6 - 0.8 (Elevated)", "count": int(counts[3]), "tier": "High"},
+        {"range": "0.8 - 1.0 (Critical)", "count": int(counts[4]), "tier": "Critical"},
+    ]
+
+    # Map account level fields
+    records = []
+    for _, row in scored.iterrows():
+        # Extract transaction velocity (txn_count_1h or transaction_count)
+        velocity = row.get("txn_count_1h", row.get("transaction_count", 0))
+        
+        # Extract behavior change (recent_vs_historical_transaction_ratio or transaction_velocity_change)
+        bev_change = row.get("transaction_velocity_change", row.get("recent_vs_historical_transaction_ratio", 1.0))
+        if pd.isna(bev_change):
+            bev_change = 1.0
+        
+        net_risk = row.get("network_risk_score", 0.0)
+
+        records.append({
+            "account_id": str(row["account_id"]),
+            "anomaly_score": round(float(row["anomaly_score"]), 3),
+            "risk_score": round(float(row["risk_score"]), 1) if float(row["risk_score"]) > 1.0 else round(float(row["risk_score"]) * 100.0, 1),
+            "transaction_velocity": int(velocity),
+            "behavior_change": round(float(bev_change), 2),
+            "network_risk": round(float(net_risk), 1),
+        })
+
+    # Apply min_anomaly filter if provided
+    if min_anomaly is not None:
+        records = [r for r in records if r["anomaly_score"] >= min_anomaly]
+
+    # Sort records
+    if sort_by == "highest_anomaly":
+        records.sort(key=lambda x: x["anomaly_score"], reverse=True)
+    elif sort_by == "highest_risk":
+        records.sort(key=lambda x: x["risk_score"], reverse=True)
+    elif sort_by == "highest_velocity":
+        records.sort(key=lambda x: x["transaction_velocity"], reverse=True)
+    elif sort_by == "highest_behavior":
+        records.sort(key=lambda x: x["behavior_change"], reverse=True)
+
+    # Server-side pagination
+    paginated_total = len(records)
+    start_idx = (page - 1) * page_size
+    end_idx = start_idx + page_size
+    page_records = records[start_idx:end_idx]
+
+    return {
+        "total_accounts_analyzed": total_count,
+        "anomalous_accounts": anomalous_cnt,
+        "anomaly_rate": anomaly_rate,
+        "average_anomaly_score": round(avg_anomaly, 3),
+        "high_anomaly_accounts": high_anomalous_cnt,
+        "distribution": distribution,
+        "page": page,
+        "page_size": page_size,
+        "total_pages": max(1, (paginated_total + page_size - 1) // page_size),
+        "accounts": page_records,
+    }
+
+
+@router.get(
     "/explain/{account_id}",
     summary="Explain risk score for a single account",
     response_description=(
@@ -202,3 +320,4 @@ def get_explanation(account_id: str) -> dict[str, Any]:
         raise HTTPException(status_code=500, detail=f"Explanation failed: {exc}") from exc
 
     return explanation
+

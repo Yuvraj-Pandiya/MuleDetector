@@ -1,0 +1,105 @@
+.anomaly-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* KPI Cards Strip */
+.anomaly-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 14px;
+}
+
+.text-teal { color: var(--teal) !important; }
+.text-warning { color: var(--warning) !important; }
+.text-purple { color: #c084fc !important; }
+.text-blue { color: #60a5fa !important; }
+.text-danger { color: var(--danger) !important; }
+
+/* Anomaly Table */
+.anomaly-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.anomaly-table th {
+  background: var(--canvas);
+  color: var(--stone);
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--hairline);
+  text-align: left;
+}
+
+.anomaly-table td {
+  padding: 12px;
+  border-bottom: 1px solid var(--hairline);
+  vertical-align: middle;
+}
+
+.clickable-row {
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.clickable-row:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.anomaly-tag {
+  font-size: 9px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.anomaly-tag.critical {
+  background: rgba(239, 68, 68, 0.2);
+  color: var(--danger);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+}
+
+.anomaly-tag.elevated {
+  background: rgba(245, 158, 11, 0.2);
+  color: var(--warning);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+}
+
+.mini-progress-fill.danger {
+  height: 100%;
+  background: var(--danger);
+  border-radius: 2px;
+}
+
+.mini-progress-fill.warning {
+  height: 100%;
+  background: var(--warning);
+  border-radius: 2px;
+}
+
+.btn-link {
+  background: transparent;
+  border: none;
+  color: var(--teal);
+  cursor: pointer;
+  padding: 0;
+  font-weight: 600;
+  transition: color 0.15s ease;
+}
+
+.btn-link:hover {
+  color: var(--ink);
+  text-decoration: underline;
+}
+
+.pagination-bar {
+  padding-top: 12px;
+  border-top: 1px solid var(--hairline);
+}
