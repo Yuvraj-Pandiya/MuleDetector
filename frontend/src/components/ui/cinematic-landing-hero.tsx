@@ -254,42 +254,42 @@ export function CinematicHero({
       gsap.set([".card-left-text", ".card-right-text", ".mockup-scroll-wrapper", ".floating-badge", ".phone-widget"], { autoAlpha: 0 });
       gsap.set(".cta-wrapper", { autoAlpha: 0, scale: 0.8, filter: "blur(30px)" });
 
-      const introTl = gsap.timeline({ delay: 0.3 });
+      const introTl = gsap.timeline({ delay: 0.1 });
       introTl
-        .to(".text-track", { duration: 1.8, autoAlpha: 1, y: 0, scale: 1, filter: "blur(0px)", rotationX: 0, ease: "expo.out" })
-        .to(".text-days", { duration: 1.4, clipPath: "inset(0 0% 0 0)", ease: "power4.inOut" }, "-=1.0");
+        .to(".text-track", { duration: 0.8, autoAlpha: 1, y: 0, scale: 1, filter: "blur(0px)", rotationX: 0, ease: "expo.out" })
+        .to(".text-days", { duration: 0.7, clipPath: "inset(0 0% 0 0)", ease: "power4.inOut" }, "-=0.5");
 
       const scrollTl = gsap.timeline({
         scrollTrigger: {
           trigger: containerRef.current,
           start: "top top",
-          end: "+=7000",
+          end: "+=2200",
           pin: true,
-          scrub: 1,
+          scrub: 0.2,
           anticipatePin: 1,
         },
       });
 
       scrollTl
-        .to([".hero-text-wrapper", ".bg-grid-theme"], { scale: 1.15, filter: "blur(20px)", opacity: 0.2, ease: "power2.inOut", duration: 2 }, 0)
-        .to(".main-card", { y: 0, ease: "power3.inOut", duration: 2 }, 0)
-        .to(".main-card", { width: "100%", height: "100%", borderRadius: "0px", ease: "power3.inOut", duration: 1.5 })
+        .to([".hero-text-wrapper", ".bg-grid-theme"], { scale: 1.1, filter: "blur(15px)", opacity: 0.2, ease: "power2.inOut", duration: 0.8 }, 0)
+        .to(".main-card", { y: 0, ease: "power3.inOut", duration: 0.8 }, 0)
+        .to(".main-card", { width: "100%", height: "100%", borderRadius: "0px", ease: "power3.inOut", duration: 0.6 })
         .fromTo(".mockup-scroll-wrapper",
-          { y: 300, z: -500, rotationX: 50, rotationY: -30, autoAlpha: 0, scale: 0.6 },
-          { y: 0, z: 0, rotationX: 0, rotationY: 0, autoAlpha: 1, scale: 1, ease: "expo.out", duration: 2.5 }, "-=0.8"
+          { y: 150, z: -300, rotationX: 30, rotationY: -15, autoAlpha: 0, scale: 0.8 },
+          { y: 0, z: 0, rotationX: 0, rotationY: 0, autoAlpha: 1, scale: 1, ease: "expo.out", duration: 0.8 }, "-=0.3"
         )
-        .fromTo(".phone-widget", { y: 40, autoAlpha: 0, scale: 0.95 }, { y: 0, autoAlpha: 1, scale: 1, stagger: 0.15, ease: "back.out(1.2)", duration: 1.5 }, "-=1.5")
-        .to(".progress-ring", { strokeDashoffset: 60, duration: 2, ease: "power3.inOut" }, "-=1.2")
-        .to(".counter-val", { innerHTML: metricValue, snap: { innerHTML: 1 }, duration: 2, ease: "expo.out" }, "-=2.0")
-        .fromTo(".floating-badge", { y: 100, autoAlpha: 0, scale: 0.7, rotationZ: -10 }, { y: 0, autoAlpha: 1, scale: 1, rotationZ: 0, ease: "back.out(1.5)", duration: 1.5, stagger: 0.2 }, "-=2.0")
-        .fromTo(".card-left-text", { x: -50, autoAlpha: 0 }, { x: 0, autoAlpha: 1, ease: "power4.out", duration: 1.5 }, "-=1.5")
-        .fromTo(".card-right-text", { x: 50, autoAlpha: 0, scale: 0.8 }, { x: 0, autoAlpha: 1, scale: 1, ease: "expo.out", duration: 1.5 }, "<")
-        .to({}, { duration: 2.5 })
+        .fromTo(".phone-widget", { y: 20, autoAlpha: 0, scale: 0.95 }, { y: 0, autoAlpha: 1, scale: 1, stagger: 0.06, ease: "back.out(1.2)", duration: 0.6 }, "-=0.5")
+        .to(".progress-ring", { strokeDashoffset: 60, duration: 0.8, ease: "power3.inOut" }, "-=0.5")
+        .to(".counter-val", { innerHTML: metricValue, snap: { innerHTML: 1 }, duration: 0.8, ease: "expo.out" }, "-=0.8")
+        .fromTo(".floating-badge", { y: 40, autoAlpha: 0, scale: 0.85, rotationZ: -5 }, { y: 0, autoAlpha: 1, scale: 1, rotationZ: 0, ease: "back.out(1.5)", duration: 0.6, stagger: 0.08 }, "-=0.8")
+        .fromTo(".card-left-text", { x: -30, autoAlpha: 0 }, { x: 0, autoAlpha: 1, ease: "power4.out", duration: 0.6 }, "-=0.6")
+        .fromTo(".card-right-text", { x: 30, autoAlpha: 0, scale: 0.9 }, { x: 0, autoAlpha: 1, scale: 1, ease: "expo.out", duration: 0.6 }, "<")
+        .to({}, { duration: 0.6 })
         .set(".hero-text-wrapper", { autoAlpha: 0 })
         .set(".cta-wrapper", { autoAlpha: 1 }) 
-        .to({}, { duration: 1.5 })
+        .to({}, { duration: 0.3 })
         .to([".mockup-scroll-wrapper", ".floating-badge", ".card-left-text", ".card-right-text"], {
-          scale: 0.9, y: -40, z: -200, autoAlpha: 0, ease: "power3.in", duration: 1.2, stagger: 0.05,
+          scale: 0.95, y: -20, z: -100, autoAlpha: 0, ease: "power3.in", duration: 0.5, stagger: 0.03,
         })
         // Responsive card pullback sizing
         .to(".main-card", { 
@@ -297,10 +297,10 @@ export function CinematicHero({
           height: isMobile ? "92vh" : "85vh", 
           borderRadius: isMobile ? "32px" : "40px", 
           ease: "expo.inOut", 
-          duration: 1.8 
+          duration: 0.7 
         }, "pullback") 
-        .to(".cta-wrapper", { scale: 1, filter: "blur(0px)", ease: "expo.inOut", duration: 1.8 }, "pullback")
-        .to(".main-card", { y: -window.innerHeight - 300, ease: "power3.in", duration: 1.5 });
+        .to(".cta-wrapper", { scale: 1, filter: "blur(0px)", ease: "expo.inOut", duration: 0.7 }, "pullback")
+        .to(".main-card", { y: -window.innerHeight - 200, ease: "power3.in", duration: 0.6 });
 
     }, containerRef);
 
