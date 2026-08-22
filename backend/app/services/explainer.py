@@ -575,6 +575,10 @@ def explain_account(account_id: str, feature_df: pd.DataFrame) -> Dict[str, Any]
         "alerts": related_alerts,
         "notes": investigator_notes,
         "top_shap_features": top_shap,
+        "archetype": (
+            __import__("app.services.archetype_clustering", fromlist=["classify_account_archetype"]).classify_account_archetype(working_row)
+            if "working_row" in locals() else {}
+        ),
     }
 
 

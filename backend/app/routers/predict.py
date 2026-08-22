@@ -336,3 +336,11 @@ def get_explanation(account_id: str) -> dict[str, Any]:
 
     return explanation
 
+
+@router.get("/archetypes", summary="Get Mule Archetype Clustering distribution and assignments")
+def get_mule_archetypes() -> Dict[str, Any]:
+    """Perform KMeans archetype clustering across accounts and return summary breakdown."""
+    df = _load_feature_df()
+    from app.services.archetype_clustering import perform_mule_archetype_clustering
+    return perform_mule_archetype_clustering(df)
+
