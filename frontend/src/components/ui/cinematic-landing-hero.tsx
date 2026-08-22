@@ -282,6 +282,7 @@ export function CinematicHero({
         .to(".progress-ring", { strokeDashoffset: 60, duration: 0.8, ease: "power3.inOut" }, "-=0.5")
         .to(".counter-val", { innerHTML: metricValue, snap: { innerHTML: 1 }, duration: 0.8, ease: "expo.out" }, "-=0.8")
         .fromTo(".floating-badge", { y: 40, autoAlpha: 0, scale: 0.85, rotationZ: -5 }, { y: 0, autoAlpha: 1, scale: 1, rotationZ: 0, ease: "back.out(1.5)", duration: 0.6, stagger: 0.08 }, "-=0.8")
+        .fromTo(".card-left-text", { x: -30, autoAlpha: 0 }, { x: 0, autoAlpha: 1, ease: "power4.out", duration: 0.6 }, "-=0.6")
         .fromTo(".card-right-text", { x: 30, autoAlpha: 0, scale: 0.9 }, { x: 0, autoAlpha: 1, scale: 1, ease: "expo.out", duration: 0.6 }, "<")
         // ── Instantly swap to CTA frame as soon as features finish loading ──
         .set(".hero-text-wrapper", { autoAlpha: 0 })
