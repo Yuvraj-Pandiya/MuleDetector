@@ -389,10 +389,15 @@ export function CinematicHero({
           <div className="relative w-full h-full max-w-7xl mx-auto px-4 lg:px-12 flex flex-col justify-evenly lg:grid lg:grid-cols-3 items-center lg:gap-8 z-10 py-6 lg:py-0">
             
             {/* 1. TOP (Mobile) / RIGHT (Desktop): BRAND NAME */}
-            <div className="card-right-text gsap-reveal order-1 lg:order-3 flex justify-center lg:justify-end z-20 w-full lg:pr-2">
-              <h2 className="text-5xl md:text-6xl lg:text-7xl xl:text-[7.5rem] font-black uppercase tracking-tighter text-card-silver-matte leading-[0.88] text-center lg:text-right flex flex-col items-center lg:items-end">
-                {typeof brandName === 'string' && brandName.includes(' ') ? (
-                  brandName.split(' ').map((word, idx) => (
+            <div className="card-right-text gsap-reveal order-1 lg:order-3 flex justify-center lg:justify-end z-20 w-full lg:translate-x-6 lg:pl-4">
+              <h2 className="text-5xl md:text-6xl lg:text-6xl xl:text-[6.8rem] font-black uppercase tracking-tighter text-card-silver-matte leading-[0.88] text-center lg:text-right flex flex-col items-center lg:items-end">
+                {typeof brandName === 'string' ? (
+                  (brandName.toUpperCase() === 'MULESCOPE' || brandName.toUpperCase() === 'MULE SCOPE'
+                    ? ['MULE', 'SCOPE']
+                    : brandName.includes(' ')
+                    ? brandName.split(' ')
+                    : [brandName]
+                  ).map((word, idx) => (
                     <span key={idx} className="block whitespace-nowrap">{word}</span>
                   ))
                 ) : (
