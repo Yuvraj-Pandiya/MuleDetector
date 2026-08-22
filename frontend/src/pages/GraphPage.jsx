@@ -4,7 +4,7 @@ import ForceGraph2D from 'react-force-graph-2d';
 import {
   Share2, ArrowLeft, RefreshCw, ZoomIn, ZoomOut, Maximize2,
   BrainCircuit, ShieldAlert, ArrowUpRight, ArrowDownLeft, Search, Filter,
-  Activity, Layers, Clock, X, CheckCircle, Info
+  Activity, Layers, Clock, X, CheckCircle, Info, DollarSign, Calendar, Network
 } from 'lucide-react';
 import { getTransactionGraph, getRiskScores } from '../api/client';
 import './GraphPage.css';
@@ -29,11 +29,14 @@ export default function GraphPage() {
   const [selectedNode, setSelectedNode] = useState(null);
   const [selectedEdge, setSelectedEdge] = useState(null);
   const [accountList, setAccountList] = useState([]);
+  const [activeInspectorTab, setActiveInspectorTab] = useState('overview');
 
   // Filter States
   const [searchQuery, setSearchQuery] = useState('');
   const [riskTierFilter, setRiskTierFilter] = useState('ALL');
+  const [directionFilter, setDirectionFilter] = useState('ALL');
   const [minAmountFilter, setMinAmountFilter] = useState('');
+  const [maxAmountFilter, setMaxAmountFilter] = useState('');
   const [startDateFilter, setStartDateFilter] = useState('');
   const [endDateFilter, setEndDateFilter] = useState('');
 
@@ -46,7 +49,9 @@ export default function GraphPage() {
     try {
       const params = {};
       if (riskTierFilter !== 'ALL') params.risk_tier = riskTierFilter;
+      if (directionFilter !== 'ALL') params.direction = directionFilter;
       if (minAmountFilter) params.min_amount = Number(minAmountFilter);
+      if (maxAmountFilter) params.max_amount = Number(maxAmountFilter);
       if (startDateFilter) params.start_date = startDateFilter;
       if (endDateFilter) params.end_date = endDateFilter;
 
@@ -70,7 +75,7 @@ export default function GraphPage() {
 
   useEffect(() => {
     loadData();
-  }, [accountId, riskTierFilter, minAmountFilter, startDateFilter, endDateFilter]);
+  }, [accountId, riskTierFilter, directionFilter, minAmountFilter, maxAmountFilter, startDateFilter, endDateFilter]);
 
   const handleNodeClick = (node) => {
     setSelectedNode(node);
@@ -110,6 +115,12 @@ export default function GraphPage() {
   const nodes = graphData.nodes || [];
   const links = graphData.links || graphData.edges || [];
 
+  const incomingNeighbors = summary.incoming_neighbors || [];
+  const outgoingNeighbors = summary.outgoing_neighbors || [];
+  const suspiciousConnected = summary.suspicious_connected_accounts || [];
+  const shortPaths = summary.short_transaction_paths || [];
+  const connectedComponentsCount = summary.connected_components_count ?? 1;
+
   return (
     <div className="graph-page animate-fade-in">
       {/* Header Bar */}
@@ -120,16 +131,15 @@ export default function GraphPage() {
           </button>
           <div>
             <h2>Transaction Network Topology — {accountId}</h2>
-            <p className="subtext">Multi-hop graph topology • Risk-weighted node centralities and transaction edges</p>
+            <p className="subtext">Multi-hop actual transaction graph • Risk-weighted node centralities and flow edges</p>
           </div>
         </div>
 
         <div className="graph-header-actions flex-align gap-sm">
-          {/* Legend */}
+          {/* Visual Legend */}
           <div className="legend-pills">
-            <span className="pill"><span className="dot target" /> Target</span>
-            <span className="pill"><span className="dot critical" /> Critical</span>
-            <span className="pill"><span className="dot high" /> High</span>
+            <span className="pill"><span className="dot target" /> Selected Account</span>
+            <span className="pill"><span className="dot critical" /> High Risk / Mule</span>
             <span className="pill"><span className="dot medium" /> Medium</span>
             <span className="pill"><span className="dot low" /> Low</span>
           </div>
@@ -163,11 +173,21 @@ export default function GraphPage() {
           />
         </form>
 
+        {/* Direction Filter */}
+        <div className="filter-item">
+          <label>Direction:</label>
+          <select value={directionFilter} onChange={(e) => setDirectionFilter(e.target.value)}>
+            <option value="ALL">All Directions</option>
+            <option value="INCOMING">INCOMING Only</option>
+            <option value="OUTGOING">OUTGOING Only</option>
+          </select>
+        </div>
+
         {/* Risk Filter */}
         <div className="filter-item">
           <label>Risk Tier:</label>
           <select value={riskTierFilter} onChange={(e) => setRiskTierFilter(e.target.value)}>
-            <option value="ALL">All Tiers</option>
+            <option value="ALL">All Risk Tiers</option>
             <option value="CRITICAL">Critical</option>
             <option value="HIGH">High</option>
             <option value="MEDIUM">Medium</option>
@@ -175,19 +195,27 @@ export default function GraphPage() {
           </select>
         </div>
 
-        {/* Min Amount */}
+        {/* Amount Range Filter */}
         <div className="filter-item">
-          <label>Min Amount ($):</label>
+          <label>Amount ($):</label>
           <input
             type="number"
-            placeholder="0"
+            placeholder="Min"
             value={minAmountFilter}
             onChange={(e) => setMinAmountFilter(e.target.value)}
             className="num-input"
           />
+          <span>-</span>
+          <input
+            type="number"
+            placeholder="Max"
+            value={maxAmountFilter}
+            onChange={(e) => setMaxAmountFilter(e.target.value)}
+            className="num-input"
+          />
         </div>
 
-        {/* Date Range */}
+        {/* Date Range Filter */}
         <div className="filter-item">
           <label>Date Range:</label>
           <input
@@ -210,8 +238,10 @@ export default function GraphPage() {
           className="btn-secondary sm"
           onClick={() => {
             setSearchQuery('');
+            setDirectionFilter('ALL');
             setRiskTierFilter('ALL');
             setMinAmountFilter('');
+            setMaxAmountFilter('');
             setStartDateFilter('');
             setEndDateFilter('');
           }}
@@ -220,7 +250,7 @@ export default function GraphPage() {
         </button>
       </div>
 
-      {/* Main Graph Grid */}
+      {/* Main Graph Layout Grid */}
       <div className="graph-container-grid margin-top-xs">
         {/* Force Directed Canvas */}
         <div className="canvas-wrapper" ref={containerRef}>
@@ -242,29 +272,54 @@ export default function GraphPage() {
               const label = node.account_id || node.id || node.label;
               const fontSize = 11 / globalScale;
               ctx.font = `${fontSize}px JetBrains Mono, monospace`;
-              const r = node.group === 'target' ? 9 : 7;
-              const colKey = node.group === 'target' ? 'target' : (node.risk_tier || node.group || '').toLowerCase();
+              
+              const isTarget = node.id === accountId || node.account_id === accountId || node.group === 'target';
+              const isHighRisk = (node.risk_score ?? 0) >= 70 || node.risk_tier === 'CRITICAL' || node.risk_tier === 'HIGH';
+              const isSelected = selectedNode && (node.id === selectedNode.id || node.account_id === selectedNode.account_id);
+
+              const r = isTarget ? 10 : (isHighRisk ? 8 : 6);
+              const colKey = isTarget ? 'target' : (node.risk_tier || node.group || '').toLowerCase();
               const fillColor = NODE_COLORS[colKey] || '#3B82F6';
 
-              // Outer halo for selected or high risk nodes
-              if (selectedNode && (node.id === selectedNode.id || node.account_id === selectedNode.account_id)) {
+              // Visual Indication 1: Selected / Target Account glowing halo (Teal)
+              if (isTarget || isSelected) {
                 ctx.beginPath();
-                ctx.arc(node.x, node.y, r + 4, 0, 2 * Math.PI, false);
-                ctx.fillStyle = 'rgba(20, 184, 166, 0.4)';
+                ctx.arc(node.x, node.y, r + 6, 0, 2 * Math.PI, false);
+                ctx.fillStyle = 'rgba(20, 184, 166, 0.45)';
                 ctx.fill();
+
+                ctx.beginPath();
+                ctx.arc(node.x, node.y, r + 3, 0, 2 * Math.PI, false);
+                ctx.strokeStyle = '#14B8A6';
+                ctx.lineWidth = 2 / globalScale;
+                ctx.stroke();
               }
 
-              // Node circle
+              // Visual Indication 2: High-Risk Connected Accounts glowing halo (Red / Orange)
+              if (isHighRisk && !isTarget) {
+                ctx.beginPath();
+                ctx.arc(node.x, node.y, r + 5, 0, 2 * Math.PI, false);
+                ctx.fillStyle = 'rgba(239, 68, 68, 0.35)';
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.arc(node.x, node.y, r + 2, 0, 2 * Math.PI, false);
+                ctx.strokeStyle = '#EF4444';
+                ctx.lineWidth = 1.5 / globalScale;
+                ctx.stroke();
+              }
+
+              // Core Node Circle
               ctx.beginPath();
               ctx.arc(node.x, node.y, r, 0, 2 * Math.PI, false);
               ctx.fillStyle = fillColor;
               ctx.fill();
 
-              // Text label below node
+              // Text Label
               ctx.textAlign = 'center';
               ctx.textBaseline = 'middle';
-              ctx.fillStyle = '#f4f4f6';
-              ctx.fillText(label, node.x, node.y + r + 8 / globalScale);
+              ctx.fillStyle = isTarget ? '#14B8A6' : (isHighRisk ? '#EF4444' : '#f4f4f6');
+              ctx.fillText(label, node.x, node.y + r + 9 / globalScale);
             }}
           />
 
@@ -299,6 +354,7 @@ export default function GraphPage() {
           {/* Node Inspector Content */}
           {selectedNode ? (
             <div className="inspector-content">
+              {/* Header */}
               <div className="inspector-header">
                 <ShieldAlert size={20} className="text-danger" />
                 <div>
@@ -309,72 +365,160 @@ export default function GraphPage() {
                 </div>
               </div>
 
-              {/* Multi-Model Scores Box */}
-              <div className="inspect-risk-box margin-top-xs">
-                <div className="flex-between">
-                  <span className="inspect-label">Overall Risk Score</span>
-                  <span className="risk-num font-mono">{selectedNode.risk_score ?? selectedNode.risk ?? 0} / 100</span>
-                </div>
-                <div className="score-bar-bg" style={{ height: 6 }}>
-                  <div
-                    className={`score-bar-fill ${(selectedNode.risk_score ?? selectedNode.risk ?? 0) > 70 ? 'critical' : 'medium'}`}
-                    style={{ width: `${selectedNode.risk_score ?? selectedNode.risk ?? 0}%` }}
-                  />
-                </div>
+              {/* Inspector Navigation Tabs */}
+              <div className="inspector-tabs-nav margin-top-xs">
+                <button
+                  className={`tab-btn ${activeInspectorTab === 'overview' ? 'active' : ''}`}
+                  onClick={() => setActiveInspectorTab('overview')}
+                >
+                  Overview
+                </button>
+                <button
+                  className={`tab-btn ${activeInspectorTab === 'incoming' ? 'active' : ''}`}
+                  onClick={() => setActiveInspectorTab('incoming')}
+                >
+                  Incoming ({incomingNeighbors.length})
+                </button>
+                <button
+                  className={`tab-btn ${activeInspectorTab === 'outgoing' ? 'active' : ''}`}
+                  onClick={() => setActiveInspectorTab('outgoing')}
+                >
+                  Outgoing ({outgoingNeighbors.length})
+                </button>
+                <button
+                  className={`tab-btn ${activeInspectorTab === 'suspicious' ? 'active' : ''}`}
+                  onClick={() => setActiveInspectorTab('suspicious')}
+                >
+                  Suspicious ({suspiciousConnected.length})
+                </button>
               </div>
 
-              {/* Node Attribute Metrics */}
-              <div className="inspect-metrics-grid margin-top-xs">
-                <div className="m-box"><span className="m-lbl">Anomaly Score</span><span className="m-val font-mono">{selectedNode.anomaly_score ?? 0.1}</span></div>
-                <div className="m-box"><span className="m-lbl">Network Risk</span><span className="m-val font-mono">{selectedNode.network_risk ?? 15}</span></div>
-              </div>
-
-              {/* Topology Summary Panel */}
-              <div className="topology-summary margin-top-sm">
-                <h4>Network Topology Summary</h4>
-                <div className="inspect-group">
-                  <span>Suspicious Connected:</span>
-                  <span className="font-mono text-danger font-bold">
-                    {(summary.suspicious_connected_accounts || []).length}
-                  </span>
-                </div>
-                <div className="inspect-group">
-                  <span>Incoming Neighbors:</span>
-                  <span className="font-mono text-success font-bold">
-                    {(summary.incoming_neighbors || []).length}
-                  </span>
-                </div>
-                <div className="inspect-group">
-                  <span>Outgoing Neighbors:</span>
-                  <span className="font-mono text-warning font-bold">
-                    {(summary.outgoing_neighbors || []).length}
-                  </span>
-                </div>
-                <div className="inspect-group">
-                  <span>Connected Components:</span>
-                  <span className="font-mono text-ink">{summary.connected_components_count ?? 1}</span>
-                </div>
-
-                {summary.short_transaction_paths && summary.short_transaction_paths.length > 0 && (
-                  <div className="short-paths-box margin-top-xs">
-                    <span className="t-label">Short Transaction Paths & Cycles:</span>
-                    <ul className="paths-list">
-                      {summary.short_transaction_paths.map((p, i) => (
-                        <li key={i} className="path-item font-mono text-xs">{p}</li>
-                      ))}
-                    </ul>
+              {/* Tab 1: Overview */}
+              {activeInspectorTab === 'overview' && (
+                <div className="tab-content margin-top-xs">
+                  <div className="inspect-risk-box">
+                    <div className="flex-between">
+                      <span className="inspect-label">Overall Risk Score</span>
+                      <span className="risk-num font-mono">{selectedNode.risk_score ?? selectedNode.risk ?? 0} / 100</span>
+                    </div>
+                    <div className="score-bar-bg" style={{ height: 6 }}>
+                      <div
+                        className={`score-bar-fill ${(selectedNode.risk_score ?? selectedNode.risk ?? 0) > 70 ? 'critical' : 'medium'}`}
+                        style={{ width: `${selectedNode.risk_score ?? selectedNode.risk ?? 0}%` }}
+                      />
+                    </div>
                   </div>
-                )}
-              </div>
 
-              {/* Action Buttons */}
+                  <div className="inspect-metrics-grid margin-top-xs">
+                    <div className="m-box"><span className="m-lbl">Anomaly Score</span><span className="m-val font-mono">{selectedNode.anomaly_score ?? 0.1}</span></div>
+                    <div className="m-box"><span className="m-lbl">Network Risk</span><span className="m-val font-mono">{selectedNode.network_risk ?? 15}</span></div>
+                  </div>
+
+                  <div className="topology-summary margin-top-xs">
+                    <h4>Connected Components & Topology</h4>
+                    <div className="inspect-group"><span>Connected Components:</span><span className="font-mono text-ink font-bold">{connectedComponentsCount}</span></div>
+                    <div className="inspect-group"><span>Short Paths & Cycles:</span><span className="font-mono text-warning font-bold">{shortPaths.length}</span></div>
+                  </div>
+
+                  {shortPaths.length > 0 && (
+                    <div className="short-paths-box margin-top-xs">
+                      <span className="t-label">Short Transaction Paths:</span>
+                      <ul className="paths-list">
+                        {shortPaths.map((p, i) => (
+                          <li key={i} className="path-item font-mono text-xs">{typeof p === 'string' ? p : `${p.source} → ${p.target}`}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Tab 2: Incoming Neighbors */}
+              {activeInspectorTab === 'incoming' && (
+                <div className="tab-content margin-top-xs">
+                  <h4>Incoming Sender Neighbors</h4>
+                  {incomingNeighbors.length === 0 ? (
+                    <p className="text-xs text-stone margin-top-xs">No incoming senders match current filters.</p>
+                  ) : (
+                    <div className="neighbor-list margin-top-xs">
+                      {incomingNeighbors.map((inc, i) => {
+                        const acct = typeof inc === 'string' ? inc : inc.account_id;
+                        const amt = typeof inc === 'object' ? inc.amount : null;
+                        const ts = typeof inc === 'object' ? inc.timestamp : null;
+                        return (
+                          <div key={i} className="neighbor-card flex-between" onClick={() => navigate(`/graph?id=${acct}`)}>
+                            <div>
+                              <span className="font-mono font-bold text-ink">{acct}</span>
+                              {ts && <div className="text-xs text-stone font-mono">{new Date(ts).toLocaleString()}</div>}
+                            </div>
+                            {amt && <span className="font-mono text-success font-bold">${amt.toLocaleString()}</span>}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Tab 3: Outgoing Neighbors */}
+              {activeInspectorTab === 'outgoing' && (
+                <div className="tab-content margin-top-xs">
+                  <h4>Outgoing Receiver Neighbors</h4>
+                  {outgoingNeighbors.length === 0 ? (
+                    <p className="text-xs text-stone margin-top-xs">No outgoing receivers match current filters.</p>
+                  ) : (
+                    <div className="neighbor-list margin-top-xs">
+                      {outgoingNeighbors.map((out, i) => {
+                        const acct = typeof out === 'string' ? out : out.account_id;
+                        const amt = typeof out === 'object' ? out.amount : null;
+                        const ts = typeof out === 'object' ? out.timestamp : null;
+                        return (
+                          <div key={i} className="neighbor-card flex-between" onClick={() => navigate(`/graph?id=${acct}`)}>
+                            <div>
+                              <span className="font-mono font-bold text-ink">{acct}</span>
+                              {ts && <div className="text-xs text-stone font-mono">{new Date(ts).toLocaleString()}</div>}
+                            </div>
+                            {amt && <span className="font-mono text-danger font-bold">${amt.toLocaleString()}</span>}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Tab 4: Suspicious Connected Accounts */}
+              {activeInspectorTab === 'suspicious' && (
+                <div className="tab-content margin-top-xs">
+                  <h4>Flagged High-Risk Connected Accounts</h4>
+                  {suspiciousConnected.length === 0 ? (
+                    <p className="text-xs text-stone margin-top-xs">No high-risk accounts connected to this entity.</p>
+                  ) : (
+                    <div className="neighbor-list margin-top-xs">
+                      {suspiciousConnected.map((sNode, i) => {
+                        const acct = typeof sNode === 'string' ? sNode : sNode.account_id;
+                        const sc = typeof sNode === 'object' ? sNode.risk_score : 85;
+                        const tier = typeof sNode === 'object' ? sNode.risk_tier : 'CRITICAL';
+                        return (
+                          <div key={i} className="neighbor-card flex-between" onClick={() => navigate(`/graph?id=${acct}`)}>
+                            <span className="font-mono font-bold text-ink">{acct}</span>
+                            <span className={`severity-badge ${(tier || 'critical').toLowerCase()}`}>{sc} Score</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Action Button */}
               <div className="inspect-actions margin-top-md">
                 <button
                   className="btn-primary"
                   style={{ width: '100%', justifyContent: 'center' }}
                   onClick={() => navigate(`/explain?id=${selectedNode.account_id || selectedNode.id}`)}
                 >
-                  <BrainCircuit size={15} /> Open Account Investigation
+                  <BrainCircuit size={15} /> Open Full Account Investigation
                 </button>
               </div>
             </div>
@@ -389,4 +533,3 @@ export default function GraphPage() {
     </div>
   );
 }
-
