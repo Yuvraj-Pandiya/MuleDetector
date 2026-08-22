@@ -282,10 +282,6 @@ export function CinematicHero({
         .to(".progress-ring", { strokeDashoffset: 60, duration: 0.8, ease: "power3.inOut" }, "-=0.5")
         .to(".counter-val", { innerHTML: metricValue, snap: { innerHTML: 1 }, duration: 0.8, ease: "expo.out" }, "-=0.8")
         .fromTo(".floating-badge", { y: 40, autoAlpha: 0, scale: 0.85, rotationZ: -5 }, { y: 0, autoAlpha: 1, scale: 1, rotationZ: 0, ease: "back.out(1.5)", duration: 0.6, stagger: 0.08 }, "-=0.8")
-        .fromTo(".card-left-text", { x: -30, autoAlpha: 0 }, { x: 0, autoAlpha: 1, ease: "power4.out", duration: 0.6 }, "-=0.6")
-<<<<<<< HEAD
-        .fromTo(".card-right-text", { x: 30, autoAlpha: 0, scale: 0.9 }, { x: 0, autoAlpha: 1, scale: 1, ease: "expo.out", duration: 0.6 }, "<");
-=======
         .fromTo(".card-right-text", { x: 30, autoAlpha: 0, scale: 0.9 }, { x: 0, autoAlpha: 1, scale: 1, ease: "expo.out", duration: 0.6 }, "<")
         // ── Instantly swap to CTA frame as soon as features finish loading ──
         .set(".hero-text-wrapper", { autoAlpha: 0 })
@@ -303,7 +299,6 @@ export function CinematicHero({
         }, "pullback") 
         .to(".cta-wrapper", { scale: 1, filter: "blur(0px)", ease: "expo.inOut", duration: 0.6 }, "pullback")
         .to(".main-card", { y: -window.innerHeight - 200, ease: "power3.in", duration: 0.5 });
->>>>>>> 5f86b15 (Fix font styling, colors, alignment, card proportions, and footer layout in FeatureShaderCards)
 
     }, containerRef);
 
@@ -351,8 +346,6 @@ export function CinematicHero({
         </h1>
       </div>
 
-<<<<<<< HEAD
-=======
       {/* BACKGROUND LAYER 2: Tactile CTA Buttons */}
       <div className="cta-wrapper absolute z-10 flex flex-col items-center justify-center text-center w-full max-w-[96vw] xl:max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 gsap-reveal pointer-events-auto will-change-transform">
         <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-5 tracking-tight text-silver-matte">
@@ -384,8 +377,6 @@ export function CinematicHero({
           Get Started →
         </SpecularButton>
       </div>
-
->>>>>>> 5f86b15 (Fix font styling, colors, alignment, card proportions, and footer layout in FeatureShaderCards)
       {/* FOREGROUND LAYER: The Physical Deep Blue Card */}
       <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none" style={{ perspective: "1500px" }}>
         <div
