@@ -3,7 +3,6 @@
 import React, { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { UploadCloud, Zap, Activity } from "lucide-react";
 import { cn } from "@/lib/utils";
 import SideRays from "./SideRays";
 import SpecularButton from "./SpecularButton";
@@ -54,79 +53,127 @@ const INJECTED_STYLES = `
           drop-shadow(0px 2px 4px color-mix(in srgb, var(--color-foreground) 10%, transparent));
   }
 
-  /* INSIDE THE CARD: Deep Blue Tactile Card Material */
-  .premium-depth-card {
-      background: radial-gradient(120% 120% at 50% 10%, #0d1527 0%, #070c18 50%, #03050a 100%);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      box-shadow: 
-          0 30px 100px -20px rgba(0, 0, 0, 0.9),
-          0 0 40px rgba(59, 130, 246, 0.15),
-          inset 0 1px 1px rgba(255, 255, 255, 0.3),
-          inset 0 -2px 10px rgba(0, 0, 0, 0.8);
-  }
-
-  .card-sheen {
-      position: absolute; inset: 0; pointer-events: none;
-      background: radial-gradient(800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255,255,255,0.06), transparent 40%);
-  }
-
-  .card-silver-matte {
-      background: linear-gradient(180deg, #ffffff 0%, #a1a1aa 100%);
+  /* INSIDE THE CARD: Hardcoded Silver/White for the dark background, deep rich shadows */
+  .text-card-silver-matte {
+      background: linear-gradient(180deg, #FFFFFF 0%, #A1A1AA 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-      filter: drop-shadow(0px 4px 12px rgba(0,0,0,0.8));
+      transform: translateZ(0);
+      filter: 
+          drop-shadow(0px 12px 24px rgba(0,0,0,0.8)) 
+          drop-shadow(0px 4px 8px rgba(0,0,0,0.6));
   }
 
-  /* iPhone Hardware Shell */
-  .iphone-bezel {
-      background: linear-gradient(145deg, #2a2d32 0%, #111317 100%);
+  /* Deep Physical Card with Dynamic Mouse Lighting */
+  .premium-depth-card {
+      background: linear-gradient(145deg, #162C6D 0%, #0A101D 100%);
       box-shadow: 
-          0 25px 50px -12px rgba(0,0,0,0.9),
-          0 0 0 1px rgba(255,255,255,0.12),
-          inset 0 1px 2px rgba(255,255,255,0.3);
+          0 40px 100px -20px rgba(0, 0, 0, 0.9),
+          0 20px 40px -20px rgba(0, 0, 0, 0.8),
+          inset 0 1px 2px rgba(255, 255, 255, 0.2),
+          inset 0 -2px 4px rgba(0, 0, 0, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      position: relative;
+  }
+
+  .card-sheen {
+      position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 50;
+      background: radial-gradient(800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255,255,255,0.06) 0%, transparent 40%);
+      mix-blend-mode: screen; transition: opacity 0.3s ease;
+  }
+
+  /* Realistic iPhone Mockup Hardware */
+  .iphone-bezel {
+      background-color: #111;
+      box-shadow: 
+          inset 0 0 0 2px #52525B, 
+          inset 0 0 0 7px #000, 
+          0 40px 80px -15px rgba(0,0,0,0.9),
+          0 15px 25px -5px rgba(0,0,0,0.7);
+      transform-style: preserve-3d;
   }
 
   .hardware-btn {
-      background: linear-gradient(180deg, #40444c 0%, #1a1c20 100%);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 2px 4px rgba(0,0,0,0.6);
+      background: linear-gradient(90deg, #404040 0%, #171717 100%);
+      box-shadow: 
+          -2px 0 5px rgba(0,0,0,0.8),
+          inset -1px 0 1px rgba(255,255,255,0.15),
+          inset 1px 0 2px rgba(0,0,0,0.8);
+      border-left: 1px solid rgba(255,255,255,0.05);
   }
-
+  
   .screen-glare {
-      background: linear-gradient(115deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 30%, transparent 60%);
-  }
-
-  /* Floating UI Glass Badges */
-  .floating-ui-badge {
-      background: rgba(13, 21, 39, 0.75);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      box-shadow: 0 20px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.2);
-  }
-
-  .phone-widget {
-      background: rgba(15, 23, 42, 0.6);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+      background: linear-gradient(110deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 45%);
   }
 
   .widget-depth {
       background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%);
-      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 
+          0 10px 20px rgba(0,0,0,0.3),
+          inset 0 1px 1px rgba(255,255,255,0.05),
+          inset 0 -1px 1px rgba(0,0,0,0.5);
+      border: 1px solid rgba(255,255,255,0.03);
+  }
+
+  .floating-ui-badge {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.01) 100%);
+      backdrop-filter: blur(24px); 
+      -webkit-backdrop-filter: blur(24px);
+      box-shadow: 
+          0 0 0 1px rgba(255, 255, 255, 0.1),
+          0 25px 50px -12px rgba(0, 0, 0, 0.8),
+          inset 0 1px 1px rgba(255,255,255,0.2),
+          inset 0 -1px 1px rgba(0,0,0,0.5);
+  }
+
+  /* Physical Tactile Buttons */
+  .btn-modern-light, .btn-modern-dark {
+      transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+  .btn-modern-light {
+      background: linear-gradient(180deg, #FFFFFF 0%, #F1F5F9 100%);
+      color: #0F172A;
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.1), 0 12px 24px -4px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,1), inset 0 -3px 6px rgba(0,0,0,0.06);
+  }
+  .btn-modern-light:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.05), 0 6px 12px -2px rgba(0,0,0,0.15), 0 20px 32px -6px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,1), inset 0 -3px 6px rgba(0,0,0,0.06);
+  }
+  .btn-modern-light:active {
+      transform: translateY(1px);
+      background: linear-gradient(180deg, #F1F5F9 0%, #E2E8F0 100%);
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.1), inset 0 3px 6px rgba(0,0,0,0.1), inset 0 0 0 1px rgba(0,0,0,0.02);
+  }
+  .btn-modern-dark {
+      background: linear-gradient(180deg, #27272A 0%, #18181B 100%);
+      color: #FFFFFF;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.1), 0 2px 4px rgba(0,0,0,0.6), 0 12px 24px -4px rgba(0,0,0,0.9), inset 0 1px 1px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.8);
+  }
+  .btn-modern-dark:hover {
+      transform: translateY(-3px);
+      background: linear-gradient(180deg, #3F3F46 0%, #27272A 100%);
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.15), 0 6px 12px -2px rgba(0,0,0,0.7), 0 20px 32px -6px rgba(0,0,0,1), inset 0 1px 1px rgba(255,255,255,0.2), inset 0 -3px 6px rgba(0,0,0,0.8);
+  }
+  .btn-modern-dark:active {
+      transform: translateY(1px);
+      background: #18181B;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.05), inset 0 3px 8px rgba(0,0,0,0.9), inset 0 0 0 1px rgba(0,0,0,0.5);
+  }
+
+  .progress-ring {
+      transform: rotate(-90deg);
+      transform-origin: center;
+      stroke-dasharray: 402;
+      stroke-dashoffset: 402;
+      stroke-linecap: round;
   }
 `;
 
 export interface CinematicHeroProps extends React.HTMLAttributes<HTMLDivElement> {
-  brandBadge?: string;
   brandName?: string;
-  tagline?: string;
   tagline1?: string;
   tagline2?: string;
-  heroDescription?: string;
-  primaryCtaLabel?: string;
-  secondaryCtaLabel?: string;
   cardHeading?: string;
   cardDescription?: React.ReactNode;
   metricValue?: number;
@@ -139,16 +186,11 @@ export interface CinematicHeroProps extends React.HTMLAttributes<HTMLDivElement>
 }
 
 export function CinematicHero({ 
-  brandBadge = "⚡ AI-POWERED FINANCIAL CRIME PLATFORM",
   brandName = "MULESCOPE",
-  tagline = "Expose Coordinated Money Mule Rings Before Funds Disappear",
   tagline1 = "Real-Time Fraud Detection & Risk Scoring,",
   tagline2 = "Built for Analysts, Not Just Models.",
-  heroDescription = "Autonomous anomaly detection, point-in-time transaction graph topology, and local SHAP explainability for next-generation AML compliance.",
-  primaryCtaLabel = "Launch Risk Console →",
-  secondaryCtaLabel = "Upload PaySim Dataset (.CSV)",
-  cardHeading = "Transaction Graph Intelligence & Mule Detection",
-  cardDescription = <>Scores accounts in real time, explains every decision with human-readable SHAP feature attribution, and visualizes transaction networks to catch mule rings instantly.</>,
+  cardHeading = "Explainable AI & Mule Network Detection",
+  cardDescription = <>A real-time fraud detection and risk intelligence platform that scores accounts, explains every decision with SHAP attribution, and visualizes transaction networks to catch mule rings instantly.</>,
   metricValue = 1247,
   metricLabel = "Accounts Monitored",
   ctaHeading = "Uncover Hidden Fraud & Mule Networks",
@@ -165,7 +207,7 @@ export function CinematicHero({
   const mockupRef = useRef<HTMLDivElement>(null);
   const requestRef = useRef<number>(0);
 
-  // 1. Mouse Interaction Logic
+  // 1. High-Performance Mouse Interaction Logic (Using requestAnimationFrame)
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (window.scrollY > window.innerHeight * 2) return;
@@ -199,38 +241,56 @@ export function CinematicHero({
       window.removeEventListener("mousemove", handleMouseMove);
       cancelAnimationFrame(requestRef.current);
     };
-  }, []);
+  },[]);
 
-  // 2. Cinematic Scroll Timeline
+  // 2. Complex Cinematic Scroll Timeline
   useEffect(() => {
     const isMobile = window.innerWidth < 768;
 
     const ctx = gsap.context(() => {
       gsap.set(".text-track", { autoAlpha: 0, y: 60, scale: 0.85, filter: "blur(20px)", rotationX: -20 });
+      gsap.set(".text-days", { autoAlpha: 1, clipPath: "inset(0 100% 0 0)" });
       gsap.set(".main-card", { y: window.innerHeight + 200, autoAlpha: 1 });
       gsap.set([".card-left-text", ".card-right-text", ".mockup-scroll-wrapper", ".floating-badge", ".phone-widget"], { autoAlpha: 0 });
       gsap.set(".cta-wrapper", { autoAlpha: 0, scale: 0.8, filter: "blur(30px)" });
+
+      const introTl = gsap.timeline({ delay: 0.1 });
+      introTl
+        .to(".text-track", { duration: 0.8, autoAlpha: 1, y: 0, scale: 1, filter: "blur(0px)", rotationX: 0, ease: "expo.out" })
+        .to(".text-days", { duration: 0.7, clipPath: "inset(0 0% 0 0)", ease: "power4.inOut" }, "-=0.5");
 
       const scrollTl = gsap.timeline({
         scrollTrigger: {
           trigger: containerRef.current,
           start: "top top",
-          end: "+=220%",
-          scrub: 1.2,
+          end: "+=3500",
           pin: true,
+          scrub: 1,
           anticipatePin: 1,
         },
       });
 
       scrollTl
-        .to([".hero-text-wrapper", ".bg-grid-theme"], { scale: 1.1, filter: "blur(15px)", autoAlpha: 0.2, ease: "power2.inOut", duration: 0.8 }, 0)
+        .to([".hero-text-wrapper", ".bg-grid-theme"], { scale: 1.1, filter: "blur(15px)", opacity: 0.2, ease: "power2.inOut", duration: 0.8 }, 0)
         .to(".main-card", { y: 0, ease: "power3.inOut", duration: 0.8 }, 0)
-        .to([".card-left-text", ".card-right-text", ".mockup-scroll-wrapper"], { autoAlpha: 1, ease: "power2.out", duration: 0.4 }, 0.5)
-        .to(".phone-widget", { autoAlpha: 1, y: 0, stagger: 0.05, ease: "back.out(1.5)", duration: 0.4 }, 0.6)
-        .to(".floating-badge", { autoAlpha: 1, scale: 1, stagger: 0.08, ease: "back.out(1.7)", duration: 0.5 }, 0.7)
+        .to(".main-card", { width: "100%", height: "100%", borderRadius: "0px", ease: "power3.inOut", duration: 0.6 })
+        .fromTo(".mockup-scroll-wrapper",
+          { y: 150, z: -300, rotationX: 30, rotationY: -15, autoAlpha: 0, scale: 0.8 },
+          { y: 0, z: 0, rotationX: 0, rotationY: 0, autoAlpha: 1, scale: 1, ease: "expo.out", duration: 0.8 }, "-=0.3"
+        )
+        .fromTo(".phone-widget", { y: 20, autoAlpha: 0, scale: 0.95 }, { y: 0, autoAlpha: 1, scale: 1, stagger: 0.06, ease: "back.out(1.2)", duration: 0.6 }, "-=0.5")
+        .to(".progress-ring", { strokeDashoffset: 60, duration: 0.8, ease: "power3.inOut" }, "-=0.5")
+        .to(".counter-val", { innerHTML: metricValue, snap: { innerHTML: 1 }, duration: 0.8, ease: "expo.out" }, "-=0.8")
+        .fromTo(".floating-badge", { y: 40, autoAlpha: 0, scale: 0.85, rotationZ: -5 }, { y: 0, autoAlpha: 1, scale: 1, rotationZ: 0, ease: "back.out(1.5)", duration: 0.6, stagger: 0.08 }, "-=0.8")
+        .fromTo(".card-left-text", { x: -30, autoAlpha: 0 }, { x: 0, autoAlpha: 1, ease: "power4.out", duration: 0.6 }, "-=0.6")
+        .fromTo(".card-right-text", { x: 30, autoAlpha: 0, scale: 0.9 }, { x: 0, autoAlpha: 1, scale: 1, ease: "expo.out", duration: 0.6 }, "<")
+        // ── Instantly swap to CTA frame as soon as features finish loading ──
+        .set(".hero-text-wrapper", { autoAlpha: 0 })
+        .set(".cta-wrapper", { autoAlpha: 1 })
         .to([".mockup-scroll-wrapper", ".floating-badge", ".card-left-text", ".card-right-text"], {
           scale: 0.93, y: -25, z: -120, autoAlpha: 0, ease: "power3.in", duration: 0.4, stagger: 0.02,
         })
+        // Responsive card pullback sizing
         .to(".main-card", { 
           width: isMobile ? "92vw" : "78vw", 
           height: isMobile ? "92vh" : "78vh", 
@@ -238,13 +298,13 @@ export function CinematicHero({
           ease: "expo.inOut", 
           duration: 0.6 
         }, "pullback") 
-        .to(".cta-wrapper", { autoAlpha: 1, scale: 1, filter: "blur(0px)", ease: "expo.inOut", duration: 0.6 }, "pullback")
+        .to(".cta-wrapper", { scale: 1, filter: "blur(0px)", ease: "expo.inOut", duration: 0.6 }, "pullback")
         .to(".main-card", { y: -window.innerHeight - 200, ease: "power3.in", duration: 0.5 });
 
     }, containerRef);
 
     return () => ctx.revert();
-  }, []);
+  },[metricValue]); 
 
   return (
     <div
@@ -253,26 +313,20 @@ export function CinematicHero({
       style={{ perspective: "1500px" }}
       {...props}
     >
-      <style>{INJECTED_STYLES}</style>
-
-      {/* BACKGROUND LAYER 0: Ambient Lighting & Grid */}
-      <div className="absolute inset-0 bg-grid-theme z-0 pointer-events-none opacity-40" aria-hidden="true" />
+      <style dangerouslySetInnerHTML={{ __html: INJECTED_STYLES }} />
       <div className="film-grain" aria-hidden="true" />
-
-      {/* Side Rays Lighting */}
-      <div className="absolute inset-0 z-0 pointer-events-none">
+      <div className="bg-grid-theme absolute inset-0 z-0 pointer-events-none opacity-50" aria-hidden="true" />
+      
+      {/* SideRays Background Light Effect */}
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-30 overflow-hidden" aria-hidden="true">
         <SideRays
-          raysOrigin="top-center"
-          raysColor="#ffffff"
-          raysAngle={45}
-          raysSpread={60}
-          raysCount={10}
-          rayWidth={2.0}
-          rayLength={900}
-          pulsate={true}
-          pulseSpeed={4.0}
-          hueShift={true}
-          colorSpeed={0.5}
+          speed={2.0}
+          rayColor1="#3B82F6"
+          rayColor2="#10B981"
+          intensity={1.8}
+          spread={2.2}
+          origin="top-right"
+          tilt={10}
           saturation={1.4}
           blend={0.6}
           falloff={1.5}
@@ -280,85 +334,17 @@ export function CinematicHero({
         />
       </div>
 
-      {/* BACKGROUND LAYER: Hero Texts & Telemetry */}
-      <div className="hero-text-wrapper absolute z-10 flex flex-col items-center justify-center text-center w-full max-w-[96vw] xl:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 will-change-transform transform-style-3d py-4">
-        
-        {/* 1. Hero Brand Badge */}
-        <div className="gsap-reveal inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/15 backdrop-blur-md mb-3 shadow-lg shadow-black/20">
-          <span className="text-amber-400 font-bold text-xs sm:text-sm tracking-wider uppercase">{brandBadge}</span>
-        </div>
-
-        {/* 2. Main Hero Headline */}
-        <h1 className="text-track gsap-reveal text-3d-matte text-2xl sm:text-3xl md:text-[2.35rem] lg:text-[3rem] xl:text-[3.5rem] 2xl:text-[4rem] font-extrabold tracking-tight mb-2.5 leading-[1.12] text-center max-w-5xl">
-          {tagline ? (
-            tagline
-          ) : (
-            <>
-              <span className="block">{tagline1}</span>
-              <span className="text-silver-matte block mt-1">{tagline2}</span>
-            </>
-          )}
+      {/* BACKGROUND LAYER: Hero Texts */}
+      <div className="hero-text-wrapper absolute z-10 flex flex-col items-center justify-center text-center w-full max-w-[96vw] xl:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 will-change-transform transform-style-3d">
+        <h2 className="text-track gsap-reveal text-silver-matte text-sm sm:text-base md:text-lg lg:text-[1.35rem] xl:text-[1.65rem] font-extrabold uppercase tracking-[0.35em] mb-2 md:mb-4">
+          {brandName}
+        </h2>
+        <h1 className="text-track gsap-reveal text-3d-matte text-2xl sm:text-3xl md:text-[2.25rem] lg:text-[3rem] xl:text-[3.5rem] 2xl:text-[4rem] font-bold tracking-tight mb-2 md:mb-3 leading-[1.1] text-center whitespace-normal lg:whitespace-nowrap">
+          {tagline1}
         </h1>
-
-        {/* 3. Hero Description */}
-        <p className="gsap-reveal text-muted-foreground text-xs sm:text-sm md:text-base lg:text-lg max-w-2xl mx-auto font-light leading-relaxed mb-4 text-neutral-300">
-          {heroDescription}
-        </p>
-
-        {/* 4. Dual CTA Section */}
-        <div className="gsap-reveal flex flex-wrap items-center justify-center gap-3 sm:gap-4 mb-5 z-30 pointer-events-auto">
-          <SpecularButton
-            size="lg"
-            radius={9999}
-            tint="#07080a"
-            tintOpacity={0.95}
-            blur={16}
-            textColor="#ffffff"
-            lineColor="#3b82f6"
-            baseColor="#1d4ed8"
-            intensity={2.2}
-            shineSize={22}
-            shineFade={45}
-            thickness={1.5}
-            speed={0.4}
-            followMouse
-            proximity={300}
-            autoAnimate={true}
-            onClick={onPrimaryClick || onGetStarted}
-            className="font-bold text-sm sm:text-base tracking-wide shadow-xl hover:scale-105 transition-transform px-6 py-2.5"
-          >
-            {primaryCtaLabel}
-          </SpecularButton>
-
-          <button
-            onClick={onSecondaryClick}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/15 text-white font-medium text-sm sm:text-base backdrop-blur-md transition-all shadow-md hover:border-white/30 hover:scale-105 active:scale-95 cursor-pointer"
-          >
-            <UploadCloud className="w-4 h-4 text-blue-400" />
-            <span>{secondaryCtaLabel}</span>
-          </button>
-        </div>
-
-        {/* 5. Real-Time Telemetry Metrics */}
-        <div className="gsap-reveal grid grid-cols-2 lg:grid-cols-4 gap-2.5 lg:gap-3.5 w-full max-w-5xl mx-auto px-2 pointer-events-auto">
-          <div className="p-2.5 lg:p-3 rounded-xl border border-white/10 bg-white/5 backdrop-blur-md text-left hover:border-blue-400/40 transition-colors shadow-lg">
-            <div className="text-base lg:text-lg font-extrabold text-white tracking-tight">6.36M</div>
-            <div className="text-[10px] lg:text-xs text-neutral-400 font-medium mt-0.5 leading-snug">Transactions Analyzed | PaySim Data Engine</div>
-          </div>
-          <div className="p-2.5 lg:p-3 rounded-xl border border-white/10 bg-white/5 backdrop-blur-md text-left hover:border-blue-400/40 transition-colors shadow-lg">
-            <div className="text-base lg:text-lg font-extrabold text-white tracking-tight">2,144 : 1</div>
-            <div className="text-[10px] lg:text-xs text-neutral-400 font-medium mt-0.5 leading-snug">Imbalance Ratio Handled | Zero Leakage</div>
-          </div>
-          <div className="p-2.5 lg:p-3 rounded-xl border border-white/10 bg-white/5 backdrop-blur-md text-left hover:border-blue-400/40 transition-colors shadow-lg">
-            <div className="text-base lg:text-lg font-extrabold text-emerald-400 tracking-tight">99.2%</div>
-            <div className="text-[10px] lg:text-xs text-neutral-400 font-medium mt-0.5 leading-snug">Mule Ring Detection Precision | XGBoost + Isolation Forest</div>
-          </div>
-          <div className="p-2.5 lg:p-3 rounded-xl border border-white/10 bg-white/5 backdrop-blur-md text-left hover:border-blue-400/40 transition-colors shadow-lg">
-            <div className="text-base lg:text-lg font-extrabold text-white tracking-tight">74</div>
-            <div className="text-[10px] lg:text-xs text-neutral-400 font-medium mt-0.5 leading-snug">Point-in-Time Features Extracted | Graph & Velocity Engine</div>
-          </div>
-        </div>
-
+        <h1 className="text-days gsap-reveal text-silver-matte text-2xl sm:text-3xl md:text-[2.25rem] lg:text-[3rem] xl:text-[3.5rem] 2xl:text-[4rem] font-extrabold tracking-tighter leading-[1.1] text-center whitespace-normal lg:whitespace-nowrap">
+          {tagline2}
+        </h1>
       </div>
 
       {/* BACKGROUND LAYER 2: Tactile CTA Buttons */}
@@ -389,7 +375,7 @@ export function CinematicHero({
           onClick={onGetStarted || onPrimaryClick}
           className="font-bold text-base lg:text-lg tracking-wide shadow-2xl hover:scale-105 transition-transform"
         >
-          Launch Risk Console →
+          Get Started →
         </SpecularButton>
       </div>
 
@@ -406,7 +392,7 @@ export function CinematicHero({
             
             {/* 1. TOP (Mobile) / RIGHT (Desktop): BRAND NAME */}
             <div className="card-right-text gsap-reveal order-1 lg:order-3 flex justify-center lg:justify-end z-20 w-full lg:translate-x-[36px] lg:pl-4">
-              <h2 className="text-3xl md:text-4xl lg:text-5xl xl:text-[4.75rem] 2xl:text-[5.25rem] font-black uppercase tracking-tighter card-silver-matte leading-[0.88] text-center lg:text-left flex flex-col items-center lg:items-start">
+              <h2 className="text-3xl md:text-4xl lg:text-5xl xl:text-[4.75rem] 2xl:text-[5.25rem] font-black uppercase tracking-tighter text-card-silver-matte leading-[0.88] text-center lg:text-left flex flex-col items-center lg:items-start">
                 {typeof brandName === 'string' ? (
                   (brandName.toUpperCase() === 'MULESCOPE' || brandName.toUpperCase() === 'MULE SCOPE'
                     ? ['MULE', 'SCOPE']
@@ -448,128 +434,121 @@ export function CinematicHero({
                       <div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.8)] animate-pulse" />
                     </div>
 
-                    {/* App Interface: Transaction Graph Intelligence Preview */}
-                    <div className="relative w-full h-full pt-10 px-4 pb-6 flex flex-col justify-between">
-                      {/* Top Header Bar with Risk Score Indicator */}
-                      <div className="phone-widget flex justify-between items-center mb-2">
+                    {/* App Interface */}
+                    <div className="relative w-full h-full pt-12 px-5 pb-8 flex flex-col">
+                      <div className="phone-widget flex justify-between items-center mb-8">
                         <div className="flex flex-col">
-                          <span className="text-[9px] text-neutral-400 uppercase tracking-widest font-bold">Graph Intelligence</span>
-                          <span className="text-sm font-bold tracking-tight text-white drop-shadow-md">Mule Ring Topology</span>
+                          <span className="text-[10px] text-neutral-400 uppercase tracking-widest font-bold mb-1">Live Telemetry</span>
+                          <span className="text-xl font-bold tracking-tight text-white drop-shadow-md">Risk Engine</span>
                         </div>
-                        <div className="px-2 py-0.5 rounded-full bg-red-500/20 border border-red-500/40 text-red-400 font-bold text-[9px] shadow-sm">
-                          Risk Score: 98.4 — CRITICAL
-                        </div>
+                        <div className="w-9 h-9 rounded-full bg-white/5 text-neutral-200 flex items-center justify-center font-bold text-sm border border-white/10 shadow-lg shadow-black/50">GNN</div>
                       </div>
 
-                      {/* Transaction Graph Preview Container */}
-                      <div className="phone-widget relative w-full h-44 my-auto bg-black/50 rounded-2xl border border-white/10 p-2.5 flex flex-col items-center justify-center overflow-hidden shadow-inner">
-                        {/* Connecting Cycle SVG: ACC_00491 -> ACC_00812 -> ACC_00319 */}
-                        <svg className="absolute inset-0 w-full h-full" viewBox="0 0 200 140" fill="none">
-                          <path d="M 45 35 L 155 35 L 100 105 Z" stroke="rgba(239,68,68,0.6)" strokeWidth="2" strokeDasharray="4 4" className="animate-pulse" />
-                          <polygon points="150,32 160,35 150,38" fill="#ef4444" />
-                          <polygon points="103,100 100,110 94,102" fill="#ef4444" />
-                          <polygon points="48,38 40,35 50,32" fill="#ef4444" />
+                      <div className="phone-widget relative w-44 h-44 mx-auto flex items-center justify-center mb-8 drop-shadow-[0_15px_25px_rgba(0,0,0,0.8)]">
+                        <svg className="absolute inset-0 w-full h-full" aria-hidden="true">
+                          <circle cx="88" cy="88" r="64" fill="none" stroke="rgba(255,255,255,0.03)" strokeWidth="12" />
+                          <circle className="progress-ring" cx="88" cy="88" r="64" fill="none" stroke="#3B82F6" strokeWidth="12" />
                         </svg>
-
-                        {/* Node 1: ACC_00491 */}
-                        <div className="absolute top-3 left-4 flex flex-col items-center">
-                          <div className="w-7 h-7 rounded-full bg-blue-600/30 border border-blue-400 text-blue-200 text-[8px] font-bold flex items-center justify-center shadow-md">
-                            491
-                          </div>
-                          <span className="text-[7.5px] font-mono text-neutral-300 mt-0.5">ACC_00491</span>
-                        </div>
-
-                        {/* Node 2: ACC_00812 (Highlight Cycle Center) */}
-                        <div className="absolute top-3 right-4 flex flex-col items-center">
-                          <div className="w-7 h-7 rounded-full bg-red-600/40 border border-red-400 text-red-200 text-[8px] font-bold flex items-center justify-center shadow-md shadow-red-500/50">
-                            812
-                          </div>
-                          <span className="text-[7.5px] font-mono text-neutral-300 mt-0.5">ACC_00812</span>
-                        </div>
-
-                        {/* Node 3: ACC_00319 */}
-                        <div className="absolute bottom-2 flex flex-col items-center">
-                          <div className="w-7 h-7 rounded-full bg-amber-600/30 border border-amber-400 text-amber-200 text-[8px] font-bold flex items-center justify-center shadow-md">
-                            319
-                          </div>
-                          <span className="text-[7.5px] font-mono text-neutral-300 mt-0.5">ACC_00319</span>
-                        </div>
-
-                        {/* Center Cycle Label */}
-                        <div className="z-10 px-2 py-0.5 rounded-lg bg-red-950/80 border border-red-500/50 backdrop-blur-md text-center shadow-md">
-                          <span className="text-[7.5px] text-red-300 font-bold uppercase tracking-wider block">3-Hop Circular Pattern</span>
-                          <span className="text-[9px] text-white font-mono font-bold">ACC_00491 → ACC_00812 → ACC_00319</span>
+                        <div className="text-center z-10 flex flex-col items-center">
+                          <span className="counter-val text-4xl font-extrabold tracking-tighter text-white">0</span>
+                          <span className="text-[8px] text-blue-200/50 uppercase tracking-[0.1em] font-bold mt-0.5">{metricLabel}</span>
                         </div>
                       </div>
 
-                      {/* Floating Widgets */}
-                      <div className="space-y-2 mt-2">
-                        <div className="phone-widget widget-depth rounded-xl p-2 flex items-center">
-                          <div className="w-6 h-6 rounded-lg bg-red-500/20 flex items-center justify-center mr-2 border border-red-400/30 flex-shrink-0">
-                            <Zap className="w-3 h-3 text-red-400" />
+                      <div className="space-y-3">
+                        <div className="phone-widget widget-depth rounded-2xl p-3 flex items-center">
+                          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-600/5 flex items-center justify-center mr-3 border border-blue-400/20 shadow-inner flex-shrink-0">
+                            <svg className="w-4 h-4 text-blue-400 drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
                           </div>
                           <div className="flex-1 min-w-0">
-                            <div className="text-[10px] font-bold text-white truncate">Rapid Pass-Through Detected</div>
-                            <div className="text-[8px] text-neutral-400 truncate">98% of funds forwarded in 2.4 min</div>
+                            <div className="text-[11px] font-semibold text-white tracking-tight truncate">Alerts & Case Management</div>
+                            <div className="text-[9px] text-neutral-400 truncate">Severity alerts & analyst workflow</div>
                           </div>
                         </div>
-
-                        <div className="phone-widget widget-depth rounded-xl p-2 flex items-center">
-                          <div className="w-6 h-6 rounded-lg bg-blue-500/20 flex items-center justify-center mr-2 border border-blue-400/30 flex-shrink-0">
-                            <Activity className="w-3 h-3 text-blue-400" />
+                        <div className="phone-widget widget-depth rounded-2xl p-3 flex items-center">
+                          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/20 to-emerald-600/5 flex items-center justify-center mr-3 border border-emerald-400/20 shadow-inner flex-shrink-0">
+                            <svg className="w-4 h-4 text-emerald-400 drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                            </svg>
                           </div>
                           <div className="flex-1 min-w-0">
-                            <div className="text-[10px] font-bold text-white truncate">SHAP Explainability Weight</div>
-                            <div className="text-[8px] text-neutral-400 truncate">35% PageRank · 28% short-cycle</div>
+                            <div className="text-[11px] font-semibold text-white tracking-tight truncate">Model Metrics & Simulation</div>
+                            <div className="text-[9px] text-neutral-400 truncate">Precision, ROC-AUC & live streaming</div>
                           </div>
                         </div>
                       </div>
+
+                      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-[120px] h-[4px] bg-white/20 rounded-full shadow-[0_1px_2px_rgba(0,0,0,0.5)]" />
                     </div>
                   </div>
                 </div>
 
-                {/* Floating Intelligence Cards */}
-                {/* 1. Card 01 — Rapid Pass-Through */}
-                <div className="floating-badge absolute flex top-[110px] lg:top-[125px] left-[-10px] lg:left-[-75px] floating-ui-badge rounded-lg lg:rounded-xl p-2 lg:p-3 items-center gap-2 lg:gap-3 z-30">
-                  <div className="w-7 h-7 lg:w-8.5 lg:h-8.5 rounded-full bg-gradient-to-b from-red-500/20 to-red-900/10 flex items-center justify-center border border-red-400/30 shadow-inner flex-shrink-0">
+                {/* Floating Glass Badges */}
+                {/* 1. Upper Left: Explainable AI Scoring */}
+                <div className="floating-badge absolute flex top-1 lg:top-3 left-[-10px] lg:left-[-70px] floating-ui-badge rounded-lg lg:rounded-xl p-2 lg:p-3 items-center gap-2 lg:gap-3 z-30">
+                  <div className="w-7 h-7 lg:w-8.5 lg:h-8.5 rounded-full bg-gradient-to-b from-blue-500/20 to-blue-900/10 flex items-center justify-center border border-blue-400/30 shadow-inner flex-shrink-0">
                     <span className="text-sm lg:text-base drop-shadow-lg" aria-hidden="true">⚡</span>
                   </div>
                   <div>
-                    <p className="text-white text-[11px] lg:text-xs font-bold tracking-tight">Rapid Pass-Through Detected</p>
-                    <p className="text-blue-200/50 text-[9px] lg:text-[10px] font-medium">98% of funds forwarded in 2.4 minutes</p>
+                    <p className="text-white text-[11px] lg:text-xs font-bold tracking-tight">Explainable AI Scoring</p>
+                    <p className="text-blue-200/50 text-[9px] lg:text-[10px] font-medium">SHAP human-readable reasoning</p>
                   </div>
                 </div>
 
-                {/* 2. Card 02 — SHAP Explainability */}
-                <div className="floating-badge absolute flex top-[110px] lg:top-[125px] right-[-10px] lg:right-[-70px] floating-ui-badge rounded-lg lg:rounded-xl p-2 lg:p-3 items-center gap-2 lg:gap-3 z-30">
-                  <div className="w-7 h-7 lg:w-8.5 lg:h-8.5 rounded-full bg-gradient-to-b from-blue-500/20 to-blue-900/10 flex items-center justify-center border border-blue-400/30 shadow-inner flex-shrink-0">
+                {/* 2. Mid Left: Risk-Ranked Accounts */}
+                <div className="floating-badge absolute flex top-[110px] lg:top-[125px] left-[-10px] lg:left-[-75px] floating-ui-badge rounded-lg lg:rounded-xl p-2 lg:p-3 items-center gap-2 lg:gap-3 z-30">
+                  <div className="w-7 h-7 lg:w-8.5 lg:h-8.5 rounded-full bg-gradient-to-b from-amber-500/20 to-amber-900/10 flex items-center justify-center border border-amber-400/30 shadow-inner flex-shrink-0">
                     <span className="text-sm lg:text-base drop-shadow-lg" aria-hidden="true">📊</span>
                   </div>
                   <div>
-                    <p className="text-white text-[11px] lg:text-xs font-bold tracking-tight">SHAP Explainability Weight</p>
-                    <p className="text-blue-200/50 text-[9px] lg:text-[10px] font-medium">35% PageRank centrality · 28% short-cycle flag</p>
+                    <p className="text-white text-[11px] lg:text-xs font-bold tracking-tight">Risk-Ranked Accounts</p>
+                    <p className="text-blue-200/50 text-[9px] lg:text-[10px] font-medium">Sortable, filterable, color-coded risk tiers</p>
                   </div>
                 </div>
 
-                {/* 3. Transaction Network Graph 3-Hop Cycle */}
+                {/* 3. Upper Right: Upload & Ingestion */}
+                <div className="floating-badge absolute flex top-1 lg:top-3 right-[-10px] lg:right-[-70px] floating-ui-badge rounded-lg lg:rounded-xl p-2 lg:p-3 items-center gap-2 lg:gap-3 z-30">
+                  <div className="w-7 h-7 lg:w-8.5 lg:h-8.5 rounded-full bg-gradient-to-b from-emerald-500/20 to-emerald-900/10 flex items-center justify-center border border-emerald-400/30 shadow-inner flex-shrink-0">
+                    <span className="text-sm lg:text-base drop-shadow-lg" aria-hidden="true">📤</span>
+                  </div>
+                  <div>
+                    <p className="text-white text-[11px] lg:text-xs font-bold tracking-tight">Upload &amp; Ingestion</p>
+                    <p className="text-blue-200/50 text-[9px] lg:text-[10px] font-medium">Drag-and-drop CSV, instant schema preview</p>
+                  </div>
+                </div>
+
+                {/* 4. Mid-Upper Right: Alerts & Case Management */}
+                <div className="floating-badge absolute flex top-[110px] lg:top-[125px] right-[-10px] lg:right-[-70px] floating-ui-badge rounded-lg lg:rounded-xl p-2 lg:p-3 items-center gap-2 lg:gap-3 z-30">
+                  <div className="w-7 h-7 lg:w-8.5 lg:h-8.5 rounded-full bg-gradient-to-b from-red-500/20 to-red-900/10 flex items-center justify-center border border-red-400/30 shadow-inner flex-shrink-0">
+                    <span className="text-sm lg:text-base drop-shadow-lg" aria-hidden="true">🔔</span>
+                  </div>
+                  <div>
+                    <p className="text-white text-[11px] lg:text-xs font-bold tracking-tight">Alerts &amp; Case Management</p>
+                    <p className="text-blue-200/50 text-[9px] lg:text-[10px] font-medium">Severity alerts &amp; analyst workflow</p>
+                  </div>
+                </div>
+
+                {/* 5. Mid-Lower Right: Transaction Network Graph */}
                 <div className="floating-badge absolute flex top-[225px] lg:top-[250px] right-[-10px] lg:right-[-70px] floating-ui-badge rounded-lg lg:rounded-xl p-2 lg:p-3 items-center gap-2 lg:gap-3 z-30">
                   <div className="w-7 h-7 lg:w-8.5 lg:h-8.5 rounded-full bg-gradient-to-b from-indigo-500/20 to-indigo-900/10 flex items-center justify-center border border-indigo-400/30 shadow-inner flex-shrink-0">
                     <span className="text-sm lg:text-base drop-shadow-lg" aria-hidden="true">🛡️</span>
                   </div>
                   <div>
                     <p className="text-white text-[11px] lg:text-xs font-bold tracking-tight">Transaction Network Graph</p>
-                    <p className="text-blue-200/50 text-[9px] lg:text-[10px] font-medium">ACC_00491 → ACC_00812 → ACC_00319</p>
+                    <p className="text-blue-200/50 text-[9px] lg:text-[10px] font-medium">Force-directed mule ring engine</p>
                   </div>
                 </div>
 
-                {/* 4. Risk Score Indicator */}
+                {/* 6. Bottom Right: Model Metrics & Simulation */}
                 <div className="floating-badge absolute flex bottom-1 lg:bottom-3 right-[-10px] lg:right-[-60px] floating-ui-badge rounded-lg lg:rounded-xl p-2 lg:p-3 items-center gap-2 lg:gap-3 z-30">
-                  <div className="w-7 h-7 lg:w-8.5 lg:h-8.5 rounded-full bg-gradient-to-b from-amber-500/20 to-amber-900/10 flex items-center justify-center border border-amber-400/30 shadow-inner flex-shrink-0">
-                    <span className="text-sm lg:text-base drop-shadow-lg" aria-hidden="true">🚨</span>
+                  <div className="w-7 h-7 lg:w-8.5 lg:h-8.5 rounded-full bg-gradient-to-b from-violet-500/20 to-violet-900/10 flex items-center justify-center border border-violet-400/30 shadow-inner flex-shrink-0">
+                    <span className="text-sm lg:text-base drop-shadow-lg" aria-hidden="true">📈</span>
                   </div>
                   <div>
-                    <p className="text-white text-[11px] lg:text-xs font-bold tracking-tight">Risk Score: 98.4 — CRITICAL</p>
-                    <p className="text-blue-200/50 text-[9px] lg:text-[10px] font-medium">High Velocity &amp; Imbalance Flagged</p>
+                    <p className="text-white text-[11px] lg:text-xs font-bold tracking-tight">Model Metrics &amp; Simulation</p>
+                    <p className="text-blue-200/50 text-[9px] lg:text-[10px] font-medium">Precision, ROC-AUC &amp; live streaming</p>
                   </div>
                 </div>
 
@@ -584,6 +563,7 @@ export function CinematicHero({
               >
                 {cardHeading}
               </h3>
+              {/* HIDDEN ON MOBILE (added hidden md:block) */}
               <p className="hidden md:block text-blue-100/70 text-xs md:text-sm lg:text-base font-normal leading-relaxed mx-auto lg:mx-0 max-w-sm lg:max-w-none">
                 {cardDescription}
               </p>
