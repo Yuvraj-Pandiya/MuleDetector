@@ -12,14 +12,12 @@ once the data-pipeline team delivers it.  The calls to score_accounts()
 and explain_account() do not change; only the DataFrame source changes.
 """
 
-from __future__ import annotations
-
 import logging
 import pathlib
-from typing import Any
+from typing import Any, List, Dict
 
 import pandas as pd
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 
 from app.services.feature_pipeline import build_feature_matrix
 
@@ -66,16 +64,16 @@ def _load_feature_df() -> pd.DataFrame:
     response_description="Paginated list of account risk objects with totals and metadata.",
 )
 def get_risk_scores(
-    tier: Optional[str] = None,
-    min_score: Optional[float] = None,
-    max_score: Optional[float] = None,
-    anomaly_only: Optional[bool] = None,
-    min_network_risk: Optional[float] = None,
-    status: Optional[str] = None,
-    start_date: Optional[str] = None,
-    end_date: Optional[str] = None,
-    sort_by: Optional[str] = "highest_risk",
-    search: Optional[str] = None,
+    tier: str | None = None,
+    min_score: float | None = None,
+    max_score: float | None = None,
+    anomaly_only: bool | None = None,
+    min_network_risk: float | None = None,
+    status: str | None = None,
+    start_date: str | None = None,
+    end_date: str | None = None,
+    sort_by: str | None = "highest_risk",
+    search: str | None = None,
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=10, ge=1, le=200),
 ) -> dict[str, Any]:
@@ -176,8 +174,8 @@ def get_risk_scores(
     response_description="Anomaly summary KPIs, score distribution histogram, and account anomaly records.",
 )
 def get_anomaly_summary(
-    min_anomaly: Optional[float] = None,
-    sort_by: Optional[str] = "highest_anomaly",
+    min_anomaly: float | None = None,
+    sort_by: str | None = "highest_anomaly",
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=15, ge=1, le=200),
 ) -> dict[str, Any]:

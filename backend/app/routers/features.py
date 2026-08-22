@@ -10,9 +10,8 @@ Before returning, the endpoint performs a programmatic diff between
 the response keys and the agreed schema columns.  Any mismatch is
 reported in the response body and logged so Track B catches drift early.
 """
-from __future__ import annotations
-
 from pathlib import Path
+from typing import Optional, Any, List, Dict
 
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse

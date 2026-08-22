@@ -4,10 +4,8 @@ app/routers/feedback.py
 Endpoints for submitting and retrieving investigator feedback and audit trails.
 """
 
-from __future__ import annotations
-
 import logging
-from typing import Literal, Optional
+from typing import Literal, Dict
 
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, field_validator
@@ -28,7 +26,7 @@ class FeedbackSubmission(BaseModel):
     account_id: str
     decision: Literal["CONFIRMED_MULE", "LEGITIMATE", "FALSE_POSITIVE", "UNDER_INVESTIGATION"]
     note: str
-    investigator: Optional[str] = "Analyst #402"
+    investigator: str | None = "Analyst #402"
 
     @field_validator("decision")
     @classmethod
@@ -62,8 +60,8 @@ def create_feedback(body: FeedbackSubmission) -> dict:
 
 @router.get("", summary="Get previous investigator decisions and audit log")
 def list_feedback(
-    account_id: Optional[str] = Query(None, description="Account ID"),
-    alert_id: Optional[str] = Query(None, description="Alert ID"),
+    account_id: str | None = Query(None, description="Account ID"),
+    alert_id: str | None = Query(None, description="Alert ID"),
 ) -> dict:
     """
     Fetch history of investigator decisions, notes, timestamps, and analysts.

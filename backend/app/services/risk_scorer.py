@@ -34,6 +34,7 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 _DATA_DIR = pathlib.Path(__file__).parent.parent / "data"
 MODEL_PATH = _DATA_DIR / "model.pkl"
+TIER_HIGH_THRESHOLD = 70.0
 
 # Feature columns consumed by the model (same order as training)
 FEATURE_SCHEMA_COLUMNS: List[str] = [

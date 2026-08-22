@@ -1,3 +1,4 @@
+from typing import Dict
 """
 app/routers/train.py
 =====================
@@ -7,8 +8,6 @@ TODO (sync-point): swap the CSV source below for the real /features
 endpoint output once the data-pipeline team delivers it.  The call to
 train_model() does not change; only the DataFrame source changes.
 """
-
-from __future__ import annotations
 
 import logging
 import pathlib

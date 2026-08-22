@@ -12,12 +12,10 @@ GET   /feature-selection/report     Return full feature_selection_report.json
 GET   /feature-selection/plot       Stream feature_importance_plot.png
 """
 
-from __future__ import annotations
-
 import json
 import logging
 import pathlib
-from typing import Any, Dict, List, Optional
+from typing import Optional, Any, Dict, List
 
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import FileResponse, JSONResponse

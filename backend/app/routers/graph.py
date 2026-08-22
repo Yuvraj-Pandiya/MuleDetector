@@ -1,8 +1,6 @@
-from __future__ import annotations
-
 import datetime
 import pathlib
-from typing import Any, Optional
+from typing import Any, List, Dict, Union
 
 import pandas as pd
 from fastapi import APIRouter, HTTPException, Query
@@ -26,10 +24,10 @@ def _tier_from_score(score: float) -> str:
 @router.get("/{account_id}")
 def get_account_graph(
     account_id: str,
-    min_amount: Optional[float] = Query(None, description="Minimum transaction amount filter"),
-    start_date: Optional[str] = Query(None, description="Start date filter YYYY-MM-DD"),
-    end_date: Optional[str] = Query(None, description="End date filter YYYY-MM-DD"),
-    risk_tier: Optional[str] = Query(None, description="Filter by risk tier"),
+    min_amount: float | None = Query(None, description="Minimum transaction amount filter"),
+    start_date: str | None = Query(None, description="Start date filter YYYY-MM-DD"),
+    end_date: str | None = Query(None, description="End date filter YYYY-MM-DD"),
+    risk_tier: str | None = Query(None, description="Filter by risk tier"),
 ) -> dict[str, Any]:
     """
     Build transaction graph network topology for account_id.

@@ -1,10 +1,9 @@
+from typing import List
 """
 app/routers/upload.py
 ---------------------
 POST /upload-dataset  — accept a CSV upload, persist it, validate it.
 """
-from __future__ import annotations
-
 import shutil
 from pathlib import Path
 

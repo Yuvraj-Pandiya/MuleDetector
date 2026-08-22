@@ -8,15 +8,13 @@ GET /stream/events     — SSE EventSource stream of scored transaction events.
 GET /stream/recent     — REST fallback endpoint for initial event buffer.
 """
 
-from __future__ import annotations
-
 import asyncio
 import json
 import logging
 import random
 import time
 from datetime import datetime, timezone
-from typing import AsyncGenerator
+from typing import AsyncGenerator, Dict
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from fastapi.responses import StreamingResponse

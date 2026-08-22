@@ -14,12 +14,10 @@ Returns:
     data_source             str   (path of feature CSV used)
 """
 
-from __future__ import annotations
-
 import json
 import logging
 import pathlib
-from typing import Any
+from typing import Any, List, Dict
 
 import pandas as pd
 from fastapi import APIRouter, HTTPException

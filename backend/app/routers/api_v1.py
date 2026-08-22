@@ -23,10 +23,8 @@ Endpoints included:
 - GET  /api/monitoring/drift
 """
 
-from __future__ import annotations
-
 import logging
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 from fastapi import APIRouter, HTTPException, Query, Request
 
@@ -53,11 +51,11 @@ def get_api_dashboard_summary() -> dict:
 def get_api_accounts(
     page: int = Query(1, ge=1),
     page_size: int = Query(15, ge=1, le=100),
-    min_risk: Optional[float] = Query(None),
-    max_risk: Optional[float] = Query(None),
-    risk_tier: Optional[str] = Query(None),
+    min_risk: float | None = Query(None),
+    max_risk: float | None = Query(None),
+    risk_tier: str | None = Query(None),
     sort_by: str = Query("risk_score_desc"),
-    search: Optional[str] = Query(None),
+    search: str | None = Query(None),
 ) -> dict:
     """Canonical GET /api/accounts endpoint."""
     return predict.get_accounts_paginated(
@@ -80,11 +78,11 @@ def get_api_account_details(accountId: str) -> dict:
 @router.get("/accounts/{accountId}/transactions")
 def get_api_account_transactions(
     accountId: str,
-    start_date: Optional[str] = Query(None),
-    end_date: Optional[str] = Query(None),
-    min_amount: Optional[float] = Query(None),
-    max_amount: Optional[float] = Query(None),
-    direction: Optional[str] = Query(None),
+    start_date: str | None = Query(None),
+    end_date: str | None = Query(None),
+    min_amount: float | None = Query(None),
+    max_amount: float | None = Query(None),
+    direction: str | None = Query(None),
 ) -> dict:
     """Canonical GET /api/accounts/{accountId}/transactions endpoint."""
     return predict.get_account_transactions(
@@ -122,11 +120,11 @@ def get_api_account_explanation(accountId: str) -> dict:
 def get_api_alerts(
     page: int = Query(1, ge=1),
     page_size: int = Query(15, ge=1, le=100),
-    status: Optional[str] = Query(None),
-    risk_tier: Optional[str] = Query(None),
-    min_risk: Optional[float] = Query(None),
-    max_risk: Optional[float] = Query(None),
-    search: Optional[str] = Query(None),
+    status: str | None = Query(None),
+    risk_tier: str | None = Query(None),
+    min_risk: float | None = Query(None),
+    max_risk: float | None = Query(None),
+    search: str | None = Query(None),
     sort_by: str = Query("newest"),
 ) -> dict:
     """Canonical GET /api/alerts endpoint."""
@@ -194,7 +192,7 @@ def get_api_model_version_features(version: str) -> dict:
 def get_api_anomalies(
     page: int = Query(1, ge=1),
     page_size: int = Query(15, ge=1, le=100),
-    min_anomaly: Optional[float] = Query(None),
+    min_anomaly: float | None = Query(None),
     sort_by: str = Query("highest_anomaly"),
 ) -> dict:
     """Canonical GET /api/anomalies endpoint."""

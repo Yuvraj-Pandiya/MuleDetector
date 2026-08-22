@@ -1,9 +1,7 @@
-from __future__ import annotations
-
 import datetime
 import logging
 import pathlib
-from typing import Any, List, Literal, Optional
+from typing import Any, List, Literal, Dict
 
 import pandas as pd
 from fastapi import APIRouter, HTTPException, Query
@@ -62,15 +60,15 @@ def trigger_alert_generation(threshold: float = Query(default=60.0, ge=0.0, le=1
 def list_alerts(
     page: int = Query(1, ge=1),
     page_size: int = Query(10, ge=1, le=100),
-    risk_tier: Optional[str] = Query(None, description="CRITICAL, HIGH, MEDIUM, LOW"),
-    severity: Optional[str] = Query(None, description="CRITICAL, HIGH"),
-    status: Optional[str] = Query(None, description="OPEN, UNDER_INVESTIGATION, CONFIRMED_MULE, FALSE_POSITIVE, DISMISSED"),
-    min_score: Optional[float] = Query(None, ge=0.0, le=100.0),
-    max_score: Optional[float] = Query(None, ge=0.0, le=100.0),
-    search: Optional[str] = Query(None, description="Search by account ID or alert ID"),
-    start_date: Optional[str] = Query(None),
-    end_date: Optional[str] = Query(None),
-    sort_by: Optional[str] = Query("risk_desc", description="risk_desc, risk_asc, newest, oldest"),
+    risk_tier: str | None = Query(None, description="CRITICAL, HIGH, MEDIUM, LOW"),
+    severity: str | None = Query(None, description="CRITICAL, HIGH"),
+    status: str | None = Query(None, description="OPEN, UNDER_INVESTIGATION, CONFIRMED_MULE, FALSE_POSITIVE, DISMISSED"),
+    min_score: float | None = Query(None, ge=0.0, le=100.0),
+    max_score: float | None = Query(None, ge=0.0, le=100.0),
+    search: str | None = Query(None, description="Search by account ID or alert ID"),
+    start_date: str | None = Query(None),
+    end_date: str | None = Query(None),
+    sort_by: str | None = Query("risk_desc", description="risk_desc, risk_asc, newest, oldest"),
 ) -> dict:
     """
     Return persisted alerts with full model attributions, top reasons, and pagination.
