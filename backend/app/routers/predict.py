@@ -16,6 +16,7 @@ import logging
 import pathlib
 from typing import Any, List, Dict
 
+import numpy as np
 import pandas as pd
 from fastapi import APIRouter, HTTPException, Query
 
@@ -284,6 +285,22 @@ def get_anomaly_summary(
         "total_pages": max(1, (paginated_total + page_size - 1) // page_size),
         "accounts": page_records,
     }
+
+
+@router.get(
+    "/anomalies/summary",
+    summary="Get Isolation Forest anomaly detection summary (alias)",
+)
+def get_anomaly_summary_alias(
+    min_anomaly: float | None = None,
+    sort_by: str | None = "highest_anomaly",
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=15, ge=1, le=200),
+) -> dict[str, Any]:
+    """Alias route for /predict/anomalies/summary."""
+    return get_anomaly_summary(
+        min_anomaly=min_anomaly, sort_by=sort_by, page=page, page_size=page_size
+    )
 
 
 @router.get(

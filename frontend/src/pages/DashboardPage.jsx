@@ -128,9 +128,10 @@ export default function DashboardPage() {
   };
 
   // 5. Recent Alerts extraction
+  const alertList = Array.isArray(alerts) ? alerts : (alerts?.alerts || []);
   const recentAlertList = (summary.recent_alerts && summary.recent_alerts.length > 0)
     ? summary.recent_alerts
-    : alerts.slice(0, 8);
+    : alertList.slice(0, 8);
 
   const pieData = [
     { name: 'Critical Risk', value: detection.critical_risk_accounts, color: TIER_COLORS.critical },
