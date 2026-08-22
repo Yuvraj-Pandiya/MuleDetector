@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import {
   Activity, ShieldAlert, AlertTriangle, CheckCircle2, XCircle,
   Clock, Calendar, RefreshCw, Layers, TrendingUp, Cpu, BarChart2,
-  FileCheck, ShieldCheck, ArrowRight, GitPullRequest, ArrowUpRight, Zap
+  FileCheck, ShieldCheck, ArrowRight, GitPullRequest, ArrowUpRight, Zap,
+  Sliders, Bell, SlidersHorizontal, Info
 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import {
@@ -18,6 +19,10 @@ export default function ModelMonitoringPage() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Configurable Drift Threshold State
+  const [warningThreshold, setWarningThreshold] = useState(0.10);
+  const [criticalThreshold, setCriticalThreshold] = useState(0.25);
+
   // HITL Retraining State
   const [feedbackSummary, setFeedbackSummary] = useState(null);
   const [candidateComparison, setCandidateComparison] = useState(null);
@@ -29,7 +34,7 @@ export default function ModelMonitoringPage() {
     setLoading(true);
     try {
       const [res, fbSum, candComp] = await Promise.all([
-        getModelMonitoring(),
+        getModelMonitoring({ warning_threshold: warningThreshold, critical_threshold: criticalThreshold }),
         getFeedbackSummary().catch(() => null),
         getCandidateComparison().catch(() => null),
       ]);
@@ -45,7 +50,7 @@ export default function ModelMonitoringPage() {
 
   useEffect(() => {
     loadMonitoringData();
-  }, []);
+  }, [warningThreshold, criticalThreshold]);
 
   const handleTrainCandidate = async () => {
     setTrainingCandidate(true);
@@ -81,7 +86,7 @@ export default function ModelMonitoringPage() {
   if (loading || !data) {
     return (
       <div className="monitoring-page animate-fade-in">
-        <div className="loading-state">Fetching model health, PSI feature drift metrics, and HITL feedback pipeline...</div>
+        <div className="loading-state">Computing live population stability index (PSI), feature drift metrics & prediction score shifts…</div>
       </div>
     );
   }
@@ -154,19 +159,70 @@ export default function ModelMonitoringPage() {
     delta_pr_auc: 0.013,
   };
 
+  const classRate = data.class_rate_shift || {
+    baseline_training_mule_rate_pct: 5.2,
+    recent_validated_mule_rate_pct: 5.8,
+    rate_delta_pct: 0.6,
+  };
+
   return (
     <div className="monitoring-page animate-fade-in">
       {/* Page Header */}
       <div className="page-head flex-between">
         <div>
-          <h2>Model Health & Human-in-the-Loop Retraining</h2>
-          <p>Real-time PSI feature drift tracking, candidate model evaluation, and controlled human-approved model promotion.</p>
+          <h2>Model & Feature Drift Monitoring Workspace</h2>
+          <p>Population stability index (PSI) tracking, prediction score shifts, class-rate changes & automatic drift alerts.</p>
         </div>
 
-        <button className="btn-secondary flex-align gap-xs" onClick={loadMonitoringData}>
-          <RefreshCw size={14} /> Refresh Monitoring Stats
-        </button>
+        <div className="flex-align gap-sm">
+          {/* Configurable Drift Threshold Controls */}
+          <div className="threshold-config-group flex-align gap-xs">
+            <SlidersHorizontal size={14} className="text-teal" />
+            <span className="text-xs text-stone font-semibold">PSI Thresholds:</span>
+            <select
+              value={warningThreshold}
+              onChange={(e) => setWarningThreshold(Number(e.target.value))}
+              className="threshold-select"
+              title="Configurable PSI Warning Threshold"
+            >
+              <option value={0.05}>Warn: 0.05</option>
+              <option value={0.10}>Warn: 0.10 (Default)</option>
+              <option value={0.15}>Warn: 0.15</option>
+            </select>
+
+            <select
+              value={criticalThreshold}
+              onChange={(e) => setCriticalThreshold(Number(e.target.value))}
+              className="threshold-select"
+              title="Configurable PSI Critical Threshold"
+            >
+              <option value={0.20}>Crit: 0.20</option>
+              <option value={0.25}>Crit: 0.25 (Default)</option>
+              <option value={0.30}>Crit: 0.30</option>
+            </select>
+          </div>
+
+          <button className="btn-secondary flex-align gap-xs" onClick={loadMonitoringData}>
+            <RefreshCw size={14} /> Refresh Monitoring Stats
+          </button>
+        </div>
       </div>
+
+      {/* AUTOMATIC DRIFT ALERT BANNER (If Triggered) */}
+      {data.drift_alert_triggered && (
+        <div className="drift-alert-banner animate-fade-in">
+          <div className="flex-align gap-xs">
+            <Bell size={20} className="text-danger animate-pulse" />
+            <div>
+              <h3 className="drift-alert-title">{data.drift_alert_details?.title || 'Model Drift Alert Triggered'}</h3>
+              <p className="drift-alert-msg">{data.drift_alert_details?.message}</p>
+            </div>
+          </div>
+          <span className="drift-alert-time font-mono text-xs">
+            {data.drift_alert_details?.timestamp ? new Date(data.drift_alert_details.timestamp).toLocaleTimeString() : 'Just now'}
+          </span>
+        </div>
+      )}
 
       {/* Overview Cards Strip */}
       <div className="monitoring-kpi-grid margin-top-xs">
@@ -186,20 +242,20 @@ export default function ModelMonitoringPage() {
         <div className="dash-card metric-kpi-card">
           <div className="kpi-inner">
             <div className="kpi-head-sm">
-              <span className="label">Latest Scoring Date</span>
-              <Clock size={16} className="text-purple" />
+              <span className="label">Class-Rate Shift (Mule Rate)</span>
+              <TrendingUp size={16} className={classRate.rate_delta_pct > 2 ? 'text-danger' : 'text-success'} />
             </div>
             <span className="val font-mono text-ink text-sm">
-              {new Date(data.latest_scoring_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              {classRate.recent_validated_mule_rate_pct}% <span className="text-stone text-xs">(vs {classRate.baseline_training_mule_rate_pct}% base)</span>
             </span>
-            <span className="sub">{new Date(data.latest_scoring_date).toLocaleDateString()}</span>
+            <span className="sub">Delta: {classRate.rate_delta_pct >= 0 ? '+' : ''}{classRate.rate_delta_pct}% class rate shift</span>
           </div>
         </div>
 
         <div className="dash-card metric-kpi-card">
           <div className="kpi-inner">
             <div className="kpi-head-sm">
-              <span className="label">Feature Drift Status</span>
+              <span className="label">Overall Feature Drift Status</span>
               <Activity size={16} className={data.feature_drift_status === 'NORMAL' ? 'text-success' : 'text-warning'} />
             </div>
             <div className="flex-align gap-xs margin-top-xs">
@@ -393,7 +449,7 @@ export default function ModelMonitoringPage() {
         <div className="card-head flex-between">
           <div>
             <h3>Monitored Feature Population Stability & Drift Audit</h3>
-            <p className="card-sub">PSI threshold monitoring: Normal (&lt;0.10), Warning (0.10–0.25), Critical (&ge;0.25)</p>
+            <p className="card-sub">PSI threshold monitoring: Normal (&lt;{warningThreshold}), Warning ({warningThreshold}–{criticalThreshold}), Critical (&ge;{criticalThreshold})</p>
           </div>
         </div>
 
