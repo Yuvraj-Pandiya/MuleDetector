@@ -252,7 +252,6 @@ export function CinematicHero({
       gsap.set(".text-days", { autoAlpha: 1, clipPath: "inset(0 100% 0 0)" });
       gsap.set(".main-card", { y: window.innerHeight + 200, autoAlpha: 1 });
       gsap.set([".card-left-text", ".card-right-text", ".mockup-scroll-wrapper", ".floating-badge", ".phone-widget"], { autoAlpha: 0 });
-      gsap.set(".cta-wrapper", { autoAlpha: 0, scale: 0.8, filter: "blur(30px)" });
 
       const introTl = gsap.timeline({ delay: 0.1 });
       introTl
@@ -263,7 +262,7 @@ export function CinematicHero({
         scrollTrigger: {
           trigger: containerRef.current,
           start: "top top",
-          end: "+=2200",
+          end: "+=900",
           pin: true,
           scrub: 1,
           anticipatePin: 1,
@@ -283,23 +282,7 @@ export function CinematicHero({
         .to(".counter-val", { innerHTML: metricValue, snap: { innerHTML: 1 }, duration: 0.8, ease: "expo.out" }, "-=0.8")
         .fromTo(".floating-badge", { y: 40, autoAlpha: 0, scale: 0.85, rotationZ: -5 }, { y: 0, autoAlpha: 1, scale: 1, rotationZ: 0, ease: "back.out(1.5)", duration: 0.6, stagger: 0.08 }, "-=0.8")
         .fromTo(".card-left-text", { x: -30, autoAlpha: 0 }, { x: 0, autoAlpha: 1, ease: "power4.out", duration: 0.6 }, "-=0.6")
-        .fromTo(".card-right-text", { x: 30, autoAlpha: 0, scale: 0.9 }, { x: 0, autoAlpha: 1, scale: 1, ease: "expo.out", duration: 0.6 }, "<")
-        // ── Instantly swap to CTA frame as soon as features finish loading ──
-        .set(".hero-text-wrapper", { autoAlpha: 0 })
-        .set(".cta-wrapper", { autoAlpha: 1 })
-        .to([".mockup-scroll-wrapper", ".floating-badge", ".card-left-text", ".card-right-text"], {
-          scale: 0.93, y: -25, z: -120, autoAlpha: 0, ease: "power3.in", duration: 0.4, stagger: 0.02,
-        })
-        // Responsive card pullback sizing
-        .to(".main-card", { 
-          width: isMobile ? "92vw" : "78vw", 
-          height: isMobile ? "92vh" : "78vh", 
-          borderRadius: isMobile ? "28px" : "36px", 
-          ease: "expo.inOut", 
-          duration: 0.6 
-        }, "pullback") 
-        .to(".cta-wrapper", { scale: 1, filter: "blur(0px)", ease: "expo.inOut", duration: 0.6 }, "pullback")
-        .to(".main-card", { y: -window.innerHeight - 200, ease: "power3.in", duration: 0.5 });
+        .fromTo(".card-right-text", { x: 30, autoAlpha: 0, scale: 0.9 }, { x: 0, autoAlpha: 1, scale: 1, ease: "expo.out", duration: 0.6 }, "<");
 
     }, containerRef);
 
