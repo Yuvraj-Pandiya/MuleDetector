@@ -63,8 +63,29 @@ export default function HeroPage() {
         onSecondaryClick={() => navigate('/upload')}
       />
 
-      {/* 2. NEW FEATURES SECTION: Placed at the end/bottom of the page in its own clean vertical space */}
-      <div className="relative z-20 w-full bg-black border-t border-white/10 flex justify-center items-center">
+      {/* 2. CINEMATIC FRAME TRANSITION DIVIDER: Smooth gradient blend & animated glowing beam divider */}
+      <div className="relative z-20 w-full bg-gradient-to-b from-[#050914] via-[#03060f] to-black flex flex-col items-center justify-center pt-8 pb-4 overflow-hidden pointer-events-none">
+        
+        {/* Ambient Portal Glow Orbs */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] md:w-[900px] h-[120px] bg-gradient-to-b from-cyan-500/10 via-blue-500/5 to-transparent blur-[60px] rounded-full pointer-events-none" />
+
+        {/* Animated Laser Beam Line */}
+        <div className="relative w-full max-w-6xl mx-auto flex items-center justify-center px-6 my-2">
+          <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-cyan-400/40 to-transparent shadow-[0_0_12px_rgba(34,211,238,0.5)]" />
+          <div className="absolute left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_10px_#22d3ee] animate-ping" />
+          <div className="absolute left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_6px_#ffffff]" />
+        </div>
+
+        {/* Downward Scroll Indicator Pill */}
+        <div className="relative z-10 my-2 inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/5 border border-white/10 text-cyan-300 text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase backdrop-blur-md shadow-lg animate-bounce">
+          <span>↓</span>
+          <span>EXPLORE PLATFORM INTELLIGENCE</span>
+          <span>↓</span>
+        </div>
+      </div>
+
+      {/* 3. NEW FEATURES SECTION: Placed smoothly below the transition divider */}
+      <div className="relative z-20 w-full bg-black flex justify-center items-center">
         <FeatureShaderCards />
       </div>
     </div>
