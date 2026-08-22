@@ -14,7 +14,7 @@ if (typeof window !== 'undefined') {
  * Premium metallic Raycast-inspired hero component with GSAP scroll-pinned animation & mouse parallax tilt.
  */
 export function CinematicHero({
-  brandName = "SAGE Financial Crime Intelligence",
+  brandName = "Mule Financial Crime Intelligence",
   tagline1 = "Mule Network",
   tagline2 = "Detection Engine",
   cardHeading = "Graph Neural Intelligence & Explainable AI",

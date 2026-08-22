@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet, useLocation, Navigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Navbar from './Navbar';
+import { useAuth } from '../../context/AuthContext';
 import './Layout.css';
 
 const PAGE_TITLES = {
-  '/': 'SAGE Intelligence Platform',
+  '/': 'Risk Intelligence Platform',
   '/dashboard': 'Dashboard Overview',
   '/upload': 'Upload & Analyze Dataset',
   '/accounts': 'Risk-Ranked Accounts',
@@ -20,6 +21,7 @@ export default function Layout() {
   const [theme, setTheme] = useState(() => localStorage.getItem('sage-theme') || 'dark');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const location = useLocation();
+  const { isAuthenticated } = useAuth();
 
   React.useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -30,8 +32,13 @@ export default function Layout() {
     setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
   };
 
-  const currentTitle = PAGE_TITLES[location.pathname] || 'SAGE Intelligence';
+  const currentTitle = PAGE_TITLES[location.pathname] || 'Risk Intelligence';
   const isHeroPage = location.pathname === '/';
+
+  // Redirect unauthenticated users to landing page for any non-hero route
+  if (!isAuthenticated && !isHeroPage) {
+    return <Navigate to="/" replace />;
+  }
 
   return (
     <div className="sage-layout">
