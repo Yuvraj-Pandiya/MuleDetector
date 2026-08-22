@@ -1,0 +1,11 @@
+{
+  "missing_value_imputation": "fillna(0.0)",
+  "scaling_strategy": "Histogram / Quantile binning built into XGBoost tree splits",
+  "excluded_metadata_columns": [
+    "account_id",
+    "is_mule_pattern",
+    "timestamp"
+  ],
+  "point_in_time_causality_enforced": true,
+  "pipeline_version": "v1.2.0"
+}

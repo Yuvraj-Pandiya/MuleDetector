@@ -1,0 +1,28 @@
+{
+  "model_version": "v2.5.0-XGBoost",
+  "model_type": "XGBClassifier",
+  "training_date": "2026-08-22T12:06:34.450874+00:00",
+  "random_seed": 42,
+  "best_hyperparameters": {
+    "max_depth": 4,
+    "learning_rate": 0.05,
+    "n_estimators": 150,
+    "min_child_weight": 3,
+    "subsample": 0.8,
+    "colsample_bytree": 0.7
+  },
+  "early_stopping_best_iteration": 78,
+  "learned_class_imbalance": {
+    "train_positive_count": 29,
+    "train_negative_count": 571,
+    "learned_mule_rate_train": 0.048333,
+    "scale_pos_weight": 19.6897,
+    "source": "Calculated directly from training fold (no synthetic assumptions)"
+  },
+  "dataset_split_summary": {
+    "total_accounts": 1000,
+    "train_accounts": 600,
+    "val_accounts": 200,
+    "test_accounts": 200
+  }
+}

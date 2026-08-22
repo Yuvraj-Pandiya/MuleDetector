@@ -1,0 +1,183 @@
+{
+  "version": "1.0.0",
+  "selected_feature_count": 21,
+  "feature_columns": [
+    "txn_count_1h",
+    "txn_count_24h",
+    "txn_count_7d",
+    "total_amount_out_24h",
+    "total_amount_in_24h",
+    "avg_transaction_amount",
+    "max_transaction_amount",
+    "ratio_received_to_sent_24h",
+    "avg_time_to_forward_funds_minutes",
+    "unique_counterparty_count",
+    "account_age_days",
+    "is_new_high_volume_flag",
+    "in_degree",
+    "out_degree",
+    "is_in_short_cycle",
+    "betweenness_centrality",
+    "fan_in_ratio",
+    "fan_out_ratio",
+    "amount_zscore_avg",
+    "round_number_txn_ratio",
+    "odd_hour_txn_ratio"
+  ],
+  "feature_types": {
+    "txn_count_1h": "int64",
+    "txn_count_24h": "int64",
+    "txn_count_7d": "int64",
+    "total_amount_out_24h": "float64",
+    "total_amount_in_24h": "float64",
+    "avg_transaction_amount": "float64",
+    "max_transaction_amount": "float64",
+    "ratio_received_to_sent_24h": "float64",
+    "avg_time_to_forward_funds_minutes": "float64",
+    "unique_counterparty_count": "int64",
+    "account_age_days": "int64",
+    "is_new_high_volume_flag": "int64",
+    "in_degree": "int64",
+    "out_degree": "int64",
+    "is_in_short_cycle": "int64",
+    "betweenness_centrality": "float64",
+    "fan_in_ratio": "float64",
+    "fan_out_ratio": "float64",
+    "amount_zscore_avg": "float64",
+    "round_number_txn_ratio": "float64",
+    "odd_hour_txn_ratio": "float64"
+  },
+  "feature_importance_ranking": [
+    {
+      "rank": 1,
+      "feature": "max_transaction_amount",
+      "importance_gain": 0.172116,
+      "dtype": "float64"
+    },
+    {
+      "rank": 2,
+      "feature": "total_amount_in_24h",
+      "importance_gain": 0.107962,
+      "dtype": "float64"
+    },
+    {
+      "rank": 3,
+      "feature": "account_age_days",
+      "importance_gain": 0.095261,
+      "dtype": "int64"
+    },
+    {
+      "rank": 4,
+      "feature": "amount_zscore_avg",
+      "importance_gain": 0.058295,
+      "dtype": "float64"
+    },
+    {
+      "rank": 5,
+      "feature": "round_number_txn_ratio",
+      "importance_gain": 0.053325,
+      "dtype": "float64"
+    },
+    {
+      "rank": 6,
+      "feature": "txn_count_1h",
+      "importance_gain": 0.052519,
+      "dtype": "int64"
+    },
+    {
+      "rank": 7,
+      "feature": "avg_time_to_forward_funds_minutes",
+      "importance_gain": 0.051849,
+      "dtype": "float64"
+    },
+    {
+      "rank": 8,
+      "feature": "betweenness_centrality",
+      "importance_gain": 0.050962,
+      "dtype": "float64"
+    },
+    {
+      "rank": 9,
+      "feature": "avg_transaction_amount",
+      "importance_gain": 0.042884,
+      "dtype": "float64"
+    },
+    {
+      "rank": 10,
+      "feature": "fan_in_ratio",
+      "importance_gain": 0.042694,
+      "dtype": "float64"
+    },
+    {
+      "rank": 11,
+      "feature": "total_amount_out_24h",
+      "importance_gain": 0.036601,
+      "dtype": "float64"
+    },
+    {
+      "rank": 12,
+      "feature": "odd_hour_txn_ratio",
+      "importance_gain": 0.036449,
+      "dtype": "float64"
+    },
+    {
+      "rank": 13,
+      "feature": "txn_count_7d",
+      "importance_gain": 0.034217,
+      "dtype": "int64"
+    },
+    {
+      "rank": 14,
+      "feature": "is_in_short_cycle",
+      "importance_gain": 0.032533,
+      "dtype": "int64"
+    },
+    {
+      "rank": 15,
+      "feature": "unique_counterparty_count",
+      "importance_gain": 0.031101,
+      "dtype": "int64"
+    },
+    {
+      "rank": 16,
+      "feature": "txn_count_24h",
+      "importance_gain": 0.029783,
+      "dtype": "int64"
+    },
+    {
+      "rank": 17,
+      "feature": "ratio_received_to_sent_24h",
+      "importance_gain": 0.021027,
+      "dtype": "float64"
+    },
+    {
+      "rank": 18,
+      "feature": "in_degree",
+      "importance_gain": 0.018346,
+      "dtype": "int64"
+    },
+    {
+      "rank": 19,
+      "feature": "out_degree",
+      "importance_gain": 0.016213,
+      "dtype": "int64"
+    },
+    {
+      "rank": 20,
+      "feature": "fan_out_ratio",
+      "importance_gain": 0.015863,
+      "dtype": "float64"
+    },
+    {
+      "rank": 21,
+      "feature": "is_new_high_volume_flag",
+      "importance_gain": 0.0,
+      "dtype": "int64"
+    }
+  ],
+  "excluded_columns": [
+    "account_id",
+    "is_mule_pattern",
+    "timestamp"
+  ]
+}
