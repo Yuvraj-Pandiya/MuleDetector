@@ -337,6 +337,12 @@ export function CinematicHero({
 
       {/* BACKGROUND LAYER: Hero Texts */}
       <div className="hero-text-wrapper absolute z-10 flex flex-col items-center justify-center text-center w-screen px-4 will-change-transform transform-style-3d">
+        <div className="text-track gsap-reveal inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/[0.06] border border-white/15 backdrop-blur-xl mb-6 shadow-[0_0_25px_rgba(59,130,246,0.2)]">
+          <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse shadow-[0_0_10px_#60a5fa]" />
+          <span className="text-xs md:text-sm font-black uppercase tracking-[0.25em] text-white">
+            MULE <span className="text-blue-400 font-extrabold">SCOPE</span>
+          </span>
+        </div>
         <h1 className="text-track gsap-reveal text-3d-matte text-5xl md:text-7xl lg:text-[6rem] font-bold tracking-tight mb-2">
           {tagline1}
         </h1>
