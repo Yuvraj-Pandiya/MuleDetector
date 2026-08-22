@@ -49,10 +49,10 @@ export default function Sidebar({ theme = 'dark', onToggleTheme }) {
   return (
     <>
       <header className="gooey-header-bar">
-        <div className="header-brand" onClick={() => navigate('/')} role="button" tabIndex={0} title="Mule Detection Home">
+        <div className="header-brand" onClick={() => navigate('/')} role="button" tabIndex={0} title="MuleScope Home">
           <ShieldAlert className="brand-icon" size={20} />
           <span className="brand-name">
-            RISK <span className="brand-sub">MULE</span>
+            MULE<span className="brand-sub">SCOPE</span>
           </span>
         </div>
 

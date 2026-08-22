@@ -1,6 +1,6 @@
-# Frontend — SAGE Mule Detector UI
+# Frontend — MuleScope Intelligence UI
 
-React + Vite frontend for the SAGE Anti-Money Laundering Mule Detection platform.
+React + Vite frontend for the MuleScope Anti-Money Laundering & Mule Network Detection platform.
 
 ## Stack
 - **React 18** + **Vite** — fast SPA with HMR
