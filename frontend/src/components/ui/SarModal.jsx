@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { jsPDF } from 'jspdf';
 import { X, FileText, Download, Save, CheckCircle, Loader } from 'lucide-react';
 import { getApiSarForAccount, postApiSaveSar } from '../../api/client';
 import './SarModal.css';
@@ -61,9 +60,24 @@ export default function SarModal({ accountId, onClose, onSaveSuccess }) {
     }
   };
 
-  const handleDownloadPdf = () => {
+  const handleDownloadPdf = async () => {
     if (!sarData) return;
     
+    let jsPDF;
+    try {
+      const module = await import('jspdf');
+      jsPDF = module.jsPDF || module.default;
+    } catch (e) {
+      console.warn('jspdf package not installed, downloading text SAR report fallback:', e);
+      const textReport = `FINANCIAL CRIMES ENFORCEMENT NETWORK (FinCEN)\nAUTOMATED SUSPICIOUS ACTIVITY REPORT (SAR)\n\nSAR ID: ${sarData.sar_id}\nAccount ID: ${sarData.account_id}\nRisk Tier: ${sarData.risk_tier}\nRisk Score: ${sarData.risk_score}/100\nFiling Date: ${sarData.filing_date}\n\nREGULATORY NARRATIVE:\n${narrative}\n`;
+      const blob = new Blob([textReport], { type: 'text/plain;charset=utf-8' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `SAR_${sarData.account_id}_${sarData.sar_id}.txt`;
+      link.click();
+      return;
+    }
+
     const doc = new jsPDF();
     
     // Header banner

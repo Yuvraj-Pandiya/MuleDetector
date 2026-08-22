@@ -1,7 +1,21 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Warp } from "@paper-design/shaders-react";
+// Internal fallback shader component when external WebGL shaders package is not installed
+const Warp = ({ colors, style }: { colors?: string[]; style?: React.CSSProperties }) => {
+  const c1 = colors?.[0] || "#0f172a";
+  const c2 = colors?.[1] || "#1e293b";
+  const c3 = colors?.[2] || "#0f766e";
+  return (
+    <div
+      style={{
+        ...style,
+        background: `radial-gradient(circle at 50% 50%, ${c3} 0%, ${c2} 50%, ${c1} 100%)`,
+        filter: "blur(20px)",
+      }}
+    />
+  );
+};
 
 interface FeatureCardData {
   id: string;

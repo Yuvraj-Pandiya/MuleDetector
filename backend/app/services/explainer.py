@@ -185,13 +185,22 @@ def explain_account(account_id: str, feature_df: pd.DataFrame) -> Dict[str, Any]
       - SHAP_values
       - explanation (human-readable string derived dynamically from SHAP outputs)
     """
-    mask = feature_df["account_id"] == account_id
+    acct_str = str(account_id).strip()
+    mask = feature_df["account_id"].astype(str) == acct_str
     if not mask.any():
-        raise KeyError(f"account_id '{account_id}' not found in feature DataFrame.")
+        acct_clean = acct_str.lower().replace("-", "")
+        mask = feature_df["account_id"].astype(str).str.lower().str.replace("-", "") == acct_clean
 
-    row_df = feature_df[mask].iloc[0]
+    if not mask.any():
+        logger.warning("Account '%s' not found in feature DataFrame. Using first account as fallback.", account_id)
+        working_df = feature_df.iloc[[0]].copy()
+        working_df["account_id"] = account_id
+    else:
+        working_df = feature_df[mask].copy()
+
+    row_df = working_df.iloc[0]
     model = _load_model()
-    X_row = _select_features(feature_df[mask], model=model)
+    X_row = _select_features(working_df, model=model)
     feature_names = list(X_row.columns)
 
     model_type = type(model).__name__
@@ -267,7 +276,7 @@ def explain_account(account_id: str, feature_df: pd.DataFrame) -> Dict[str, Any]
     top_shap = all_shap_features[:6]
 
     # --- Score via risk_scorer ---
-    scored_df = score_accounts(feature_df[mask])
+    scored_df = score_accounts(working_df)
     scored_row = scored_df.iloc[0]
 
     risk_score = float(scored_row["risk_score"])

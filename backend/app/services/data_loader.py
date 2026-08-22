@@ -221,3 +221,17 @@ def load_transactions(
     )
 
     return res
+
+
+def load_and_clean_dataset(
+    csv_path: Union[str, Path],
+    schema_mapping: Optional[DatasetSchemaMapping] = None,
+    max_rows: Optional[int] = None,
+) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    """
+    Backward compatible wrapper that reads and cleans dataset,
+    returning a tuple of (DataFrame, quality_report_dict).
+    """
+    df = load_transactions(csv_path=csv_path, schema_mapping=schema_mapping, max_rows=max_rows)
+    report = generate_data_quality_report(df)
+    return df, report

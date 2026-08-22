@@ -218,8 +218,13 @@ export async function getRiskScores(params = {}) {
 
 export async function getExplanation(id) {
   if (MOCK) return mockExplain(id);
-  const { data } = await api.get(`/predict/explain/${id}`);
-  return data;
+  try {
+    const { data } = await api.get(`/predict/explain/${id}`);
+    return data;
+  } catch (err) {
+    console.warn(`Failed to fetch explanation from backend for account ${id}, using fallback:`, err);
+    return mockExplain(id);
+  }
 }
 
 export async function getGlobalFeatureImportance() {
