@@ -1,15 +1,23 @@
 """
 app/services/features_velocity.py
 ----------------------------------
-Velocity feature computation per account_id.
+Extended velocity feature computation per account_id.
 
-Output columns (exactly as per docs/feature_schema.md):
-  txn_count_1h, txn_count_24h, txn_count_7d,
-  total_amount_out_24h, total_amount_in_24h,
-  avg_transaction_amount, max_transaction_amount
+Output columns:
+  - Time-window transaction counts:
+      txn_count_5min, txn_count_15min, txn_count_1h, txn_count_6h, txn_count_24h, txn_count_7d
+  - Time-window directional amounts:
+      amount_in_1h, amount_out_1h, amount_in_24h, amount_out_24h, amount_in_7d, amount_out_7d
+      (aliases for schema contract: total_amount_in_24h, total_amount_out_24h)
+  - Amount distribution metrics:
+      max_transaction_amount, average_transaction_amount, median_transaction_amount
+      (alias: avg_transaction_amount)
+  - Velocity change indicators:
+      transaction_velocity_change, recent_volume_vs_historical_volume
 """
 from __future__ import annotations
 
+import numpy as np
 import pandas as pd
 
 # Epsilon prevents divide-by-zero in downstream ratio features
@@ -18,7 +26,36 @@ _EPS = 1e-9
 # High-volume threshold used for is_new_high_volume_flag (shared with behavioral)
 HIGH_VOLUME_TXN_THRESHOLD = 10
 
-# All output columns in schema-contract order
+# Extended velocity columns
+EXTENDED_VELOCITY_COLUMNS: list[str] = [
+    # Counts
+    "txn_count_5min",
+    "txn_count_15min",
+    "txn_count_1h",
+    "txn_count_6h",
+    "txn_count_24h",
+    "txn_count_7d",
+    # Amounts
+    "amount_in_1h",
+    "amount_out_1h",
+    "amount_in_24h",
+    "amount_out_24h",
+    "amount_in_7d",
+    "amount_out_7d",
+    # Backward compatibility aliases
+    "total_amount_out_24h",
+    "total_amount_in_24h",
+    # Amount stats
+    "max_transaction_amount",
+    "average_transaction_amount",
+    "avg_transaction_amount",
+    "median_transaction_amount",
+    # Velocity change indicators
+    "transaction_velocity_change",
+    "recent_volume_vs_historical_volume",
+]
+
+# Standard contract list for feature_pipeline.py
 VELOCITY_COLUMNS: list[str] = [
     "txn_count_1h",
     "txn_count_24h",
@@ -27,39 +64,58 @@ VELOCITY_COLUMNS: list[str] = [
     "total_amount_in_24h",
     "avg_transaction_amount",
     "max_transaction_amount",
+    "txn_count_5min",
+    "txn_count_15min",
+    "txn_count_6h",
+    "amount_in_1h",
+    "amount_out_1h",
+    "amount_in_7d",
+    "amount_out_7d",
+    "median_transaction_amount",
+    "transaction_velocity_change",
+    "recent_volume_vs_historical_volume",
 ]
 
 
-def compute_velocity_features(df: pd.DataFrame) -> pd.DataFrame:
+def compute_velocity_features(
+    df: pd.DataFrame,
+    as_of_timestamp: pd.Timestamp | str | None = None,
+) -> pd.DataFrame:
     """
-    Compute velocity features for every account that appears as a sender
+    Compute extended velocity features for every account that appears as a sender
     or receiver.
-
-    The reference timestamp (``t_ref``) is the **maximum** timestamp in the
-    dataset, simulating "as-of-now" in a batch run.
 
     Parameters
     ----------
     df : pd.DataFrame
-        Transaction DataFrame as returned by ``load_transactions``.
-        Required columns: timestamp, sender_account_id,
-        receiver_account_id, amount.
+        Transaction DataFrame (must contain: timestamp, sender_account_id,
+        receiver_account_id, amount).
+    as_of_timestamp : pd.Timestamp | str | None
+        Cutoff timestamp simulating prediction time (t_ref). If None, uses max(timestamp).
+        Guarantees zero future transaction data leakage.
 
     Returns
     -------
     pd.DataFrame
-        Index: default integer range.
-        Columns: ``account_id`` + VELOCITY_COLUMNS.
-        All int/float columns are non-null (NaN filled with 0).
+        DataFrame with column ``account_id`` + all velocity feature columns.
     """
+    if df.empty:
+        return pd.DataFrame(columns=["account_id"] + EXTENDED_VELOCITY_COLUMNS)
+
     df = df.copy()
     df["timestamp"] = pd.to_datetime(df["timestamp"])
 
-    t_ref: pd.Timestamp = df["timestamp"].max()
+    # 1. Reference Timestamp (Point-in-Time Causality Enforcement)
+    if as_of_timestamp is not None:
+        t_ref = pd.to_datetime(as_of_timestamp)
+        df = df[df["timestamp"] <= t_ref].copy()
+    else:
+        t_ref = df["timestamp"].max()
 
-    # ------------------------------------------------------------------
-    # Build unified view: one row per (account, txn) from BOTH directions
-    # ------------------------------------------------------------------
+    if df.empty:
+        return pd.DataFrame(columns=["account_id"] + EXTENDED_VELOCITY_COLUMNS)
+
+    # 2. Build Unified View: (account_id, timestamp, amount, direction)
     sent = df[["timestamp", "sender_account_id", "amount"]].rename(
         columns={"sender_account_id": "account_id"}
     )
@@ -73,67 +129,73 @@ def compute_velocity_features(df: pd.DataFrame) -> pd.DataFrame:
     txns = pd.concat([sent, received], ignore_index=True)
     txns["amount"] = pd.to_numeric(txns["amount"], errors="coerce").fillna(0.0)
 
-    # Time-window masks (relative to reference timestamp)
-    delta = (t_ref - txns["timestamp"])
-    txns["in_1h"]  = delta <= pd.Timedelta(hours=1)
-    txns["in_24h"] = delta <= pd.Timedelta(hours=24)
-    txns["in_7d"]  = delta <= pd.Timedelta(days=7)
+    # 3. Vectorised Time-Window Flags (relative to t_ref)
+    delta = t_ref - txns["timestamp"]
+    txns["in_5m"]  = (delta >= pd.Timedelta(0)) & (delta <= pd.Timedelta(minutes=5))
+    txns["in_15m"] = (delta >= pd.Timedelta(0)) & (delta <= pd.Timedelta(minutes=15))
+    txns["in_1h"]  = (delta >= pd.Timedelta(0)) & (delta <= pd.Timedelta(hours=1))
+    txns["in_6h"]  = (delta >= pd.Timedelta(0)) & (delta <= pd.Timedelta(hours=6))
+    txns["in_24h"] = (delta >= pd.Timedelta(0)) & (delta <= pd.Timedelta(hours=24))
+    txns["in_7d"]  = (delta >= pd.Timedelta(0)) & (delta <= pd.Timedelta(days=7))
 
-    # ------------------------------------------------------------------
-    # Aggregate per account
-    # ------------------------------------------------------------------
+    # Vectorised Directional Amount Columns
+    txns["amt_in_1h"]   = np.where(txns["in_1h"]  & (txns["direction"] == "in"),  txns["amount"], 0.0)
+    txns["amt_out_1h"]  = np.where(txns["in_1h"]  & (txns["direction"] == "out"), txns["amount"], 0.0)
+
+    txns["amt_in_24h"]  = np.where(txns["in_24h"] & (txns["direction"] == "in"),  txns["amount"], 0.0)
+    txns["amt_out_24h"] = np.where(txns["in_24h"] & (txns["direction"] == "out"), txns["amount"], 0.0)
+
+    txns["amt_in_7d"]   = np.where(txns["in_7d"]  & (txns["direction"] == "in"),  txns["amount"], 0.0)
+    txns["amt_out_7d"]  = np.where(txns["in_7d"]  & (txns["direction"] == "out"), txns["amount"], 0.0)
+
+    # 4. Fast Vectorised Aggregations by account_id
     grp = txns.groupby("account_id")
 
-    # Transaction counts within windows (both directions count)
-    txn_count_1h  = grp.apply(lambda g: g["in_1h"].sum(), include_groups=False).rename("txn_count_1h")
-    txn_count_24h = grp.apply(lambda g: g["in_24h"].sum(), include_groups=False).rename("txn_count_24h")
-    txn_count_7d  = grp.apply(lambda g: g["in_7d"].sum(), include_groups=False).rename("txn_count_7d")
+    agg_df = grp.agg(
+        txn_count_5min=("in_5m", "sum"),
+        txn_count_15min=("in_15m", "sum"),
+        txn_count_1h=("in_1h", "sum"),
+        txn_count_6h=("in_6h", "sum"),
+        txn_count_24h=("in_24h", "sum"),
+        txn_count_7d=("in_7d", "sum"),
+        amount_in_1h=("amt_in_1h", "sum"),
+        amount_out_1h=("amt_out_1h", "sum"),
+        amount_in_24h=("amt_in_24h", "sum"),
+        amount_out_24h=("amt_out_24h", "sum"),
+        amount_in_7d=("amt_in_7d", "sum"),
+        amount_out_7d=("amt_out_7d", "sum"),
+        max_transaction_amount=("amount", "max"),
+        average_transaction_amount=("amount", "mean"),
+        median_transaction_amount=("amount", "median"),
+    ).reset_index()
 
-    # Directional amount sums within 24 h
-    def _amount_out_24h(g: pd.DataFrame) -> float:
-        mask = g["in_24h"] & (g["direction"] == "out")
-        return float(g.loc[mask, "amount"].sum())
+    # 5. Derived Velocity Change Indicators
+    # A. Velocity change: 1h txn count vs 24h average hourly txn count
+    # baseline_hourly_txn_count = (txn_count_24h / 24.0)
+    # velocity_change = txn_count_1h / (baseline_hourly_txn_count + eps)
+    baseline_hourly_txns = (agg_df["txn_count_24h"] / 24.0) + _EPS
+    agg_df["transaction_velocity_change"] = (agg_df["txn_count_1h"] / baseline_hourly_txns).round(4)
 
-    def _amount_in_24h(g: pd.DataFrame) -> float:
-        mask = g["in_24h"] & (g["direction"] == "in")
-        return float(g.loc[mask, "amount"].sum())
+    # B. Volume change: 1h total volume (in+out) vs 24h average hourly volume
+    recent_1h_vol = agg_df["amount_in_1h"] + agg_df["amount_out_1h"]
+    baseline_hourly_vol = ((agg_df["amount_in_24h"] + agg_df["amount_out_24h"]) / 24.0) + _EPS
+    agg_df["recent_volume_vs_historical_volume"] = (recent_1h_vol / baseline_hourly_vol).round(4)
 
-    total_amount_out_24h = grp.apply(_amount_out_24h, include_groups=False).rename("total_amount_out_24h")
-    total_amount_in_24h  = grp.apply(_amount_in_24h,  include_groups=False).rename("total_amount_in_24h")
+    # 6. Backward Compatibility Aliases
+    agg_df["total_amount_out_24h"] = agg_df["amount_out_24h"]
+    agg_df["total_amount_in_24h"]  = agg_df["amount_in_24h"]
+    agg_df["avg_transaction_amount"] = agg_df["average_transaction_amount"]
 
-    # Global avg / max over the entire look-back window (all rows)
-    avg_txn_amount = grp["amount"].mean().rename("avg_transaction_amount")
-    max_txn_amount = grp["amount"].max().rename("max_transaction_amount")
-
-    # ------------------------------------------------------------------
-    # Assemble result DataFrame
-    # ------------------------------------------------------------------
-    result = pd.concat(
-        [
-            txn_count_1h,
-            txn_count_24h,
-            txn_count_7d,
-            total_amount_out_24h,
-            total_amount_in_24h,
-            avg_txn_amount,
-            max_txn_amount,
-        ],
-        axis=1,
-    ).reset_index()  # brings account_id out of the index
-
-    # ------------------------------------------------------------------
-    # Type enforcement per schema contract
-    # ------------------------------------------------------------------
-    int_cols = ["txn_count_1h", "txn_count_24h", "txn_count_7d"]
-    float_cols = [
-        "total_amount_out_24h",
-        "total_amount_in_24h",
-        "avg_transaction_amount",
-        "max_transaction_amount",
+    # Fill NaNs & Rounding
+    int_cols = [
+        "txn_count_5min", "txn_count_15min", "txn_count_1h",
+        "txn_count_6h", "txn_count_24h", "txn_count_7d"
     ]
+    float_cols = [c for c in EXTENDED_VELOCITY_COLUMNS if c not in int_cols]
 
-    result[int_cols]   = result[int_cols].fillna(0).astype(int)
-    result[float_cols] = result[float_cols].fillna(0.0).astype(float)
+    agg_df[int_cols] = agg_df[int_cols].fillna(0).astype(int)
+    agg_df[float_cols] = agg_df[float_cols].fillna(0.0).round(4).astype(float)
 
-    # Guarantee column order
-    return result[["account_id"] + VELOCITY_COLUMNS]
+    # Return in clean order
+    out_cols = ["account_id"] + [c for c in EXTENDED_VELOCITY_COLUMNS if c in agg_df.columns]
+    return agg_df[out_cols]
