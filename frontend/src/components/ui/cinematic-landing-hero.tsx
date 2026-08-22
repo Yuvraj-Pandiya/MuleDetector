@@ -186,7 +186,7 @@ export interface CinematicHeroProps extends React.HTMLAttributes<HTMLDivElement>
 }
 
 export function CinematicHero({ 
-  brandName = "MULE INTEL",
+  brandName = "MULESCOPE",
   tagline1 = "Real-Time Fraud Detection & Risk Scoring,",
   tagline2 = "Built for Analysts, Not Just Models.",
   cardHeading = "Explainable AI & Mule Network Detection",

@@ -23,7 +23,7 @@ export default function HeroPage() {
   return (
     <div className="overflow-x-hidden w-[100%] min-h-screen">
       <CinematicHero
-        brandName="MULE INTEL"
+        brandName="MULESCOPE"
         tagline1="Real-time fraud detection & risk scoring,"
         tagline2="built for analysts, not just models."
         cardHeading="Explainable AI & Mule Ring Detection"
