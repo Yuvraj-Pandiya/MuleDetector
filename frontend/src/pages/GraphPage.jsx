@@ -75,6 +75,11 @@ export default function GraphPage() {
 
   useEffect(() => {
     loadData();
+    const handleDatasetChange = () => {
+      loadData();
+    };
+    window.addEventListener('dataset-changed', handleDatasetChange);
+    return () => window.removeEventListener('dataset-changed', handleDatasetChange);
   }, [accountId, riskTierFilter, directionFilter, minAmountFilter, maxAmountFilter, startDateFilter, endDateFilter]);
 
   const handleNodeClick = (node) => {

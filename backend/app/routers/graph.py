@@ -45,7 +45,13 @@ def get_account_graph(
           * short_transaction_paths (paths & cycles)
           * connected_components_count
     """
-    tx_file = _TRANSACTIONS_CSV if _TRANSACTIONS_CSV.exists() else None
+    from app.services.dataset_registry import get_active_dataset, PAYSIM_BENCHMARK_ID
+    active_ds = get_active_dataset()
+    tx_file = None
+    if active_ds.get("file_path") and pathlib.Path(active_ds["file_path"]).exists():
+        tx_file = pathlib.Path(active_ds["file_path"])
+    elif _TRANSACTIONS_CSV.exists():
+        tx_file = _TRANSACTIONS_CSV
 
     nodes_dict: Dict[str, Dict[str, Any]] = {}
     edges_list: List[Dict[str, Any]] = []

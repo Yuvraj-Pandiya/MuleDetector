@@ -43,14 +43,10 @@ class BulkAlertStatusUpdate(BaseModel):
 
 @router.post("/generate", summary="Score accounts and generate prioritized risk-based alerts")
 def trigger_alert_generation(threshold: float = Query(default=30.0, ge=0.0, le=100.0)) -> dict:
-    tx_file = _TRANSACTIONS_CSV if _TRANSACTIONS_CSV.exists() else None
-    if not tx_file:
-        return {"generated": 0, "alerts": []}
-
     try:
-        from app.services.feature_pipeline import build_feature_matrix
+        from app.services.dataset_registry import get_active_feature_df
         from app.services.risk_scorer import score_accounts
-        df_feat = build_feature_matrix(tx_file)
+        df_feat, is_benchmark = get_active_feature_df()
         scored = score_accounts(df_feat)
         alerts = generate_alerts(scored, threshold=threshold)
         return {"generated": len(alerts), "threshold": threshold, "alerts": alerts}

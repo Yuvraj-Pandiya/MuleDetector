@@ -38,6 +38,11 @@ export default function AnomalyDetectionPage() {
 
   useEffect(() => {
     loadAnomalyData();
+    const handleDatasetChange = () => {
+      loadAnomalyData();
+    };
+    window.addEventListener('dataset-changed', handleDatasetChange);
+    return () => window.removeEventListener('dataset-changed', handleDatasetChange);
   }, [page, sortBy, minAnomaly]);
 
   const handleAccountClick = (accountId) => {

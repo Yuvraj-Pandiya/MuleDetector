@@ -29,6 +29,11 @@ export default function ModelMetricsPage() {
 
   useEffect(() => {
     loadPerformanceData();
+    const handleDatasetChange = () => {
+      loadPerformanceData();
+    };
+    window.addEventListener('dataset-changed', handleDatasetChange);
+    return () => window.removeEventListener('dataset-changed', handleDatasetChange);
   }, []);
 
   if (loading || !data) {

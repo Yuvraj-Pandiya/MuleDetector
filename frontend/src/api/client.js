@@ -341,18 +341,59 @@ export async function getDashboardSummary() {
 
 export async function getRiskScores(params = {}) {
   if (MOCK) {
-    let accounts = [...mockAccounts];
+    const activeId = localStorage.getItem('active_dataset_id') || 'paysim_benchmark';
+    const isCustom = activeId !== 'paysim_benchmark';
+    const totalCount = isCustom ? 191 : 15420;
+
+    let accounts = isCustom
+      ? Array.from({ length: 48 }, (_, i) => {
+          const tiers = ['critical', 'high', 'medium', 'low'];
+          const tier = tiers[i % 4];
+          const score = tier === 'critical' ? 92.4 - i * 0.5 : tier === 'high' ? 78.2 - i * 0.4 : tier === 'medium' ? 52.0 - i * 0.3 : 18.0;
+          return {
+            account_id: `ACC-UP-${String(i + 101).padStart(4, '0')}`,
+            name: `Upload Counterparty ${i + 1}`,
+            risk_score: Math.round(score * 10) / 10,
+            risk_tier: tier,
+            mule_probability: score / 100,
+            anomaly_score: tier === 'critical' ? 0.89 : 0.25,
+            network_risk_score: tier === 'critical' ? 84.0 : 20.0,
+            transaction_count: 12 + (i % 30),
+            incoming_amount: 15000 + i * 800,
+            outgoing_amount: 14800 + i * 800,
+            unique_counterparties: 4 + (i % 8),
+            account_age: 15 + i * 2,
+            last_activity: new Date(Date.now() - i * 3600000).toISOString(),
+            alert_count: tier === 'critical' || tier === 'high' ? 1 : 0,
+            investigation_status: 'NONE',
+          };
+        })
+      : mockAccounts.map((a, i) => ({
+          ...a,
+          account_id: a.id || `ACC-${String(i + 1001).padStart(6, '0')}`,
+          mule_probability: a.risk_score / 100,
+          anomaly_score: a.risk_tier === 'critical' ? 0.92 : 0.15,
+          network_risk_score: a.risk_tier === 'critical' ? 88.0 : 15.0,
+          transaction_count: a.txn_count,
+          incoming_amount: a.total_volume * 0.52,
+          outgoing_amount: a.total_volume * 0.48,
+          unique_counterparties: a.fan_in + a.fan_out,
+          account_age: 45,
+          alert_count: a.flagged ? 1 : 0,
+          investigation_status: 'NONE',
+        }));
+
     if (params.tier) accounts = accounts.filter((a) => a.risk_tier.toLowerCase() === params.tier.toLowerCase());
     if (params.search) {
       const q = params.search.toLowerCase();
-      accounts = accounts.filter((a) => a.id.toLowerCase().includes(q) || a.name.toLowerCase().includes(q));
+      accounts = accounts.filter((a) => (a.account_id || '').toLowerCase().includes(q) || (a.name || '').toLowerCase().includes(q));
     }
     return {
       accounts,
-      total: accounts.length,
+      total: totalCount,
       page: params.page || 1,
       page_size: params.page_size || 10,
-      total_pages: Math.ceil(accounts.length / (params.page_size || 10))
+      total_pages: Math.ceil(totalCount / (params.page_size || 10)),
     };
   }
 
@@ -422,8 +463,18 @@ export async function getGlobalFeatureImportance() {
 
 export async function getAlerts(params = {}) {
   if (MOCK) {
+    const activeId = localStorage.getItem('active_dataset_id') || 'paysim_benchmark';
+    const isCustom = activeId !== 'paysim_benchmark';
+    const rawAlerts = isCustom
+      ? [
+          { id: 'ALT-UP-001', account_id: 'ACC-UP-0101', severity: 'CRITICAL', type: 'Rapid fund forwarding (<8m)', message: 'Burst pass-through velocity across 14 uploaded transfers', status: 'OPEN', created_at: '2026-08-23T08:00:00Z' },
+          { id: 'ALT-UP-002', account_id: 'ACC-UP-0105', severity: 'HIGH', type: 'Fan-out dispersion spike', message: 'Inflow forwarded to 6 distinct counterparty receivers', status: 'OPEN', created_at: '2026-08-23T07:45:00Z' },
+          { id: 'ALT-UP-003', account_id: 'ACC-UP-0109', severity: 'HIGH', type: 'Nocturnal burst activity', message: 'Transactions executed during high-risk off-hours window', status: 'UNDER_INVESTIGATION', created_at: '2026-08-23T06:30:00Z' },
+        ]
+      : mockAlerts;
+
     return {
-      alerts: mockAlerts.map((alt) => ({
+      alerts: rawAlerts.map((alt) => ({
         alert_id: alt.id,
         account_id: alt.account_id,
         risk_score: alt.risk_score || 88.5,
@@ -432,14 +483,14 @@ export async function getAlerts(params = {}) {
         anomaly_score: 0.75,
         network_risk: 82.0,
         top_reasons: [alt.type || 'Rapid fund forwarding (<15m)', 'Velocity burst spike'],
-        model_version: 'v2.4-PaySim-XGB',
+        model_version: 'v2.5-XGBoost',
         created_at: alt.created_at || new Date().toISOString(),
         status: (alt.status || 'OPEN').toUpperCase(),
       })),
-      total: mockAlerts.length,
+      total: isCustom ? 8 : 66,
       page: params.page || 1,
       page_size: params.page_size || 10,
-      total_pages: 1,
+      total_pages: isCustom ? 1 : 7,
     };
   }
 
@@ -843,64 +894,52 @@ export async function getFeatureIntelligence() {
 
 export async function getAnomalySummary(params = {}) {
   if (MOCK) {
+    const activeId = localStorage.getItem('active_dataset_id') || 'paysim_benchmark';
+    const isCustom = activeId !== 'paysim_benchmark';
+    const totalCount = isCustom ? 191 : 15420;
+    const anomalyCount = isCustom ? 14 : 154;
+
+    const mockAnomalyAccounts = isCustom
+      ? [
+          { account_id: 'ACC-UP-0101', anomaly_score: 0.935, risk_score: 95.0, transaction_velocity: 18, behavior_change: 3.8, network_risk: 86.0 },
+          { account_id: 'ACC-UP-0105', anomaly_score: 0.880, risk_score: 89.2, transaction_velocity: 14, behavior_change: 2.9, network_risk: 80.5 },
+          { account_id: 'ACC-UP-0109', anomaly_score: 0.795, risk_score: 82.4, transaction_velocity: 11, behavior_change: 2.4, network_risk: 73.0 },
+          { account_id: 'ACC-UP-0115', anomaly_score: 0.720, risk_score: 75.8, transaction_velocity: 9, behavior_change: 1.9, network_risk: 66.2 },
+          { account_id: 'ACC-UP-0122', anomaly_score: 0.650, risk_score: 68.0, transaction_velocity: 7, behavior_change: 1.5, network_risk: 58.0 },
+        ]
+      : [
+          { account_id: 'ACC-001001', anomaly_score: 0.942, risk_score: 96.5, transaction_velocity: 48, behavior_change: 4.85, network_risk: 88.2 },
+          { account_id: 'ACC-001004', anomaly_score: 0.884, risk_score: 91.2, transaction_velocity: 32, behavior_change: 3.42, network_risk: 82.5 },
+          { account_id: 'ACC-001009', anomaly_score: 0.812, risk_score: 87.4, transaction_velocity: 29, behavior_change: 2.95, network_risk: 76.0 },
+          { account_id: 'ACC-001015', anomaly_score: 0.745, risk_score: 79.0, transaction_velocity: 21, behavior_change: 2.10, network_risk: 68.4 },
+          { account_id: 'ACC-001022', anomaly_score: 0.680, risk_score: 72.3, transaction_velocity: 18, behavior_change: 1.85, network_risk: 61.2 },
+        ];
+
     return {
-      total_accounts_analyzed: 1048,
-      anomalous_accounts: 134,
-      anomaly_rate: 12.79,
-      average_anomaly_score: 0.385,
-      high_anomaly_accounts: 42,
-      distribution: [
-        { range: '0.0 - 0.2 (Normal)', count: 540, tier: 'Low' },
-        { range: '0.2 - 0.4 (Mild)', count: 374, tier: 'Low' },
-        { range: '0.4 - 0.6 (Moderate)', count: 92, tier: 'Medium' },
-        { range: '0.6 - 0.8 (Elevated)', count: 28, tier: 'High' },
-        { range: '0.8 - 1.0 (Critical)', count: 14, tier: 'Critical' },
-      ],
+      total_accounts_analyzed: totalCount,
+      anomalous_accounts: anomalyCount,
+      anomaly_rate: Math.round((anomalyCount / totalCount) * 1000) / 10,
+      average_anomaly_score: isCustom ? 0.412 : 0.329,
+      high_anomaly_accounts: isCustom ? 4 : 46,
+      distribution: isCustom
+        ? [
+            { range: '0.0 - 0.2 (Normal)', count: 105, tier: 'Low' },
+            { range: '0.2 - 0.4 (Mild)', count: 72, tier: 'Low' },
+            { range: '0.4 - 0.6 (Moderate)', count: 10, tier: 'Medium' },
+            { range: '0.6 - 0.8 (Elevated)', count: 3, tier: 'High' },
+            { range: '0.8 - 1.0 (Critical)', count: 1, tier: 'Critical' },
+          ]
+        : [
+            { range: '0.0 - 0.2 (Normal)', count: 6692, tier: 'Low' },
+            { range: '0.2 - 0.4 (Mild)', count: 8574, tier: 'Low' },
+            { range: '0.4 - 0.6 (Moderate)', count: 108, tier: 'Medium' },
+            { range: '0.6 - 0.8 (Elevated)', count: 32, tier: 'High' },
+            { range: '0.8 - 1.0 (Critical)', count: 14, tier: 'Critical' },
+          ],
       page: params.page || 1,
       page_size: params.page_size || 15,
-      total_pages: 3,
-      accounts: [
-        {
-          account_id: 'ACC-001001',
-          anomaly_score: 0.942,
-          risk_score: 96.5,
-          transaction_velocity: 48,
-          behavior_change: 4.85,
-          network_risk: 88.2,
-        },
-        {
-          account_id: 'ACC-001004',
-          anomaly_score: 0.884,
-          risk_score: 91.2,
-          transaction_velocity: 32,
-          behavior_change: 3.42,
-          network_risk: 82.5,
-        },
-        {
-          account_id: 'ACC-001009',
-          anomaly_score: 0.812,
-          risk_score: 87.4,
-          transaction_velocity: 29,
-          behavior_change: 2.95,
-          network_risk: 76.0,
-        },
-        {
-          account_id: 'ACC-001015',
-          anomaly_score: 0.745,
-          risk_score: 79.0,
-          transaction_velocity: 21,
-          behavior_change: 2.10,
-          network_risk: 68.4,
-        },
-        {
-          account_id: 'ACC-001022',
-          anomaly_score: 0.680,
-          risk_score: 72.3,
-          transaction_velocity: 18,
-          behavior_change: 1.85,
-          network_risk: 61.2,
-        },
-      ],
+      total_pages: isCustom ? 1 : 11,
+      accounts: mockAnomalyAccounts,
     };
   }
 

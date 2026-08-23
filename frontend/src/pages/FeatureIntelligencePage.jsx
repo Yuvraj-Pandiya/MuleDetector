@@ -29,6 +29,11 @@ export default function FeatureIntelligencePage() {
 
   useEffect(() => {
     loadData();
+    const handleDatasetChange = () => {
+      loadData();
+    };
+    window.addEventListener('dataset-changed', handleDatasetChange);
+    return () => window.removeEventListener('dataset-changed', handleDatasetChange);
   }, []);
 
   const processedFeatures = useMemo(() => {

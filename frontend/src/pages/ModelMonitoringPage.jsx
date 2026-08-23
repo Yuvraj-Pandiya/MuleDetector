@@ -50,6 +50,11 @@ export default function ModelMonitoringPage() {
 
   useEffect(() => {
     loadMonitoringData();
+    const handleDatasetChange = () => {
+      loadMonitoringData();
+    };
+    window.addEventListener('dataset-changed', handleDatasetChange);
+    return () => window.removeEventListener('dataset-changed', handleDatasetChange);
   }, [warningThreshold, criticalThreshold]);
 
   const handleTrainCandidate = async () => {

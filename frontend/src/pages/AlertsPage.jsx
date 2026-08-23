@@ -78,6 +78,11 @@ export default function AlertsPage() {
 
   useEffect(() => {
     loadAlerts();
+    const handleDatasetChange = () => {
+      loadAlerts();
+    };
+    window.addEventListener('dataset-changed', handleDatasetChange);
+    return () => window.removeEventListener('dataset-changed', handleDatasetChange);
   }, [page, pageSize, activeStatus, riskTier, sortBy, startDate, endDate]);
 
   const handleSearchSubmit = (e) => {

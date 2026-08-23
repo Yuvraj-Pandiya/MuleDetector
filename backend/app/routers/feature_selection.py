@@ -32,38 +32,12 @@ _DATA_DIR = pathlib.Path(__file__).parent.parent / "data"
 # Helpers
 # ---------------------------------------------------------------------------
 
-def _load_mock_features() -> pd.DataFrame:
-    """Load mock_features.csv (or generate if absent) as the feature DataFrame."""
-    mock_path = _DATA_DIR / "mock_features.csv"
-    if not mock_path.exists():
-        try:
-            from app.services.mock_generator import generate_mock_features_csv
-            generate_mock_features_csv(mock_path)
-        except Exception as exc:
-            raise HTTPException(
-                status_code=500,
-                detail=f"Could not load or generate mock features: {exc}",
-            )
-    return pd.read_csv(mock_path)
-
-
-def _load_real_features() -> Optional[pd.DataFrame]:
-    """Try to load features.csv (from upload) if present."""
-    features_path = _DATA_DIR / "features.csv"
-    if features_path.exists():
-        try:
-            return pd.read_csv(features_path)
-        except Exception:
-            pass
-    return None
-
+from app.services.dataset_registry import get_active_feature_df
 
 def _get_feature_df() -> pd.DataFrame:
-    """Return best available feature DataFrame (real > mock)."""
-    real = _load_real_features()
-    if real is not None and len(real) > 0:
-        return real
-    return _load_mock_features()
+    """Return feature DataFrame for currently active dataset."""
+    df, _ = get_active_feature_df()
+    return df
 
 
 # ---------------------------------------------------------------------------

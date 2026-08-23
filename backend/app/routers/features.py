@@ -44,18 +44,10 @@ def get_features() -> JSONResponse:
     Raises HTTP 404 if no dataset has been uploaded yet.
     Raises HTTP 500 if the pipeline fails or a schema mismatch is detected.
     """
-    if not _TRANSACTIONS_PATH.exists():
-        raise HTTPException(
-            status_code=404,
-            detail=(
-                "No transaction dataset found.  "
-                "Upload one first via POST /upload-dataset."
-            ),
-        )
+    from app.services.dataset_registry import get_active_feature_df, get_active_dataset
 
-    # ---- run pipeline ----
     try:
-        df = build_feature_matrix(_TRANSACTIONS_PATH)
+        df, is_benchmark = get_active_feature_df()
     except Exception as exc:
         raise HTTPException(
             status_code=500,

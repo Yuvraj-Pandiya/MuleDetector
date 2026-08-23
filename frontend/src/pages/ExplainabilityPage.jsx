@@ -75,6 +75,11 @@ export default function ExplainabilityPage() {
 
   useEffect(() => {
     loadData();
+    const handleDatasetChange = () => {
+      loadData();
+    };
+    window.addEventListener('dataset-changed', handleDatasetChange);
+    return () => window.removeEventListener('dataset-changed', handleDatasetChange);
   }, [paramId]);
 
   const handleSubmitFeedback = async (e) => {
