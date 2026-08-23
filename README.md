@@ -45,6 +45,7 @@ npm run dev
 | `feature/backend-aiml` | ML pipeline scripts only |
 
 ## Docs
+- [`PITCH.md`](PITCH.md) — 3-minute Hackathon Pitch script, tech stack table, & Q&A survival guide
 - [`README_PRESENTATION.md`](README_PRESENTATION.md) — 12-page PowerPoint presentation outline & prompt storyboard
 - [`backend/README.md`](backend/README.md) — API endpoints, deployment
 - [`frontend/README.md`](frontend/README.md) — UI setup, environment variables
