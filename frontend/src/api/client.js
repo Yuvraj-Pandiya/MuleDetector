@@ -17,7 +17,7 @@ api.interceptors.request.use((config) => {
 });
 
 // ── Mock Mode Toggle ──────────────────────────────────────────────
-const MOCK = false;
+const MOCK = true;
 
 // ── Mock Data Generators (Fallback) ──────────────────────────────
 const NAMES = [

@@ -106,7 +106,7 @@ export default function DashboardPage() {
     high_risk_accounts: summary.risk_distribution?.high || 0,
     critical_risk_accounts: summary.risk_distribution?.critical || 0,
     total_active_alerts: summary.open_alerts || summary.open_alert_count || 0,
-    confirmed_mule_accounts: summary.risk_distribution?.critical || summary.flagged_count || 0
+    confirmed_mule_accounts: summary.confirmed_mule_accounts ?? 0
   };
 
   // 3. Detection Performance extraction
@@ -215,7 +215,7 @@ export default function DashboardPage() {
           <div className="metric-box">
             <span className="metric-label"><CheckCircle size={13} /> Confirmed Mule Accounts</span>
             <div className="metric-val text-danger">{detection.confirmed_mule_accounts}</div>
-            <span className="metric-sub">Critical risk score &gt; 0.85</span>
+            <span className="metric-sub">Analyst HITL verified from DB</span>
           </div>
           <div className="metric-box">
             <span className="metric-label"><Activity size={13} /> Mean Risk Index</span>
