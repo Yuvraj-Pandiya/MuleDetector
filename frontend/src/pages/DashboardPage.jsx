@@ -219,7 +219,7 @@ export default function DashboardPage() {
           </div>
           <div className="metric-box">
             <span className="metric-label"><Activity size={13} /> Mean Risk Index</span>
-            <div className="metric-val">{summary.avg_risk_score ?? 0} / 100</div>
+            <div className="metric-val">{(summary.avg_risk_score > 100 ? (summary.avg_risk_score / 100).toFixed(1) : (summary.avg_risk_score ?? 0))} / 100</div>
             <span className="metric-sub">Normalized population average</span>
           </div>
         </div>
