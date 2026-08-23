@@ -192,21 +192,23 @@ def get_dashboard_summary() -> dict[str, Any]:
         "high_risk_accounts": high_cnt,
         "critical_risk_accounts": crit_cnt,
         "total_active_alerts": open_alert_count,
-        "confirmed_mule_accounts": crit_cnt,
+        # Confirmed mules = accounts where an analyst explicitly confirmed via HITL feedback,
+        # NOT just accounts classified as Critical tier by the model
+        "confirmed_mule_accounts": int(
+            (scored["investigation_status"] == "CONFIRMED_MULE").sum()
+        ),
     }
 
-    roc_auc = model_metrics.get("roc_auc", 0.95)
-    precision = model_metrics.get("precision", 0.91)
-    recall = model_metrics.get("recall", 0.88)
-    f1 = model_metrics.get("f1", 0.89)
-    pr_auc = model_metrics.get("pr_auc", round(precision * recall * 1.05, 3))
-
+    # Model metrics — only use real values from metrics.json; never fabricate numbers
+    metrics_available = bool(model_metrics)
     detection_performance = {
-        "precision": precision,
-        "recall": recall,
-        "f1": f1,
-        "roc_auc": roc_auc,
-        "pr_auc": pr_auc,
+        "precision": model_metrics.get("precision") if metrics_available else None,
+        "recall": model_metrics.get("recall") if metrics_available else None,
+        "f1": model_metrics.get("f1") if metrics_available else None,
+        "roc_auc": model_metrics.get("roc_auc") if metrics_available else None,
+        "pr_auc": model_metrics.get("pr_auc") if metrics_available else None,
+        "metrics_available": metrics_available,
+        "metrics_note": "Real evaluation metrics from holdout test set" if metrics_available else "Model not yet trained — POST /train to generate metrics",
     }
 
     # Behavioral Signals calculations from DataFrame
@@ -240,15 +242,45 @@ def get_dashboard_summary() -> dict[str, Any]:
 
     import datetime
     today = datetime.date.today()
-    trend_data = [
-        {
-            "date": (today - datetime.timedelta(days=13 - i)).isoformat(),
-            "alerts": max(1, int(open_alert_count / 14 + (i % 3))),
-            "flagged": max(0, int(flagged_count / 14 + (i % 2))),
-            "resolved": max(0, int(open_alert_count / 20)),
-        }
-        for i in range(14)
-    ]
+
+    # Build trend data from real daily alert counts in SQLite DB
+    # Falls back to estimated values derived from current totals only if DB is empty
+    daily_alert_counts: dict[str, int] = {}
+    daily_resolved_counts: dict[str, int] = {}
+    if DB_PATH.exists():
+        try:
+            import sqlite3
+            with sqlite3.connect(str(DB_PATH)) as _conn:
+                _conn.row_factory = sqlite3.Row
+                rows = _conn.execute(
+                    "SELECT substr(created_at, 1, 10) as day, COUNT(*) as cnt "
+                    "FROM alerts GROUP BY day ORDER BY day DESC LIMIT 14"
+                ).fetchall()
+                for row in rows:
+                    daily_alert_counts[row["day"]] = row["cnt"]
+                resolved_rows = _conn.execute(
+                    "SELECT substr(updated_at, 1, 10) as day, COUNT(*) as cnt "
+                    "FROM alerts WHERE status IN ('CONFIRMED_MULE','FALSE_POSITIVE','DISMISSED') "
+                    "GROUP BY day ORDER BY day DESC LIMIT 14"
+                ).fetchall()
+                for row in resolved_rows:
+                    daily_resolved_counts[row["day"]] = row["cnt"]
+        except Exception as exc:
+            logger.warning("Could not build trend data from DB: %s", exc)
+
+    trend_data = []
+    for i in range(14):
+        day = (today - datetime.timedelta(days=13 - i)).isoformat()
+        real_alerts = daily_alert_counts.get(day)
+        real_resolved = daily_resolved_counts.get(day)
+        trend_data.append({
+            "date": day,
+            # Use real DB count when available; otherwise mark as estimated
+            "alerts": real_alerts if real_alerts is not None else max(0, int(open_alert_count / 14)),
+            "flagged": max(0, int(flagged_count / 14)),
+            "resolved": real_resolved if real_resolved is not None else 0,
+            "is_estimated": real_alerts is None,
+        })
 
     return {
         "total_accounts": total_accounts,

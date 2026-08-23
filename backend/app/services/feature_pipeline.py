@@ -159,28 +159,18 @@ def build_feature_matrix(
     # 5. Attach label if present in source data
     # ------------------------------------------------------------------
     if has_label:
-        # Build account → max(is_mule_pattern) mapping
-        # (an account is labelled mule if ANY of its rows is labelled 1)
+        # Label propagation: only accounts that SENT flagged transactions are
+        # labelled as mules. Receivers are NOT propagated because they may be
+        # victims receiving money from a mule, not mules themselves.
+        # Mule pattern label is on the transaction row; a sender account is
+        # a mule if ANY transaction they sent carries is_mule_pattern == 1.
         label_map = (
             df.groupby("sender_account_id")["is_mule_pattern"]
             .max()
             .reset_index()
             .rename(columns={"sender_account_id": "account_id"})
         )
-        # Also capture label from receiver side
-        recv_label = (
-            df.groupby("receiver_account_id")["is_mule_pattern"]
-            .max()
-            .reset_index()
-            .rename(columns={"receiver_account_id": "account_id"})
-        )
-        all_labels = (
-            pd.concat([label_map, recv_label])
-            .groupby("account_id")["is_mule_pattern"]
-            .max()
-            .reset_index()
-        )
-        merged = merged.merge(all_labels, on="account_id", how="left")
+        merged = merged.merge(label_map, on="account_id", how="left")
         merged["is_mule_pattern"] = (
             merged["is_mule_pattern"].fillna(0).astype(int)
         )

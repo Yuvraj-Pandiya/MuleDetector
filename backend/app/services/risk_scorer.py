@@ -363,6 +363,25 @@ def score_accounts(
     import datetime
     today = datetime.datetime.now(datetime.timezone.utc)
 
+    # Build real last_activity map from transactions.csv (sender side)
+    # Instead of synthetic index-based timestamps, use actual last tx time per account
+    last_activity_map: dict = {}
+    try:
+        _tx_path = _DATA_DIR / "transactions.csv"
+        if _tx_path.exists():
+            _tx = pd.read_csv(_tx_path, usecols=lambda c: c in (
+                "sender_account_id", "receiver_account_id", "timestamp"
+            ))
+            _tx["timestamp"] = pd.to_datetime(_tx["timestamp"], errors="coerce")
+            _tx = _tx.dropna(subset=["timestamp"])
+            # Last time account appeared as sender OR receiver
+            _sender_last = _tx.groupby("sender_account_id")["timestamp"].max()
+            _receiver_last = _tx.groupby("receiver_account_id")["timestamp"].max()
+            _combined = pd.concat([_sender_last, _receiver_last]).groupby(level=0).max()
+            last_activity_map = _combined.dt.strftime("%Y-%m-%dT%H:%M:%S+00:00").to_dict()
+    except Exception as _exc:
+        logger.debug("Could not build last_activity map: %s", _exc)
+
     results = pd.DataFrame(
         {
             "account_id": feature_df["account_id"].values,
@@ -376,7 +395,11 @@ def score_accounts(
             "outgoing_amount": np.round(feature_df["total_amount_out_24h"].values, 2) if "total_amount_out_24h" in feature_df.columns else 0.0,
             "unique_counterparties": feature_df["unique_counterparty_count"].values if "unique_counterparty_count" in feature_df.columns else 0,
             "account_age": feature_df["account_age_days"].values if "account_age_days" in feature_df.columns else 0,
-            "last_activity": [(today - datetime.timedelta(hours=int(i % 48))).isoformat() for i in range(len(feature_df))],
+            # Real last transaction timestamp from transactions.csv; None if not available
+            "last_activity": [
+                last_activity_map.get(str(acct), None)
+                for acct in feature_df["account_id"]
+            ],
             "alert_count": [alert_counts.get(acct, 0) for acct in feature_df["account_id"]],
             "investigation_status": [alert_statuses.get(acct, "NONE") for acct in feature_df["account_id"]],
             "top_features": top_features_list,

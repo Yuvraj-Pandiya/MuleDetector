@@ -403,13 +403,27 @@ def explain_account(account_id: str, feature_df: pd.DataFrame) -> Dict[str, Any]
         "flow_chains": flow_chains,
     }
 
+    # Temporal behavior — derived from real feature values, not hardcoded strings
+    recent_vs_hist_txn = float(row_df.get("recent_vs_historical_transaction_ratio", 1.0))
+    recent_vs_hist_amt = float(row_df.get("recent_vs_historical_amount_ratio", 1.0))
+    txn_7d_val = int(row_df.get("txn_count_7d", txn_24h * 7))
+    acct_age_val = int(row_df.get("account_age_days", 30))
+
+    # Describe volume change using the real ratio feature
+    if recent_vs_hist_txn >= 3.0:
+        change_desc = f"Transaction volume {recent_vs_hist_txn:.1f}x above historical baseline (recent_vs_historical ratio)"
+    elif recent_vs_hist_txn >= 1.5:
+        change_desc = f"Moderate increase: {recent_vs_hist_txn:.1f}x above historical transaction baseline"
+    elif acct_age_val <= 30 and txn_24h >= 5:
+        change_desc = f"New account ({acct_age_val}d old) with elevated 24h transaction count ({txn_24h} txns) — no baseline for comparison"
+    else:
+        change_desc = "Consistent historical transaction trajectory"
+
     temporal_behavior = {
-        "recent_volume_vs_historical": f"${amt_out:,.2f} (24h) vs ${amt_out * 0.12:,.2f} (30d avg)",
-        "recent_amount_vs_historical": f"${avg_amt:,.2f} avg vs ${avg_amt * 0.25:,.2f} historical avg",
-        "behavior_change_indicators": (
-            "Abrupt break in account dormancy; 12x volume surge within 6-hour window."
-            if risk_score > 70 else "Consistent historical transaction trajectory."
-        ),
+        "recent_volume_vs_historical": f"${amt_out:,.2f} outbound (24h) | 7d txn count: {txn_7d_val}",
+        "recent_amount_vs_historical": f"Avg txn: ${avg_amt:,.2f} | Recent-vs-historical ratio: {recent_vs_hist_amt:.2f}x",
+        "behavior_change_indicators": change_desc,
+        "account_age_days": acct_age_val,
     }
 
     betweenness = float(row_df.get("betweenness_centrality", 0.12))
