@@ -3,9 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import {
   UploadCloud, FileText, CheckCircle2, AlertCircle, AlertTriangle,
   ArrowRight, Database, RefreshCw, Download, Sliders, ShieldCheck,
-  Zap, Info, FileSpreadsheet, Check, Sparkles
+  Zap, Info, FileSpreadsheet, Check, Sparkles, Tag
 } from 'lucide-react';
 import { previewDataset, confirmDatasetMapping, uploadDataset } from '../api/client';
+import { useDataset } from '../context/DatasetContext';
 import './UploadPage.css';
 
 const CANONICAL_OPTIONS = [
@@ -24,7 +25,9 @@ const CANONICAL_OPTIONS = [
 ];
 
 export default function UploadPage() {
+  const { switchDataset, refreshDatasets } = useDataset();
   const [file, setFile] = useState(null);
+  const [datasetName, setDatasetName] = useState('');
   const [isDragging, setIsDragging] = useState(false);
   const [loading, setLoading] = useState(false);
   const [confirming, setConfirming] = useState(false);
@@ -62,6 +65,7 @@ export default function UploadPage() {
 
   const resetState = (selectedFile) => {
     setFile(selectedFile);
+    setDatasetName(selectedFile?.name ? selectedFile.name.replace(/\.csv$/i, '') : '');
     setPreviewData(null);
     setUserMapping({});
     setResult(null);
@@ -82,6 +86,9 @@ export default function UploadPage() {
 
       const previewRes = await previewDataset(formData, (percent) => setUploadProgress(percent));
       setPreviewData(previewRes);
+      if (!datasetName && file?.name) {
+        setDatasetName(file.name.replace(/\.csv$/i, ''));
+      }
 
       // Initialize mapping dictionary with mapped_dict and mapped column targets
       const initialMap = { ...(previewRes.mapped_dict || {}) };
@@ -100,6 +107,7 @@ export default function UploadPage() {
           formData.append('file', file);
           const directRes = await uploadDataset(formData);
           setResult(directRes);
+          await refreshDatasets();
           return;
         } catch (fallbackErr) {
           const msg = fallbackErr.response?.data?.detail || fallbackErr.message || 'Direct upload failed.';
@@ -148,9 +156,15 @@ export default function UploadPage() {
       const payload = {
         upload_id: previewData.upload_id,
         mapping: userMapping,
+        dataset_name: datasetName.trim() || file?.name?.replace(/\.csv$/i, '') || `Upload ${previewData.upload_id}`,
       };
       const confirmRes = await confirmDatasetMapping(payload);
       setResult(confirmRes);
+      await refreshDatasets();
+      const newId = confirmRes.dataset?.id || confirmRes.upload_id || previewData.upload_id;
+      if (newId) {
+        await switchDataset(newId);
+      }
     } catch (err) {
       const serverDetail = err.response?.data?.detail;
       setError(serverDetail ? `Schema Error: ${serverDetail}` : (err.message || 'Failed to confirm schema mapping.'));
@@ -341,6 +355,24 @@ export default function UploadPage() {
                 </div>
               )}
 
+              {/* Dataset Name Input */}
+              <div className="dataset-name-card margin-top-sm">
+                <div className="dataset-name-label-row">
+                  <Tag size={14} className="text-cyan" />
+                  <span className="dataset-name-title">Dataset Name & Identifier</span>
+                </div>
+                <input
+                  type="text"
+                  className="dataset-name-input"
+                  value={datasetName}
+                  onChange={(e) => setDatasetName(e.target.value)}
+                  placeholder="e.g. Q3 2026 Core Banking Audit Logs"
+                />
+                <span className="dataset-name-hint">
+                  This custom label will appear in the top <strong>Dataset Switcher</strong> so you can switch between PaySim benchmark and this dataset at any time.
+                </span>
+              </div>
+
               {/* Confirm Actions */}
               <div className="preview-actions flex-between margin-top-md">
                 <button className="btn-secondary" onClick={() => setPreviewData(null)}>
@@ -355,7 +387,7 @@ export default function UploadPage() {
                   {confirming ? (
                     <><RefreshCw size={16} className="animate-spin" /> Normalizing & Indexing…</>
                   ) : (
-                    <>Confirm Mapping & Run AML Pipeline <Check size={16} /></>
+                    <>Confirm Mapping & Register Dataset <Check size={16} /></>
                   )}
                 </button>
               </div>

@@ -42,17 +42,12 @@ _TRANSACTIONS_CSV = _DATA_DIR / "transactions.csv"
 # Shared helper
 # ---------------------------------------------------------------------------
 
+from app.services.dataset_registry import get_active_feature_df
+
 def _load_feature_df() -> pd.DataFrame:
-    """Load feature DataFrame from transactions.csv (or mock_features.csv fallback)."""
-    if _TRANSACTIONS_CSV.exists():
-        from app.services.feature_pipeline import build_feature_matrix
-        return build_feature_matrix(_TRANSACTIONS_CSV)
-    
-    mock_csv = _DATA_DIR / "mock_features.csv"
-    if not mock_csv.exists():
-        from app.services.mock_generator import generate_mock_features_csv
-        generate_mock_features_csv(mock_csv)
-    return pd.read_csv(mock_csv)
+    """Load feature DataFrame from active dataset in dataset_registry."""
+    df, _ = get_active_feature_df()
+    return df
 
 
 # ---------------------------------------------------------------------------

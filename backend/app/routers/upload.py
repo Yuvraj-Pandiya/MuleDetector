@@ -36,6 +36,7 @@ _TRANSACTIONS_PATH = _DATA_DIR / "transactions.csv"
 class ConfirmMappingPayload(BaseModel):
     upload_id: str
     mapping: Dict[str, str]
+    dataset_name: Optional[str] = None
 
 
 @router.get(
@@ -160,6 +161,30 @@ def confirm_upload_mapping(payload: ConfirmMappingPayload):
             mapping_dict=payload.mapping,
             upload_id=payload.upload_id,
         )
+        
+        # Register into Named Dataset Registry
+        from app.services.dataset_registry import register_upload_dataset
+        import pandas as pd
+        
+        norm_csv_path = norm_res.get("normalized_csv_path")
+        account_cnt = 0
+        if norm_csv_path and Path(norm_csv_path).exists():
+            try:
+                df_temp = pd.read_csv(norm_csv_path)
+                account_cnt = len(set(df_temp.get("sender_account_id", [])).union(set(df_temp.get("receiver_account_id", []))))
+            except Exception:
+                account_cnt = norm_res.get("row_count", 0)
+        
+        ds_name = payload.dataset_name.strip() if payload.dataset_name and payload.dataset_name.strip() else f"Uploaded Dataset ({payload.upload_id})"
+        registered_ds = register_upload_dataset(
+            dataset_id=payload.upload_id,
+            name=ds_name,
+            file_path=norm_csv_path or str(_TRANSACTIONS_PATH),
+            row_count=norm_res["row_count"],
+            account_count=account_cnt,
+            quality_report=norm_res["quality_report"],
+            set_as_active=True,
+        )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except Exception as exc:
@@ -173,6 +198,7 @@ def confirm_upload_mapping(payload: ConfirmMappingPayload):
             "row_count": norm_res["row_count"],
             "columns": norm_res["columns"],
             "quality_report": norm_res["quality_report"],
+            "dataset": registered_ds,
         }),
     )
 

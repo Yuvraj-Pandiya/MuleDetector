@@ -30,7 +30,7 @@ from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.routers import alerts, api_v1, dashboard, feature_selection, features, feedback, graph, health, predict, retrain, sar, stream, train, upload
+from app.routers import alerts, api_v1, dashboard, datasets, feature_selection, features, feedback, graph, health, predict, retrain, sar, stream, train, upload
 
 logger = logging.getLogger("mule_detector")
 logging.basicConfig(
@@ -45,17 +45,14 @@ _DATA_DIR = Path(__file__).parent / "data"
 
 @asynccontextmanager
 async def lifespan(application: FastAPI):
-    """Startup: purge any stale upload markers so the PaySim benchmark is always the default."""
-    active_marker = _DATA_DIR / "active_upload.json"
-    stale_upload  = _DATA_DIR / "transactions.csv"
-    for _path in (active_marker, stale_upload):
-        if _path.exists():
-            try:
-                _path.unlink()
-                logger.info("[Startup] Purged stale upload artefact: %s", _path.name)
-            except Exception as _e:
-                logger.warning("[Startup] Could not purge %s: %s", _path.name, _e)
-    logger.info("[Startup] Default dataset: PaySim 15,420-account benchmark (mock_features.csv)")
+    """Startup: initialize datasets registry and verify benchmark dataset."""
+    try:
+        from app.services.dataset_registry import list_datasets, get_active_dataset
+        ds_list = list_datasets()
+        active = get_active_dataset()
+        logger.info("[Startup] Dataset Registry initialized with %d datasets. Active: '%s'", len(ds_list), active.get("name"))
+    except Exception as _e:
+        logger.warning("[Startup] Could not initialize dataset registry: %s", _e)
     yield  # app runs here
 
 app = FastAPI(
@@ -138,6 +135,7 @@ app.include_router(predict.router)
 app.include_router(alerts.router)
 app.include_router(dashboard.router)
 app.include_router(upload.router)
+app.include_router(datasets.router)
 app.include_router(features.router)
 app.include_router(graph.router)
 app.include_router(feature_selection.router)

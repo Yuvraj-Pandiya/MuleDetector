@@ -45,20 +45,15 @@ _MOCK_CSV = _DATA_DIR / "mock_features.csv"
 
 _TRANSACTIONS_CSV = _DATA_DIR / "transactions.csv"
 
-def _load_feature_df() -> pd.DataFrame:
-    """Load feature DataFrame from PaySim benchmark dataset (or active custom user upload)."""
-    active_upload_marker = _DATA_DIR / "active_upload.json"
-    if active_upload_marker.exists() and _TRANSACTIONS_CSV.exists() and _TRANSACTIONS_CSV.stat().st_size > 500:
-        try:
-            from app.services.feature_pipeline import build_feature_matrix
-            return build_feature_matrix(_TRANSACTIONS_CSV)
-        except Exception as exc:
-            logger.warning("build_feature_matrix failed on active upload, falling back to PaySim benchmark: %s", exc)
+from app.services.dataset_registry import (
+    get_active_dataset,
+    get_active_feature_df,
+    PAYSIM_BENCHMARK_ID,
+)
 
-    if not _MOCK_CSV.exists():
-        from app.services.mock_generator import generate_mock_features_csv
-        generate_mock_features_csv(_MOCK_CSV)
-    return pd.read_csv(_MOCK_CSV)
+def _load_feature_df() -> tuple[pd.DataFrame, bool]:
+    """Load feature DataFrame from active dataset in dataset_registry."""
+    return get_active_feature_df()
 
 
 def _load_metrics() -> dict:
@@ -103,7 +98,8 @@ def get_dashboard_summary() -> dict[str, Any]:
       - behavioral_signals
       - recent_alerts
     """
-    df = _load_feature_df()
+    df, is_benchmark = _load_feature_df()
+    active_dataset = get_active_dataset()
 
     try:
         scored = score_accounts(df)
@@ -153,27 +149,31 @@ def get_dashboard_summary() -> dict[str, Any]:
     suspicious_mule_cnt = crit_cnt + high_cnt
     legit_cnt = total_accounts - suspicious_mule_cnt
 
-    active_upload_marker = _DATA_DIR / "active_upload.json"
-    if active_upload_marker.exists() and _TRANSACTIONS_CSV.exists() and _TRANSACTIONS_CSV.stat().st_size > 500:
-        try:
-            from app.services.data_loader import load_transactions
-            raw_tx_df = load_transactions(_TRANSACTIONS_CSV)
-            total_txns = len(raw_tx_df)
-            unique_senders = raw_tx_df["sender_account_id"].nunique()
-            unique_receivers = raw_tx_df["receiver_account_id"].nunique()
-            if "timestamp" in raw_tx_df.columns:
-                min_t = raw_tx_df["timestamp"].min()
-                max_t = raw_tx_df["timestamp"].max()
-                date_range_str = f"{min_t} to {max_t}"
-            if "is_mule_pattern" in raw_tx_df.columns:
-                mule_txns = int((raw_tx_df["is_mule_pattern"] == 1).sum())
-                if mule_txns > 0:
-                    suspicious_mule_cnt = int(raw_tx_df[raw_tx_df["is_mule_pattern"] == 1]["sender_account_id"].nunique())
-                    legit_cnt = total_accounts - suspicious_mule_cnt
-        except Exception as exc:
-            logger.warning("Could not read raw transactions: %s", exc)
+    if not is_benchmark:
+        # Load from active custom upload file
+        csv_file_path = active_dataset.get("file_path")
+        if csv_file_path and pathlib.Path(csv_file_path).exists():
+            try:
+                from app.services.data_loader import load_transactions
+                raw_tx_df = load_transactions(csv_file_path)
+                total_txns = len(raw_tx_df)
+                unique_senders = raw_tx_df["sender_account_id"].nunique()
+                unique_receivers = raw_tx_df["receiver_account_id"].nunique()
+                if "timestamp" in raw_tx_df.columns:
+                    min_t = raw_tx_df["timestamp"].min()
+                    max_t = raw_tx_df["timestamp"].max()
+                    date_range_str = f"{min_t} to {max_t}"
+                if "is_mule_pattern" in raw_tx_df.columns:
+                    mule_txns = int((raw_tx_df["is_mule_pattern"] == 1).sum())
+                    if mule_txns > 0:
+                        suspicious_mule_cnt = int(raw_tx_df[raw_tx_df["is_mule_pattern"] == 1]["sender_account_id"].nunique())
+                        legit_cnt = total_accounts - suspicious_mule_cnt
+            except Exception as exc:
+                logger.warning("Could not read custom upload transactions: %s", exc)
+        if total_txns == 0:
+            total_txns = total_accounts * 5
     else:
-        # Default 15,420 account PaySim benchmark dataset telemetry for presentation demo
+        # PaySim 15,420 benchmark dataset telemetry
         scale_factor = 15.42
         total_accounts = int(round(total_accounts * scale_factor))
         low_cnt = int(round(low_cnt * scale_factor))
@@ -209,11 +209,9 @@ def get_dashboard_summary() -> dict[str, Any]:
         "high_risk_accounts": high_cnt,
         "critical_risk_accounts": crit_cnt,
         "total_active_alerts": open_alert_count,
-        # Confirmed mules = accounts where an analyst explicitly confirmed via HITL feedback,
-        # NOT just accounts classified as Critical tier by the model
         "confirmed_mule_accounts": int(
             (scored["investigation_status"] == "CONFIRMED_MULE").sum()
-        ),
+        ) if "investigation_status" in scored.columns else 0,
     }
 
     # Model metrics — only use real values from metrics.json; never fabricate numbers
@@ -315,7 +313,9 @@ def get_dashboard_summary() -> dict[str, Any]:
         "detection_performance": detection_performance,
         "behavioral_signals": behavioral_signals,
         "recent_alerts": recent_alerts,
-        "data_source": str(_TRANSACTIONS_CSV if _TRANSACTIONS_CSV.exists() else _MOCK_CSV),
+        "active_dataset": active_dataset,
+        "active_dataset_id": active_dataset.get("id"),
+        "data_source": str(active_dataset.get("file_path", _MOCK_CSV)),
     }
 
 

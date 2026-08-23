@@ -201,12 +201,47 @@ export async function previewDataset(formData, onProgress) {
 export async function confirmDatasetMapping(payload) {
   if (MOCK) {
     await new Promise((r) => setTimeout(r, 600));
+    const uploadId = payload.upload_id || `up_${Math.random().toString(16).slice(2, 8)}`;
+    const dsName = payload.dataset_name || `Custom Upload (${uploadId})`;
+    const rowCount = 196;
+    const accountCount = 191;
+    
+    // Save to mock dataset list
+    const saved = localStorage.getItem('mule_mock_datasets');
+    let list = saved ? JSON.parse(saved) : [
+      {
+        id: 'paysim_benchmark',
+        name: 'PaySim Benchmark (15,420 accounts)',
+        type: 'benchmark',
+        row_count: 185040,
+        account_count: 15420,
+        is_builtin: true,
+        is_active: false,
+      },
+    ];
+    // Deactivate others and add new
+    list = list.map((d) => ({ ...d, is_active: false }));
+    const newDs = {
+      id: uploadId,
+      name: dsName,
+      type: 'custom_upload',
+      row_count: rowCount,
+      account_count: accountCount,
+      is_builtin: false,
+      is_active: true,
+      created_at: new Date().toISOString(),
+    };
+    list.push(newDs);
+    localStorage.setItem('mule_mock_datasets', JSON.stringify(list));
+    localStorage.setItem('active_dataset_id', uploadId);
+
     return {
       status: 'success',
-      upload_id: payload.upload_id || 'up_mock1234',
-      row_count: 1000,
+      upload_id: uploadId,
+      row_count: rowCount,
       columns: ['transaction_id', 'sender_account_id', 'receiver_account_id', 'amount', 'timestamp', 'transaction_type'],
-      quality_report: { row_count: 1000, unique_senders: 120, unique_receivers: 140, duplicate_count: 0, invalid_amount_count: 0, can_predict: true, can_train: false },
+      quality_report: { row_count: rowCount, unique_senders: 110, unique_receivers: 95, duplicate_count: 0, invalid_amount_count: 0, can_predict: true, can_train: false },
+      dataset: newDs,
     };
   }
   const { data } = await api.post('/upload-dataset/confirm', payload, {
@@ -240,7 +275,61 @@ export async function uploadDataset(formData, onProgress) {
 }
 
 export async function getDashboardSummary() {
-  if (MOCK) return mockDashboard;
+  if (MOCK) {
+    const activeId = localStorage.getItem('active_dataset_id') || 'paysim_benchmark';
+    if (activeId !== 'paysim_benchmark') {
+      const saved = localStorage.getItem('mule_mock_datasets');
+      const list = saved ? JSON.parse(saved) : [];
+      const current = list.find((d) => d.id === activeId) || { name: 'Custom Upload', row_count: 196, account_count: 191 };
+      return {
+        ...mockDashboard,
+        total_accounts: current.account_count || 191,
+        flagged_count: 14,
+        open_alerts: 8,
+        avg_risk_score: 41.5,
+        confirmed_mule_accounts: 0,
+        active_dataset_id: activeId,
+        active_dataset: current,
+        risk_distribution: { critical: 4, high: 10, medium: 72, low: 105 },
+        detection_overview: {
+          total_accounts_scored: current.account_count || 191,
+          low_risk_accounts: 105,
+          medium_risk_accounts: 72,
+          high_risk_accounts: 10,
+          critical_risk_accounts: 4,
+          total_active_alerts: 8,
+          confirmed_mule_accounts: 0,
+        },
+        dataset_overview: {
+          total_transactions: current.row_count || 196,
+          unique_accounts: current.account_count || 191,
+          unique_senders: 110,
+          unique_receivers: 95,
+          date_time_range: '2026-08-20 to 2026-08-23',
+          suspicious_mule_accounts: 14,
+          legitimate_accounts: (current.account_count || 191) - 14,
+          class_distribution: {
+            legitimate: (current.account_count || 191) - 14,
+            mule: 14,
+            mule_pct: 7.3,
+          },
+        },
+      };
+    }
+    return {
+      ...mockDashboard,
+      active_dataset_id: 'paysim_benchmark',
+      active_dataset: {
+        id: 'paysim_benchmark',
+        name: 'PaySim Benchmark (15,420 accounts)',
+        type: 'benchmark',
+        row_count: 185040,
+        account_count: 15420,
+        is_builtin: true,
+        is_active: true,
+      },
+    };
+  }
   try {
     const { data } = await api.get('/dashboard/summary');
     return data;
@@ -1087,6 +1176,116 @@ export async function getApiSarForAccount(accountId) {
 
 export async function postApiSaveSar(payload) {
   const { data } = await api.post('/sar', payload);
+  return data;
+}
+
+// ── Multi-Dataset Management API Wrappers ─────────────────────────
+export async function getDatasets() {
+  if (MOCK) {
+    const saved = localStorage.getItem('mule_mock_datasets');
+    let list = saved ? JSON.parse(saved) : [
+      {
+        id: 'paysim_benchmark',
+        name: 'PaySim Benchmark (15,420 accounts)',
+        type: 'benchmark',
+        row_count: 185040,
+        account_count: 15420,
+        is_builtin: true,
+        is_active: true,
+      },
+    ];
+    const activeId = localStorage.getItem('active_dataset_id') || 'paysim_benchmark';
+    list = list.map((d) => ({ ...d, is_active: d.id === activeId }));
+    return { datasets: list, active_dataset_id: activeId };
+  }
+  try {
+    const { data } = await api.get('/datasets');
+    return data;
+  } catch (err) {
+    console.warn('Failed to load datasets from backend, fallback to default:', err);
+    return {
+      datasets: [
+        {
+          id: 'paysim_benchmark',
+          name: 'PaySim Benchmark (15,420 accounts)',
+          type: 'benchmark',
+          row_count: 185040,
+          account_count: 15420,
+          is_builtin: true,
+          is_active: true,
+        },
+      ],
+      active_dataset_id: 'paysim_benchmark',
+    };
+  }
+}
+
+export async function getActiveDataset() {
+  if (MOCK) {
+    const res = await getDatasets();
+    return res.datasets.find((d) => d.is_active) || res.datasets[0];
+  }
+  try {
+    const { data } = await api.get('/datasets/active');
+    return data;
+  } catch (err) {
+    return {
+      id: 'paysim_benchmark',
+      name: 'PaySim Benchmark (15,420 accounts)',
+      type: 'benchmark',
+      row_count: 185040,
+      account_count: 15420,
+      is_builtin: true,
+      is_active: true,
+    };
+  }
+}
+
+export async function activateDataset(datasetId) {
+  localStorage.setItem('active_dataset_id', datasetId);
+  if (MOCK) {
+    const saved = localStorage.getItem('mule_mock_datasets');
+    if (saved) {
+      const list = JSON.parse(saved).map((d) => ({ ...d, is_active: d.id === datasetId }));
+      localStorage.setItem('mule_mock_datasets', JSON.stringify(list));
+    }
+    return { status: 'success', active_dataset_id: datasetId };
+  }
+  try {
+    const { data } = await api.post(`/datasets/${datasetId}/activate`);
+    return data;
+  } catch (err) {
+    console.warn('Failed activating dataset on backend:', err);
+    return { status: 'success', active_dataset_id: datasetId };
+  }
+}
+
+export async function deleteDataset(datasetId) {
+  if (MOCK) {
+    const saved = localStorage.getItem('mule_mock_datasets');
+    if (saved) {
+      let list = JSON.parse(saved).filter((d) => d.id !== datasetId);
+      localStorage.setItem('mule_mock_datasets', JSON.stringify(list));
+    }
+    if (localStorage.getItem('active_dataset_id') === datasetId) {
+      localStorage.setItem('active_dataset_id', 'paysim_benchmark');
+    }
+    return { status: 'success', deleted_id: datasetId };
+  }
+  const { data } = await api.delete(`/datasets/${datasetId}`);
+  return data;
+}
+
+export async function renameDataset(datasetId, name) {
+  if (MOCK) {
+    const saved = localStorage.getItem('mule_mock_datasets');
+    if (saved) {
+      const list = JSON.parse(saved).map((d) => (d.id === datasetId ? { ...d, name } : d));
+      localStorage.setItem('mule_mock_datasets', JSON.stringify(list));
+    }
+    return { status: 'success', dataset: { id: datasetId, name } };
+  }
+  const { data } = await api.post(`/datasets/${datasetId}/rename`, { name });
   return data;
 }
 

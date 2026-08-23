@@ -69,6 +69,11 @@ export default function AccountsPage() {
 
   useEffect(() => {
     loadAccounts();
+    const handleDatasetChange = () => {
+      loadAccounts();
+    };
+    window.addEventListener('dataset-changed', handleDatasetChange);
+    return () => window.removeEventListener('dataset-changed', handleDatasetChange);
   }, [page, pageSize, sort, tier, anomalyOnly, status, startDate, endDate]);
 
   // Debounced search & numeric filter submission

@@ -2,6 +2,7 @@ import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ShieldAlert, Sun, Moon } from 'lucide-react';
 import GooeyNav from '../ui/GooeyNav';
+import DatasetSwitcher from './DatasetSwitcher';
 import './Sidebar.css';
 
 const navItems = [
@@ -58,6 +59,8 @@ export default function Sidebar({ theme = 'dark', onToggleTheme }) {
       </div>
 
       <div className="header-actions">
+        <DatasetSwitcher />
+
         <div className="system-status" title="Engine Online">
           <span className="status-dot" />
           <span className="status-text">Online</span>
