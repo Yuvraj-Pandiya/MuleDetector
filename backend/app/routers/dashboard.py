@@ -110,13 +110,13 @@ def get_dashboard_summary() -> dict[str, Any]:
         raise HTTPException(status_code=500, detail=f"Scoring failed: {exc}") from exc
 
     total_accounts = len(scored)
-    flagged_count = int((scored["risk_score"] > TIER_HIGH_THRESHOLD).sum())
-    avg_score = round(float(scored["risk_score"].mean() * 100), 1)
+    flagged_count = int((scored["risk_score"] >= TIER_HIGH_THRESHOLD).sum())
+    avg_score = round(float(scored["risk_score"].mean()), 1)
 
-    low_cnt = int((scored["risk_score"] <= 0.30).sum())
-    med_cnt = int(((scored["risk_score"] > 0.30) & (scored["risk_score"] <= 0.70)).sum())
-    high_cnt = int(((scored["risk_score"] > 0.70) & (scored["risk_score"] <= 0.85)).sum())
-    crit_cnt = int((scored["risk_score"] > 0.85).sum())
+    low_cnt = int((scored["risk_tier"] == "Low").sum())
+    med_cnt = int((scored["risk_tier"] == "Medium").sum())
+    high_cnt = int((scored["risk_tier"] == "High").sum())
+    crit_cnt = int((scored["risk_tier"] == "Critical").sum())
 
     tier_breakdown = {
         "critical": crit_cnt,
