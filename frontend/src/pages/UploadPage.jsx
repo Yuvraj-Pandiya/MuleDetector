@@ -93,6 +93,20 @@ export default function UploadPage() {
       setUserMapping(initialMap);
     } catch (err) {
       console.error('Schema preview error:', err);
+      if (err.response?.status === 404) {
+        // Fallback for servers without /preview endpoint
+        try {
+          const formData = new FormData();
+          formData.append('file', file);
+          const directRes = await uploadDataset(formData);
+          setResult(directRes);
+          return;
+        } catch (fallbackErr) {
+          const msg = fallbackErr.response?.data?.detail || fallbackErr.message || 'Direct upload failed.';
+          setError(`Upload Error: ${msg}`);
+          return;
+        }
+      }
       const isTimeout = err.code === 'ECONNABORTED' || err.message?.includes('timeout');
       if (isTimeout) {
         setError(`Upload Timeout (${(file.size / (1024 * 1024)).toFixed(1)} MB): Processing large CSVs requires extended time. The 10-minute timeout has been applied. Please click 'Analyze & Map Schema' to retry.`);

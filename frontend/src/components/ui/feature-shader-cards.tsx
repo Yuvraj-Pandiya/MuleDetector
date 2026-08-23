@@ -140,7 +140,7 @@ const FEATURES: FeatureCardData[] = [
   },
 ];
 
-export function FeatureShaderCards() {
+export default function FeatureShaderCards() {
   const [reduceMotion, setReduceMotion] = useState(false);
 
   useEffect(() => {
@@ -403,5 +403,3 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode; onError
     return this.props.children;
   }
 }
-
-export default FeatureShaderCards;

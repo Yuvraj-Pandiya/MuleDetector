@@ -56,7 +56,13 @@
   flex: 1;
   display: flex;
   justify-content: center;
-  overflow: hidden;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.header-nav-center::-webkit-scrollbar {
+  display: none;
 }
 
 .header-actions {

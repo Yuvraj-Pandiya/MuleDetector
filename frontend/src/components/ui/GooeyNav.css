@@ -78,8 +78,8 @@
 
 .gooey-nav-container nav ul li a {
   display: inline-block;
-  padding: 0.4em 0.75em;
-  font-size: 13px;
+  padding: 0.35em 0.55em;
+  font-size: 12px;
   font-weight: 600;
   text-decoration: none;
   color: inherit;
@@ -102,7 +102,8 @@
   z-index: -1;
 }
 
-.gooey-nav-container nav ul li.active {
+.gooey-nav-container nav ul li.active,
+.gooey-nav-container nav ul li.active a {
   color: var(--gooey-active-text-color) !important;
   font-weight: 700;
 }
@@ -126,33 +127,11 @@
 }
 
 .gooey-nav-container .effect.text {
-  color: var(--gooey-text-color);
-  transition: color 0.3s ease;
-  font-size: 14px;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.gooey-nav-container .effect.text.active {
-  color: var(--gooey-active-text-color) !important;
+  display: none !important;
 }
 
 .gooey-nav-container .effect.filter {
-  filter: blur(4px);
-  mix-blend-mode: normal;
-}
-
-[data-theme="light"] .gooey-nav-container .effect.filter {
-  mix-blend-mode: normal;
-  display: none;
-}
-
-.gooey-nav-container .effect.filter::before {
-  content: '';
-  position: absolute;
-  inset: -75px;
-  z-index: -2;
-  background: var(--gooey-filter-bg);
+  display: none !important;
 }
 
 .gooey-nav-container .effect.filter::after {
