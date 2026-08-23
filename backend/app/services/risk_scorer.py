@@ -121,16 +121,30 @@ class CalibratedRiskScorer:
         return final_score
 
     def assign_risk_tier(self, score: float) -> str:
-        """Assign configurable risk tier label for a single risk score (0-100)."""
+        """Assign configurable risk tier label for a single risk score (0-100).
+
+        Uses half-open intervals [low, high) to prevent boundary scores from
+        double-classifying into two adjacent tiers. The top tier (Critical) uses
+        a closed upper bound [85, 100] to capture the maximum score.
+        """
         sc = float(score)
-        # Check tier boundaries according to risk_tier_config
-        for tier_name, (low_b, high_b) in self.risk_tier_config.items():
-            if low_b <= sc <= high_b:
-                if tier_name == "Critical" and sc >= low_b:
+        # Sort tiers by lower bound descending so highest tier matches first
+        sorted_tiers = sorted(
+            self.risk_tier_config.items(),
+            key=lambda kv: kv[1][0],
+            reverse=True,
+        )
+        for tier_name, (low_b, high_b) in sorted_tiers:
+            if high_b >= 100.0:
+                # Top tier: closed interval [low_b, 100]
+                if sc >= low_b:
                     return tier_name
-                if sc < high_b or (high_b >= 100.0 and sc <= 100.0):
+            else:
+                # All other tiers: half-open interval [low_b, high_b)
+                if low_b <= sc < high_b:
                     return tier_name
 
+        # Fallback (should never be reached with default config)
         if sc >= 85.0:
             return "Critical"
         elif sc >= 70.0:

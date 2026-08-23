@@ -128,7 +128,7 @@ def get_dashboard_summary() -> dict[str, Any]:
     tier_breakdown_raw: dict[str, int] = (
         scored["risk_tier"]
         .value_counts()
-        .reindex(["High", "Medium", "Low"], fill_value=0)
+        .reindex(["Critical", "High", "Medium", "Low"], fill_value=0)
         .to_dict()
     )
 

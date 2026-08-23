@@ -326,14 +326,20 @@ def explain_account(account_id: str, feature_df: pd.DataFrame) -> Dict[str, Any]
         "account_age": acct_age,
     }
 
+    txn_1h = int(row_df.get("txn_count_1h", 0))
+    txn_7d = int(row_df.get("txn_count_7d", txn_24h * 7))
+    # Compute a factual spike ratio using real 1h vs 24h counts
+    hourly_avg_from_24h = max(txn_24h / 24.0, 0.001)
+    spike_ratio = round(txn_1h / hourly_avg_from_24h, 1) if txn_1h > 0 else 1.0
     velocity = {
-        "txn_count_5m": int(row_df.get("txn_count_1h", 3) / 4),
-        "txn_count_15m": int(row_df.get("txn_count_1h", 3) / 2),
-        "txn_count_1h": int(row_df.get("txn_count_1h", 3)),
+        # txn_count_5m and txn_count_15m removed — no sub-hourly feature available;
+        # fabricating them by dividing txn_count_1h assumed uniform distribution
+        "txn_count_1h": txn_1h,
         "txn_count_24h": txn_24h,
+        "txn_count_7d": txn_7d,
         "volume_spike_indicators": (
-            f"Transaction velocity spiked {int(row_df.get('txn_count_1h', 3) * 120)}% above 30-day baseline during peak window."
-            if row_df.get("txn_count_1h", 0) > 2 else "Velocity within normal baseline limits."
+            f"Transaction velocity {spike_ratio}x above 24h hourly average in peak window."
+            if spike_ratio > 1.5 else "Velocity within normal baseline limits."
         ),
     }
 
@@ -389,8 +395,9 @@ def explain_account(account_id: str, feature_df: pd.DataFrame) -> Dict[str, Any]
         "average_forwarding_delay": round(avg_fwd, 1),
         "average_forwarding_time": round(avg_fwd, 1),
         "median_forwarding_time": round(avg_fwd * 0.85, 1),
-        "percentage_forwarded_within_5m": 72.4 if avg_fwd < 30 else 18.2,
-        "percentage_forwarded_within_15m": 88.6 if avg_fwd < 45 else 34.1,
+        # Derived from avg_forwarding_delay — not individual transaction timing;
+        # exact per-transaction percentages require raw tx data which is loaded separately
+        "rapid_forwarding_flag": avg_fwd < 15.0,
         "retention_ratio": round(max(0.0, (amt_in - amt_out) / max(amt_in, 1.0)), 4),
         "incoming_outgoing_ratio": round(amt_in / max(amt_out, 1.0), 4),
         "flow_chains": flow_chains,
@@ -409,26 +416,36 @@ def explain_account(account_id: str, feature_df: pd.DataFrame) -> Dict[str, Any]
     fan_in = float(row_df.get("fan_in_ratio", 1.2))
     fan_out = float(row_df.get("fan_out_ratio", 4.8))
 
+    # Build real connected suspicious accounts from actual transactions
+    real_suspicious_counterparties: List[str] = []
+    if risk_score > 60 and raw_txns:
+        # raw_txns is populated below from transactions.csv — use scored results for suspicion
+        counterparty_ids = [
+            t.get("counterparty") for t in raw_txns
+            if t.get("counterparty") and t.get("counterparty") != account_id
+        ]
+        # Deduplicate and take top 4
+        seen: set = set()
+        for cp in counterparty_ids:
+            if cp not in seen:
+                real_suspicious_counterparties.append(cp)
+                seen.add(cp)
+            if len(real_suspicious_counterparties) >= 4:
+                break
+
     network = {
         "incoming_connections": in_deg,
         "outgoing_connections": out_deg,
         "fan_in": round(fan_in, 2),
         "fan_out": round(fan_out, 2),
-        "pagerank": round(betweenness * 0.85 + 0.015, 4),
-        "connected_suspicious_accounts": [
-            f"ACC-00{1000 + (i * 7) % 50}" for i in range(1, min(in_deg + out_deg, 4) + 1)
-        ] if risk_score > 60 else [],
+        # betweenness_centrality_score — renamed from "pagerank" (different graph metric)
+        "betweenness_centrality_score": round(betweenness, 4),
+        "connected_counterparties": real_suspicious_counterparties,
     }
 
-    model_explanation = {
-        "top_shap_features": top_shap,
-        "all_shap_features": all_shap_features,
-        "positive_contributors": top_positive_features,
-        "negative_contributors": top_negative_features,
-        "reason": explanation_str,
-        "explanation": explanation_str,
-    }
-
+    # ---------------------------------------------------------------------------
+    # Load raw transactions FIRST — needed by network (counterparties) and timeline
+    # ---------------------------------------------------------------------------
     raw_txns = []
     tx_file = _DATA_DIR / "transactions.csv"
     if tx_file.exists():
@@ -479,40 +496,15 @@ def explain_account(account_id: str, feature_df: pd.DataFrame) -> Dict[str, Any]
         except Exception as exc:
             logger.warning("Could not slice raw transactions for %s: %s", account_id, exc)
 
-    if not raw_txns:
-        for i in range(min(txn_24h, 8)):
-            is_outgoing = (i % 2 == 0)
-            direction = "OUTGOING" if is_outgoing else "INCOMING"
-            amt_val = round(avg_amt * (0.7 + (i % 4) * 0.4), 2)
-            is_rapid = bool((i <= 2) and (avg_fwd < 20.0) and is_outgoing)
-            is_abnormal = bool(amt_val > (avg_amt * 1.8))
-            is_velocity = bool((i <= 3) and (row_df.get("txn_count_1h", 0) > 2))
+    model_explanation = {
+        "top_shap_features": top_shap,
+        "all_shap_features": all_shap_features,
+        "positive_contributors": top_positive_features,
+        "negative_contributors": top_negative_features,
+        "reason": explanation_str,
+        "explanation": explanation_str,
+    }
 
-            indicator_labels = []
-            if is_rapid:
-                indicator_labels.append("Rapid Fund Forwarding (<15m)")
-            if is_abnormal:
-                indicator_labels.append(f"Abnormal Amount ({amt_val / max(avg_amt, 1.0):.1f}x avg)")
-            if is_velocity:
-                indicator_labels.append("High Velocity Window Spike")
-
-            raw_txns.append(
-                {
-                    "transaction_id": f"TXN-{account_id}-{101 + i}",
-                    "timestamp": (base_time - datetime.timedelta(minutes=i * 22 + 4)).isoformat(),
-                    "direction": direction,
-                    "counterparty": f"ACC-00{1000 + (i * 13) % 85}",
-                    "amount": amt_val,
-                    "transaction_type": "CASH_OUT" if is_outgoing else "PAYMENT",
-                    "running_activity_context": f"Activity #{i+1} in audit window • Sequence Position #{i+1}",
-                    "contextual_indicators": {
-                        "rapid_forwarding": bool(is_rapid),
-                        "abnormal_amount": bool(is_abnormal),
-                        "velocity_spike": bool(is_velocity),
-                        "indicator_labels": indicator_labels,
-                    },
-                }
-            )
 
     timeline = raw_txns
 
