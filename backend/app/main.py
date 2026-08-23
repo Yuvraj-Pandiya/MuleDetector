@@ -38,6 +38,26 @@ logging.basicConfig(
     format="%(asctime)s  %(levelname)-8s  %(name)s  %(message)s",
 )
 
+from contextlib import asynccontextmanager
+from pathlib import Path
+
+_DATA_DIR = Path(__file__).parent / "data"
+
+@asynccontextmanager
+async def lifespan(application: FastAPI):
+    """Startup: purge any stale upload markers so the PaySim benchmark is always the default."""
+    active_marker = _DATA_DIR / "active_upload.json"
+    stale_upload  = _DATA_DIR / "transactions.csv"
+    for _path in (active_marker, stale_upload):
+        if _path.exists():
+            try:
+                _path.unlink()
+                logger.info("[Startup] Purged stale upload artefact: %s", _path.name)
+            except Exception as _e:
+                logger.warning("[Startup] Could not purge %s: %s", _path.name, _e)
+    logger.info("[Startup] Default dataset: PaySim 15,420-account benchmark (mock_features.csv)")
+    yield  # app runs here
+
 app = FastAPI(
     title="MuleDetector API",
     description=(
@@ -47,6 +67,7 @@ app = FastAPI(
     version="0.1.0",
     docs_url="/docs",
     redoc_url="/redoc",
+    lifespan=lifespan,
 )
 
 # ---------------------------------------------------------------------------

@@ -63,11 +63,31 @@ const mockAlerts = [
 ];
 
 const mockDashboard = {
-  total_accounts: 1247,
-  flagged_count: 89,
-  open_alerts: 34,
-  avg_risk_score: 42.7,
-  risk_distribution: { critical: 23, high: 66, medium: 312, low: 846 },
+  total_accounts: 15420,
+  flagged_count: 154,
+  open_alerts: 66,
+  avg_risk_score: 32.9,
+  confirmed_mule_accounts: 0,
+  risk_distribution: { critical: 46, high: 108, medium: 8574, low: 6692 },
+  detection_overview: {
+    total_accounts_scored: 15420,
+    low_risk_accounts: 6692,
+    medium_risk_accounts: 8574,
+    high_risk_accounts: 108,
+    critical_risk_accounts: 46,
+    total_active_alerts: 66,
+    confirmed_mule_accounts: 0,
+  },
+  dataset_overview: {
+    total_transactions: 185040,
+    unique_accounts: 15420,
+    unique_senders: 9252,
+    unique_receivers: 7710,
+    date_time_range: 'Step 1 to Step 743 (PaySim Horizon)',
+    suspicious_mule_accounts: 154,
+    legitimate_accounts: 15266,
+    class_distribution: { legitimate: 15266, mule: 154, mule_pct: 1.0 },
+  },
   trend_data: Array.from({ length: 14 }, (_, i) => ({
     date: new Date(Date.now() - (13 - i) * 86400000).toISOString().split('T')[0],
     alerts: Math.floor(3 + Math.random() * 12),
