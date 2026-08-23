@@ -83,10 +83,10 @@ export default function UploadPage() {
       const previewRes = await previewDataset(formData, (percent) => setUploadProgress(percent));
       setPreviewData(previewRes);
 
-      // Initialize mapping dictionary
-      const initialMap = {};
+      // Initialize mapping dictionary with mapped_dict and mapped column targets
+      const initialMap = { ...(previewRes.mapped_dict || {}) };
       (previewRes.columns || []).forEach((col) => {
-        if (col.target && col.confidence >= 0.70) {
+        if (col.target) {
           initialMap[col.source] = col.target;
         }
       });

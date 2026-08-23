@@ -328,10 +328,18 @@ def score_accounts(
     else:
         raise TypeError(f"Unsupported model type: {model_type}")
 
-    # Compute signal 2: Anomaly Score (0.0 to 1.0)
-    amount_z = feature_df["amount_zscore_avg"] if "amount_zscore_avg" in feature_df.columns else 0.0
-    odd_hour = feature_df["odd_hour_txn_ratio"] if "odd_hour_txn_ratio" in feature_df.columns else 0.0
-    anomaly_raw = np.clip((amount_z / 4.0 + odd_hour) / 2.0, 0.0, 1.0)
+    # Compute signal 2: Anomaly Score (0.0 to 1.0) using IsolationForest
+    try:
+        from sklearn.ensemble import IsolationForest
+        iso = IsolationForest(n_estimators=50, random_state=42)
+        raw_anom = iso.fit(X).score_samples(X.values if hasattr(X, "values") else X)
+        span = raw_anom.max() - raw_anom.min()
+        anomaly_raw = np.clip(1.0 - (raw_anom - raw_anom.min()) / (span + 1e-9), 0.0, 1.0)
+    except Exception as _exc:
+        logger.warning("IsolationForest scoring fallback: %s", _exc)
+        amount_z = feature_df["amount_zscore_avg"] if "amount_zscore_avg" in feature_df.columns else 0.0
+        odd_hour = feature_df["odd_hour_txn_ratio"] if "odd_hour_txn_ratio" in feature_df.columns else 0.0
+        anomaly_raw = np.clip((amount_z / 4.0 + odd_hour) / 2.0, 0.0, 1.0)
 
     # Compute signal 3: Network Risk Score (0.0 to 100.0)
     between = feature_df["betweenness_centrality"] if "betweenness_centrality" in feature_df.columns else 0.0

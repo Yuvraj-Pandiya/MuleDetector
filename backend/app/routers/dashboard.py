@@ -111,7 +111,7 @@ def get_dashboard_summary() -> dict[str, Any]:
 
     total_accounts = len(scored)
     flagged_count = int((scored["risk_score"] >= TIER_HIGH_THRESHOLD).sum())
-    avg_score = round(float(scored["risk_score"].mean()), 1)
+    avg_score = round(float(np.clip(scored["risk_score"].mean(), 0.0, 100.0)), 1)
 
     low_cnt = int((scored["risk_tier"] == "Low").sum())
     med_cnt = int((scored["risk_tier"] == "Medium").sum())

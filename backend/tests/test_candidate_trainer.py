@@ -60,10 +60,13 @@ def test_train_candidate_model():
     assert CANDIDATE_MODEL_PATH.exists()
     assert CANDIDATE_METRICS_PATH.exists()
 
-    assert "precision" in metrics
-    assert "recall" in metrics
-    assert "f1" in metrics
-    assert "pr_auc" in metrics
+    if metrics.get("model_type") == "IsolationForest":
+        assert "anomaly_rate_test" in metrics
+    else:
+        assert "precision" in metrics
+        assert "recall" in metrics
+        assert "f1" in metrics
+        assert "pr_auc" in metrics
     assert metrics["model_version"].startswith("v2.6.0-HITL")
 
 

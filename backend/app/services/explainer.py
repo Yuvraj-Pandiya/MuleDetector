@@ -430,33 +430,6 @@ def explain_account(account_id: str, feature_df: pd.DataFrame) -> Dict[str, Any]
     fan_in = float(row_df.get("fan_in_ratio", 1.2))
     fan_out = float(row_df.get("fan_out_ratio", 4.8))
 
-    # Build real connected suspicious accounts from actual transactions
-    real_suspicious_counterparties: List[str] = []
-    if risk_score > 60 and raw_txns:
-        # raw_txns is populated below from transactions.csv — use scored results for suspicion
-        counterparty_ids = [
-            t.get("counterparty") for t in raw_txns
-            if t.get("counterparty") and t.get("counterparty") != account_id
-        ]
-        # Deduplicate and take top 4
-        seen: set = set()
-        for cp in counterparty_ids:
-            if cp not in seen:
-                real_suspicious_counterparties.append(cp)
-                seen.add(cp)
-            if len(real_suspicious_counterparties) >= 4:
-                break
-
-    network = {
-        "incoming_connections": in_deg,
-        "outgoing_connections": out_deg,
-        "fan_in": round(fan_in, 2),
-        "fan_out": round(fan_out, 2),
-        # betweenness_centrality_score — renamed from "pagerank" (different graph metric)
-        "betweenness_centrality_score": round(betweenness, 4),
-        "connected_counterparties": real_suspicious_counterparties,
-    }
-
     # ---------------------------------------------------------------------------
     # Load raw transactions FIRST — needed by network (counterparties) and timeline
     # ---------------------------------------------------------------------------
@@ -477,38 +450,42 @@ def explain_account(account_id: str, feature_df: pd.DataFrame) -> Dict[str, Any]
                     tx_type = str(r.get("transaction_type", "TRANSFER")).upper()
                     ts = r.get("timestamp")
                     ts_str = ts.isoformat() if hasattr(ts, "isoformat") else str(ts)
-
-                    is_rapid = bool(float(row_df.get("avg_time_to_forward_funds_minutes", 24.5)) < 15.0 and is_outgoing)
-                    is_abnormal = bool(amount_val > (avg_amt * 2.2))
-                    is_velocity = bool((i < 4) and (row_df.get("txn_count_1h", 0) > 3))
-
-                    indicator_labels = []
-                    if is_rapid:
-                        indicator_labels.append("Rapid Fund Forwarding (<15m)")
-                    if is_abnormal:
-                        indicator_labels.append(f"Abnormal Amount ({amount_val / max(avg_amt, 1.0):.1f}x avg)")
-                    if is_velocity:
-                        indicator_labels.append("High Velocity Window Spike")
-
                     raw_txns.append(
                         {
-                            "transaction_id": str(r.get("transaction_id", f"TXN-{account_id}-{i+101}")),
+                            "id": str(r.get("transaction_id", f"TXN-{account_id}-{i+1:03d}")),
                             "timestamp": ts_str,
+                            "amount": amount_val,
+                            "type": tx_type,
                             "direction": direction,
                             "counterparty": counterparty,
-                            "amount": round(amount_val, 2),
-                            "transaction_type": tx_type,
-                            "running_activity_context": f"Activity #{i+1} in audit window • Position: Cumulative {direction.title()} ${amount_val:,.2f}",
-                            "contextual_indicators": {
-                                "rapid_forwarding": bool(is_rapid),
-                                "abnormal_amount": bool(is_abnormal),
-                                "velocity_spike": bool(is_velocity),
-                                "indicator_labels": indicator_labels,
-                            },
                         }
                     )
         except Exception as exc:
-            logger.warning("Could not slice raw transactions for %s: %s", account_id, exc)
+            logger.warning("Could not load raw txns for timeline: %s", exc)
+
+    # Build real connected suspicious accounts from actual transactions
+    real_suspicious_counterparties: List[str] = []
+    if risk_score > 60 and raw_txns:
+        counterparty_ids = [
+            t.get("counterparty") for t in raw_txns
+            if t.get("counterparty") and t.get("counterparty") != account_id
+        ]
+        seen: set = set()
+        for cp in counterparty_ids:
+            if cp not in seen:
+                real_suspicious_counterparties.append(cp)
+                seen.add(cp)
+            if len(real_suspicious_counterparties) >= 4:
+                break
+
+    network = {
+        "incoming_connections": in_deg,
+        "outgoing_connections": out_deg,
+        "fan_in": round(fan_in, 2),
+        "fan_out": round(fan_out, 2),
+        "betweenness_centrality_score": round(betweenness, 4),
+        "connected_counterparties": real_suspicious_counterparties,
+    }
 
     model_explanation = {
         "top_shap_features": top_shap,

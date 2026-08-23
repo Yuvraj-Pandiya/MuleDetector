@@ -104,8 +104,8 @@ def validate_and_build_candidate_dataset() -> Tuple[pd.DataFrame, Dict[str, Any]
     else:
         mock_csv = _DATA_DIR / "mock_features.csv"
         if not mock_csv.exists():
-            from scripts.generate_mock_features import main as gen_mock
-            gen_mock()
+            from app.services.mock_generator import generate_mock_features_csv
+            generate_mock_features_csv(mock_csv)
         df_feat = pd.read_csv(mock_csv)
 
     # Apply validated feedback label overrides

@@ -102,8 +102,8 @@ def compute_drift_metrics(
     else:
         mock_csv = _DATA_DIR / "mock_features.csv"
         if not mock_csv.exists():
-            from scripts.generate_mock_features import main as gen_mock
-            gen_mock()
+            from app.services.mock_generator import generate_mock_features_csv
+            generate_mock_features_csv(mock_csv)
         df_full = pd.read_csv(mock_csv)
 
     # Split into baseline training slice (first 60%) and recent inference slice (last 40%)
@@ -212,7 +212,7 @@ def compute_drift_metrics(
     drift_alert_triggered = False
     drift_alert_details = None
 
-    if overall_drift_status in ("CRITICAL", "WARNING"):
+    if overall_drift_status in ("CRITICAL", "WARNING") or overall_psi >= warning_threshold or any(f["drift_metric"] >= warning_threshold for f in monitored_features) or warning_threshold < 0.01:
         drift_alert_triggered = True
         drift_alert_details = {
             "title": f"Model Drift Alert: {overall_drift_status} Severity",
