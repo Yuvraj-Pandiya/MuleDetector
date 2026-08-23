@@ -8,6 +8,14 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
+// Auto-remove Content-Type for FormData so browser sets multipart boundary correctly
+api.interceptors.request.use((config) => {
+  if (config.data instanceof FormData) {
+    delete config.headers['Content-Type'];
+  }
+  return config;
+});
+
 // ── Mock Mode Toggle ──────────────────────────────────────────────
 const MOCK = false;
 
@@ -158,7 +166,7 @@ export async function previewDataset(formData, onProgress) {
     };
   }
   const { data } = await api.post('/upload-dataset/preview', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
+    // Do NOT set Content-Type manually — axios auto-sets 'multipart/form-data; boundary=...' for FormData
     timeout: 600000, // 10 minutes timeout for large CSV uploads up to 500MB
     onUploadProgress: (progressEvent) => {
       if (onProgress && progressEvent.total) {
@@ -196,7 +204,7 @@ export async function uploadDataset(formData, onProgress) {
     };
   }
   const { data } = await api.post('/upload-dataset', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
+    // Do NOT set Content-Type manually — axios auto-sets 'multipart/form-data; boundary=...' for FormData
     timeout: 600000, // 10 minutes timeout
     onUploadProgress: (progressEvent) => {
       if (onProgress && progressEvent.total) {
